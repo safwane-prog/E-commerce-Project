@@ -1,15 +1,237 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Arimo:ital,wght@0,400..700;1,400..700&family=Changa:wght@200..800&family=El+Messiri:wght@400..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/config.css' %}">
     <title>{% block title %}{% endblock %}</title>
 </head>
 <body>
-    <h1>safwane</h1>
+    <div class="header-contener">
+        <header>
+            <div class="logo-head">
+                <span onclick="showphoneModat()" style="display: none;" class="opne-phone-modal"><img src="\static\imges\icon\Style=Solid, Type=Rounded.svg" alt=""></span>
+                <img  src="\static\imges\icon\Brand-logo.svg" alt="">
+            </div>
+            <div class="searsh-head">
+                <div class="searsh-section">
+                    <input type="text" name="" id="" placeholder="Find product">
+                    <select name="" id="">
+                        <option value="1">All category</option>
+                        <option value="1">All category</option>
+                        <option value="1">All category</option>
+                        <option value="1">All category</option>
+                    </select>
+                    <button>Search</button>
+                </div>
+            </div>
+            <div class="play-icon-list">
+                <div class="order-icon-head order-icon-head22">
+                    <img src="\static\imges\icon\delivery-box-02.svg" alt="">
+                    <span>Orders</span>
+                </div>
+                <div class="order-icon-head order-icon-head22">
+                    <img src="\static\imges\icon\favourite.svg" alt="">
+                    <span>Saved</span>
+                </div>
+                <div class="order-icon-head ">
+                    <img src="\static\imges\icon\shopping-basket-01.svg" alt="">
+                    <span>My cart</span>
+                </div>
+                <div class="order-icon-head">
+                    <img src="\static\imges\icon\user.svg" alt="">
+                    <span>Sign in</span>
+                </div>
+            </div>
+        </header>
+    </div>
+    <div class="header-contener-pages-links">
+        <div class="header-contener-pages-links-main">
+            <div class="head-2-pages-list">
+                <div class="page-name All-category-name">
+                    <span> <img src="\static\imges\icon\menu-01.svg" alt=""></span>
+                    <span>All category</span>
+                </div>
+                <div class="page-name">Hot offers</div>
+                <div class="page-name">Services</div>
+                <div class="page-name">Bestsellers</div>
+                <div class="page-name">Gift boxes</div>
+            </div>
+            <div class="site-controul">
+                <select name="" id="">
+                    <option value="1">Germany</option>
+                </select>
+                <select name="" id="">
+                    <option value="1">EUR</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div  onclick="handlphonetap()" id="phone-modal-grye" class="phone-modal-grye"></div>
+    <div id="phone-modal" class="phone-modal">
+        <div class="phone-head-section">
+            <div class="phone-logo">
+                <img src="\static\imges\icon\Brand-logo.svg" alt="">
+            </div>
+            <div id="phone-close-btn" class="phone-close-btn">
+                <span onclick="handlphonetap()"><img src="\static\imges\icon\Style=Solid, Type=Rounded (1).svg" alt=""></span>
+            </div>
+        </div>
+        <div class="phone-tap-serash-section">
+            <div class="phonesearsh-section">
+                <input type="text" name="" id="" placeholder="Find product">
+                <button>Search</button>
+            </div>
+        </div>
+        <div class="phone-taps">
+            <div class="phone-tap-pages phone-tap-active" onclick="showSection('pages')">Pages</div>
+            <div class="phone-tap-pages" onclick="showSection('categories')">All category</div>
+        </div>
 
+        <!-- Pages Section -->
+
+        
+
+        <div class="phone-tap-section phone-tap-pages-section active">
+            <div class="phone-tap-section-pages-name">
+                <span>Home Page</span>
+                <span><i class="fas fa-home"></i></span>
+            </div>
+            <div class="phone-tap-section-pages-name page-active">
+                <span>Contact Page</span>
+                <span><i class="fas fa-envelope"></i></span>
+            </div>
+            <div class="phone-tap-section-pages-name">
+                <span>Shop Page</span>
+                <span><i class="fas fa-store"></i></span>
+            </div>
+            <div class="phone-tap-section-pages-name">
+                <span>About Page</span>
+                <span><i class="fas fa-info-circle"></i></span>
+            </div>
+            <div class="phone-tap-section-pages-name">
+                <span>Profile</span>
+                <span><i class="fas fa-user"></i></span>
+            </div>
+            <div class="phone-tap-section-pages-name Logout">
+                <span>Logout</span>
+                <span><i class="fas fa-sign-out-alt"></i></span>
+            </div>
+        </div>
+
+        <!-- Categories Section -->
+        <div class="phone-tap-section phone-tap-all-category-section">
+            <div class="phone-tap-section-pages-name">
+                <span>Men's Fashion</span>
+                <span><i class="fas fa-tshirt"></i></span>
+            </div>
+            <div class="phone-tap-section-pages-name">
+                <span>Women's Fashion</span>
+                <span><i class="fas fa-female"></i></span>
+            </div>
+            <div class="phone-tap-section-pages-name">
+                <span>Electronics</span>
+                <span><i class="fas fa-plug"></i></span>
+            </div>
+            <div class="phone-tap-section-pages-name">
+                <span>Home & Furniture</span>
+                <span><i class="fas fa-couch"></i></span>
+            </div>
+            <div class="phone-tap-section-pages-name">
+                <span>Beauty & Care</span>
+                <span><i class="fas fa-spa"></i></span>
+            </div>
+            <div class="phone-tap-section-pages-name">
+                <span>Sports</span>
+                <span><i class="fas fa-dumbbell"></i></span>
+            </div>
+        </div>
+    </div>
+    
     {% block content %}
     {% endblock %}
+    <div class="footer-content">
+        <footer>
+        <div class="footer-section-one">
+            <div class="fout-pages">
+                <h1>
+                    <img src="\static\imges\icon\Brand-logo.svg" alt="">
+                </h1>
+                <p> Contact us Contact us Contact us vv Contact us Contact us v</p>
+                <h3>Follow us</h3>
+                <div class="Follow-us-section">
+                    <a href=""><img src="\static\imges\icon\Icons-app.svg" alt=""></a>
+                    <a href=""><img src="\static\imges\icon\Icons-app (3).svg" alt=""></a>
+                    <a href=""><img src="\static\imges\icon\Icons-app (2).svg" alt=""></a>
+                    <a href=""><img src="\static\imges\icon\Icons-app (1).svg" alt=""></a>
+                </div>
+            </div>
+            <div class="fout-pages">
+                <h1>Help</h1>
+                <a href="">Contact us</a>
+                <a href="">Live chat</a>
+                <a href="">Refund</a>
+                <a href="">Track order</a>
+            </div>
+            <div class="fout-pages">
+                <h1>Language</h1>
+                <a href="">Español</a>
+                <a href="">Português</a>
+                <a href="">Deutsch</a>
+                <a href="">日本語</a>
+            </div>
+            <div class="fout-pages">
+                <h1>Language</h1>
+                <a href="">Safe purchase</a>
+                <a href="">Refund</a>
+                <a href="">Logistics service</a>
+                <a href="">Trade Resources</a>
+            </div>
+            <div class="fout-pages">
+                <h1>Language</h1>
+                <a href="">Safe purchase</a>
+                <a href="">Refund</a>
+                <a href="">Logistics service</a>
+                <a href="">Trade Resources</a>
+            </div>
+        </div>
+        <div class="hr"></div>
+        <!-- <div class="footer-section-tow">
+            <div class="google-play-card">
+                <img src="\static\imges\icon\Group.svg" alt="">
+                <img src="\static\imges\icon\Group (1).svg" alt="">
+            </div>
+            <div class="Follow-us-section">
+                <h2>Follow us</h2>
+                <a href=""><img src="\static\imges\icon\Icons-app.svg" alt=""></a>
+                <a href=""><img src="\static\imges\icon\Icons-app (3).svg" alt=""></a>
+                <a href=""><img src="\static\imges\icon\Icons-app (2).svg" alt=""></a>
+                <a href=""><img src="\static\imges\icon\Icons-app (1).svg" alt=""></a>
+            </div>
+        </div> -->
+        <div class="footer-section-bottom">
+            <div class="footer-bottom-text">
+                Copyright © 1995-2025 Company Inc. All Rights Reserved
+            </div>
+            <div class="footer-bottom-links">
+                <a href="">Terms of service</a>
+                <a href="">Privacy policy</a>
+            </div>
+        </div>
+        
+    </footer>
+    </div>
 
+    <script src="\static\js\base.js"></script>
 </body>
 </html>
