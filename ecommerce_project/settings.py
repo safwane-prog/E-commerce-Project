@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     # Libraries
     'rest_framework',
     "corsheaders",
+    "django_browser_reload",
     # Apps
     'website',
 ]

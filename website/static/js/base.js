@@ -1,5 +1,8 @@
 
 
+
+
+
 function handlphonetap(){
     const phone_grye=  document.getElementById('phone-modal-grye')
     const phonemodal=  document.getElementById('phone-modal')
@@ -36,3 +39,4 @@ function showSection(type) {
         document.querySelector('.phone-tap-all-category-section').classList.add('active');
     }
 }
+

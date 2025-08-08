@@ -17,6 +17,8 @@
     <title>{% block title %}{% endblock %}</title>
 </head>
 <body>
+    {% load django_browser_reload %}
+    {% django_browser_reload_script %}
     <div class="header-contener">
         <header>
             <div class="logo-head">
@@ -232,6 +234,6 @@
     </footer>
     </div>
 
-    <script src="\static\js\base.js"></script>
+    <script src="{% static 'js/base.js' %}"></script>
 </body>
 </html>
