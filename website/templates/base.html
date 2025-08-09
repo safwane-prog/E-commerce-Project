@@ -17,8 +17,6 @@
     <title>{% block title %}{% endblock %}</title>
 </head>
 <body>
-    {% load django_browser_reload %}
-    {% django_browser_reload_script %}
     <div class="header-contener">
         <header>
             <div class="logo-head">
@@ -27,14 +25,14 @@
             </div>
             <div class="searsh-head">
                 <div class="searsh-section">
-                    <input type="text" name="" id="" placeholder="Find product">
-                    <select name="" id="">
+                    <input type="text" name="" id="searsh-head-inpur" placeholder="Find product">
+                    <select  name="" id="select-header">
                         <option value="1">All category</option>
-                        <option value="1">All category</option>
-                        <option value="1">All category</option>
-                        <option value="1">All category</option>
+                        <option value="2">All category</option>
+                        <option value="3">All category</option>
+                        <option value="4">All category</option>
                     </select>
-                    <button>Search</button>
+                    <button onclick="saarchfunstion(document.getElementById('searsh-head-inpur').value,document.getElementById('select-header').value)">Search</button>
                 </div>
             </div>
             <div class="play-icon-list">
@@ -230,7 +228,6 @@
                 <a href="">Privacy policy</a>
             </div>
         </div>
-        
     </footer>
     </div>
 

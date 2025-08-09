@@ -1,6 +1,9 @@
 
 
 
+function saarchfunstion(value,categorie){
+    window.location.href = `/shop/?${value}&${categorie}`
+}
 
 
 function handlphonetap(){
