@@ -1,0 +1,449 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Electronics & Gadgets{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/shop.css' %}">
+
+<div class="all-category">
+    <h1>Electronics & Gadgets</h1>
+    <div class="category-grid">
+        <div class="category-item">
+            <div class="category-img">
+                <img src="{% static 'imges/icon/img.svg' %}" alt="Phone icon">
+            </div>
+            <div class="category-name">
+                Phone
+            </div>
+        </div>
+        <div class="category-item">
+            <div class="category-img">
+                <img src="{% static 'imges/icon/img.svg' %}" alt="Phone icon">
+            </div>
+            <div class="category-name">
+                Phone
+            </div>
+        </div>
+        <div class="category-item">
+            <div class="category-img">
+                <img src="{% static 'imges/icon/img.svg' %}" alt="Phone icon">
+            </div>
+            <div class="category-name">
+                Phone
+            </div>
+        </div>
+        <div class="category-item">
+            <div class="category-img">
+                <img src="{% static 'imges/icon/img.svg' %}" alt="Phone icon">
+            </div>
+            <div class="category-name">
+                Phone
+            </div>
+        </div>
+        <div class="category-item">
+            <div class="category-img">
+                <img src="{% static 'imges/icon/domino-studio-164_6wVEHfI-unsplash.jpg' %}" alt="Phone icon">
+            </div>
+            <div class="category-name">
+                Phone
+            </div>
+        </div>
+        <div class="category-item">
+            <div class="category-img">
+                <img src="{% static 'imges/icon/img.svg' %}" alt="Phone icon">
+            </div>
+            <div class="category-name">
+                Phone
+            </div>
+        </div>
+        <div class="category-item">
+            <div class="category-img">
+                <img src="{% static 'imges/icon/img.svg' %}" alt="Phone icon">
+            </div>
+            <div class="category-name">
+                Phone
+            </div>
+        </div>
+        <div class="category-item">
+            <div class="category-img">
+                <img src="{% static 'imges/icon/img.svg' %}" alt="Phone icon">
+            </div>
+            <div class="category-name">
+                Phone
+            </div>
+        </div>
+        <div class="category-item">
+            <div class="category-img">
+                <img src="{% static 'imges/icon/img.svg' %}" alt="Phone icon">
+            </div>
+            <div class="category-name">
+                Phone
+            </div>
+        </div>
+    </div>
+</div>
+<div class="product-container">
+    <div class="filter-section">
+        <div class="filter-title">
+            <div>Filter</div>
+            <div><img src="{% static 'imges/Frame.svg' %}" alt="Filter icon"></div>
+        </div>
+        <div class="filter-group">
+            <div class="filter-body">
+                <div class="filter-item">
+                    <label for="Safwane">Safwane</label>
+                    <input type="checkbox" name="" id="Safwane">
+                </div>
+                <div class="filter-item">
+                    <label for="Safwane">Safwane</label>
+                    <input type="checkbox" name="" id="Safwane">
+                </div>
+                <div class="filter-item">
+                    <label for="Safwane">Safwane</label>
+                    <input type="checkbox" name="" id="Safwane">
+                </div>
+                <div class="filter-item">
+                    <label for="Safwane">Safwane</label>
+                    <input type="checkbox" name="" id="Safwane">
+                </div>
+            </div>
+        </div>
+        <div class="price-filter">
+            <div class="price-title">
+                <div class="price">Price</div>
+                <div class="price-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-chevron-up" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M1.646 10.854a.5.5 0 0 0 .708 0L8 5.207l5.646 5.647a.5.5 0 0 0 .708-.708l-6-6a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 0 .708z" />
+                    </svg>
+                </div>
+            </div>
+
+            <div class="price-body">
+                <div class="price-range-container">
+                    <div id="main-price-black-range">
+                        <div class="price-range">
+                            <div class="range-fill"></div>
+                            <div id="price-range-left" class="handle"></div>
+                            <div id="price-range-right" class="handle"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="price-values">
+                    <div class="price-values-input">
+                        <span>From</span>
+                        <input type="number" id="min-price" value="0" min="0" max="1000">
+                    </div>
+                    <div class="price-values-input">
+                        <span>To</span>
+                        <input type="number" id="max-price" value="1000" min="0" max="1000">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="option-filter-section">
+            <div class="option-filter-head">
+                <span>Option Option</span>
+                <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-up" viewBox="0 0 16 16" stroke="black" stroke-width="1">
+                        <path fill-rule="evenodd" d="M1.646 10.854a.5.5 0 0 0 .708 0L8 5.207l5.646 5.647a.5.5 0 0 0 .708-.708l-6-6a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 0 .708z"/>
+                    </svg>
+                </span>
+            </div>
+            <div class="option-filter-body">
+                <div class="option-filter-body-input">
+                    <input type="checkbox" id="item1" name="item1">
+                    <label for="item1">Item 1</label>
+                </div>
+                <div class="option-filter-body-input">
+                    <input type="checkbox" id="item2" name="item2">
+                    <label for="item2">Item 1</label>
+                </div>
+                <div class="option-filter-body-input">
+                    <input type="checkbox" id="item3" name="item3">
+                    <label for="item3">Item 1</label>
+                </div>
+                <div class="option-filter-body-input">
+                    <input type="checkbox" id="item4" name="item4">
+                    <label for="item4">Item 1</label>
+                </div>
+            </div>
+        </div>
+        <div class="filter-buttons">
+            <button>Apply</button>
+            <button>Reset</button>
+        </div>
+    </div>
+    <div class="all-products-section">
+        <div class="product-section">
+            <div class="product-box">
+                <div class="shop-img">
+                    <img src="{% static 'imges/icon/domino-studio-164_6wVEHfI-unsplash.jpg' %}" alt="Product image">
+                </div>
+                <div class="shop-wishlist">
+                    <i class="bi bi-heart"></i>
+                </div>
+                <div class="shop-name">
+                    Magic The Gathering Final Fantasy Collector Boost
+                </div>
+                <div class="shop-rating">
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <span>4.5</span>
+                </div>
+                <div class="price-shop">
+                    <span class="products-main-price">$100</span>
+                    <span class="products-old-price">$100</span>
+                    <span class="products-discount">-10%</span>
+                </div>
+                <div class="shop-buttons">
+                    <button>Add To Cart <span><img src="{% static 'imges/icon/Style=Stroke, Type=Rounded (2).svg' %}" alt="Cart icon"></span></button>
+                </div>
+            </div>
+            <!-- Repeated product boxes omitted for brevity; use a loop in real implementation -->
+            <div class="product-box">
+                <div class="shop-img">
+                    <img src="{% static 'imges/icon/domino-studio-164_6wVEHfI-unsplash.jpg' %}" alt="Product image">
+                </div>
+                <div class="shop-wishlist">
+                    <i class="bi bi-heart"></i>
+                </div>
+                <div class="shop-name">
+                    Magic The Gathering Final Fantasy Collector Boost
+                </div>
+                <div class="shop-rating">
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <span>4.5</span>
+                </div>
+                <div class="price-shop">
+                    <span class="products-main-price">$100</span>
+                    <span class="products-old-price">$100</span>
+                    <span class="products-discount">-10%</span>
+                </div>
+                <div class="shop-buttons">
+                    <button>Add To Cart <span><img src="{% static 'imges/icon/Style=Stroke, Type=Rounded (2).svg' %}" alt="Cart icon"></span></button>
+                </div>
+            </div>
+            <div class="product-box">
+                <div class="shop-img">
+                    <img src="{% static 'imges/icon/domino-studio-164_6wVEHfI-unsplash.jpg' %}" alt="Product image">
+                </div>
+                <div class="shop-wishlist">
+                    <i class="bi bi-heart"></i>
+                </div>
+                <div class="shop-name">
+                    Magic The Gathering Final Fantasy Collector Boost
+                </div>
+                <div class="shop-rating">
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <span>4.5</span>
+                </div>
+                <div class="price-shop">
+                    <span class="products-main-price">$100</span>
+                    <span class="products-old-price">$100</span>
+                    <span class="products-discount">-10%</span>
+                </div>
+                <div class="shop-buttons">
+                    <button>Add To Cart <span><img src="{% static 'imges/icon/Style=Stroke, Type=Rounded (2).svg' %}" alt="Cart icon"></span></button>
+                </div>
+            </div>
+            <div class="product-box">
+                <div class="shop-img">
+                    <img src="{% static 'imges/icon/domino-studio-164_6wVEHfI-unsplash.jpg' %}" alt="Product image">
+                </div>
+                <div class="shop-wishlist">
+                    <i class="bi bi-heart"></i>
+                </div>
+                <div class="shop-name">
+                    Magic The Gathering Final Fantasy Collector Boost
+                </div>
+                <div class="shop-rating">
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <span>4.5</span>
+                </div>
+                <div class="price-shop">
+                    <span class="products-main-price">$100</span>
+                    <span class="products-old-price">$100</span>
+                    <span class="products-discount">-10%</span>
+                </div>
+                <div class="shop-buttons">
+                    <button>Add To Cart <span><img src="{% static 'imges/icon/Style=Stroke, Type=Rounded (2).svg' %}" alt="Cart icon"></span></button>
+                </div>
+            </div>
+            <div class="product-box">
+                <div class="shop-img">
+                    <img src="{% static 'imges/icon/domino-studio-164_6wVEHfI-unsplash.jpg' %}" alt="Product image">
+                </div>
+                <div class="shop-wishlist">
+                    <i class="bi bi-heart"></i>
+                </div>
+                <div class="shop-name">
+                    Magic The Gathering Final Fantasy Collector Boost
+                </div>
+                <div class="shop-rating">
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <span>4.5</span>
+                </div>
+                <div class="price-shop">
+                    <span class="products-main-price">$100</span>
+                    <span class="products-old-price">$100</span>
+                    <span class="products-discount">-10%</span>
+                </div>
+                <div class="shop-buttons">
+                    <button>Add To Cart <span><img src="{% static 'imges/icon/Style=Stroke, Type=Rounded (2).svg' %}" alt="Cart icon"></span></button>
+                </div>
+            </div>
+            <div class="product-box">
+                <div class="shop-img">
+                    <img src="{% static 'imges/icon/domino-studio-164_6wVEHfI-unsplash.jpg' %}" alt="Product image">
+                </div>
+                <div class="shop-wishlist">
+                    <i class="bi bi-heart"></i>
+                </div>
+                <div class="shop-name">
+                    Magic The Gathering Final Fantasy Collector Boost
+                </div>
+                <div class="shop-rating">
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <span>4.5</span>
+                </div>
+                <div class="price-shop">
+                    <span class="products-main-price">$100</span>
+                    <span class="products-old-price">$100</span>
+                    <span class="products-discount">-10%</span>
+                </div>
+                <div class="shop-buttons">
+                    <button>Add To Cart <span><img src="{% static 'imges/icon/Style=Stroke, Type=Rounded (2).svg' %}" alt="Cart icon"></span></button>
+                </div>
+            </div>
+            <div class="product-box">
+                <div class="shop-img">
+                    <img src="{% static 'imges/icon/domino-studio-164_6wVEHfI-unsplash.jpg' %}" alt="Product image">
+                </div>
+                <div class="shop-wishlist">
+                    <i class="bi bi-heart"></i>
+                </div>
+                <div class="shop-name">
+                    Magic The Gathering Final Fantasy Collector Boost
+                </div>
+                <div class="shop-rating">
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <span>4.5</span>
+                </div>
+                <div class="price-shop">
+                    <span class="products-main-price">$100</span>
+                    <span class="products-old-price">$100</span>
+                    <span class="products-discount">-10%</span>
+                </div>
+                <div class="shop-buttons">
+                    <button>Add To Cart <span><img src="{% static 'imges/icon/Style=Stroke, Type=Rounded (2).svg' %}" alt="Cart icon"></span></button>
+                </div>
+            </div>
+            <div class="product-box">
+                <div class="shop-img">
+                    <img src="{% static 'imges/icon/domino-studio-164_6wVEHfI-unsplash.jpg' %}" alt="Product image">
+                </div>
+                <div class="shop-wishlist">
+                    <i class="bi bi-heart"></i>
+                </div>
+                <div class="shop-name">
+                    Magic The Gathering Final Fantasy Collector Boost
+                </div>
+                <div class="shop-rating">
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <span>4.5</span>
+                </div>
+                <div class="price-shop">
+                    <span class="products-main-price">$100</span>
+                    <span class="products-old-price">$100</span>
+                    <span class="products-discount">-10%</span>
+                </div>
+                <div class="shop-buttons">
+                    <button>Add To Cart <span><img src="{% static 'imges/icon/Style=Stroke, Type=Rounded (2).svg' %}" alt="Cart icon"></span></button>
+                </div>
+            </div>
+            <div class="product-box">
+                <div class="shop-img">
+                    <img src="{% static 'imges/icon/domino-studio-164_6wVEHfI-unsplash.jpg' %}" alt="Product image">
+                </div>
+                <div class="shop-wishlist">
+                    <i class="bi bi-heart"></i>
+                </div>
+                <div class="shop-name">
+                    Magic The Gathering Final Fantasy Collector Boost
+                </div>
+                <div class="shop-rating">
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <span>4.5</span>
+                </div>
+                <div class="price-shop">
+                    <span class="products-main-price">$100</span>
+                    <span class="products-old-price">$100</span>
+                    <span class="products-discount">-10%</span>
+                </div>
+                <div class="shop-buttons">
+                    <button>Add To Cart <span><img src="{% static 'imges/icon/Style=Stroke, Type=Rounded (2).svg' %}" alt="Cart icon"></span></button>
+                </div>
+            </div>
+        </div>
+        <div class="pagiation-section">
+            <div class="pagition-btn">
+                <button>
+                    <span>Previous</span>
+                    <span><i class="bi bi-arrow-left-short"></i></span>
+                </button>
+            </div>
+            <div class="pagition-button">
+                <button class="active">1</button>
+                <button>1</button>
+                <button>1</button>
+            </div>
+            <div class="pagition-btn">
+                <button>
+                    <span><i class="bi bi-arrow-right-short"></i></span>
+                    <span>Next</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{% static 'js/shop.js' %}"></script>
+{% endblock %}
