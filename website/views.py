@@ -13,3 +13,7 @@ def Product_Details(request,pk):
 # Shop
 def Shop(request):
     return render(request,'shop.html')
+
+# contact
+def Contact(request):
+    return render(request,'contact.html')
