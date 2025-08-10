@@ -10,10 +10,8 @@ class Order(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     is_completed = models.BooleanField(default=False)
-    # بيانات العميل مثل الاسم، العنوان، الهاتف، البريد، الخ
     customer_name = models.CharField(max_length=200)
     customer_address = models.TextField()
-    # المزيد من الحقول حسب الحاجة
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
@@ -45,5 +43,13 @@ class SupplierInquiry(models.Model):
         return f"Inquiry for {self.item} - Qty: {self.quantity}"
     
 
+class wishlist(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
+class wishlistItem(models.Model):
+    wishlist = models.ForeignKey(wishlist, on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    
+    
 

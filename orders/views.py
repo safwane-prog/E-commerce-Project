@@ -2,8 +2,37 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework import permissions
 from .models import *
 from .serializers import *
+
+
+class Add_To_Cart(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        cart, created = Cart.objects.get_or_create(user=user)  # فك الـ tuple
+
+        product_id = request.data.get('product_id')
+        if not product_id:
+            return Response({"message": "Product ID is required"}, status=400)
+
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            return Response({"message": "Product not found"}, status=404)
+
+        # إضافة العنصر للسلة
+        CartItem.objects.create(
+            cart=cart,
+            product=product,
+            quantity=1
+        )
+
+        return Response({"message": "Product added successfully"})
+
+
 
 
 class SupplierinquiryView(APIView):

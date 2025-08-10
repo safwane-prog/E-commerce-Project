@@ -67,7 +67,7 @@
         <div class="product-offers-card">
             <div class="product-offers-card-image">
                 {% if product.image_1 %}
-                    <img src="{{ product.image_1.url }}" alt="{{ product.name }}">
+                    <img onclick="AddToCart('{{product.id}}')" src="{{ product.image_1.url }}" alt="{{ product.name }}">
                 {% else %}
                     <img src="{% static 'imges/istockphoto-1147544807-612x612.jpg' %}" alt="Product">
                 {% endif %}
