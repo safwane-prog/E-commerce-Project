@@ -2,6 +2,9 @@ from pathlib import Path
 import os
 from datetime import timedelta
 
+CURRENCY_SYMBOL = "MAD"  # أو "$"
+MINE_DOMINE = "http://127.0.0.1:8000/"
+MINE_COUNTRIES = "Morocco"
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -33,6 +36,7 @@ INSTALLED_APPS = [
     'djoser',
     # إذا كنت تستخدم JWT:
     'rest_framework_simplejwt',
+    'rest_framework.authtoken',
     "corsheaders",
     # Apps
     'website',
@@ -41,12 +45,7 @@ INSTALLED_APPS = [
     'users',
 ]
 
-
-DJOSER = {
-    'SERIALIZERS': {
-        'user_create': 'users.serializers.CustomUserCreateSerializer',
-    }
-}
+AUTH_USER_MODEL = 'users.CustomUser'
 
 
 MIDDLEWARE = [
@@ -73,6 +72,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'website.context_processors.base_vars',
+                'website.context_processors.store_settings',
             ],
         },
     },
@@ -149,15 +150,39 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ]
+        'users.authentication.CookieJWTAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
 }
 
+from datetime import timedelta
+
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
-    "AUTH_COOKIE": "access_token",  # اسم الكوكي
-    "AUTH_COOKIE_SECURE": False,    # True إذا تستخدم HTTPS
-    "AUTH_COOKIE_HTTP_ONLY": True,
-    "AUTH_COOKIE_SAMESITE": "Lax",
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
 }
+
+DJOSER = {
+    'USER_CREATE_PASSWORD_RETYPE': True,
+    'SERIALIZERS': {
+        'user_create': 'users.serializers.CustomUserCreateSerializer',
+    },
+    'LOGIN_FIELD': 'username',  # إذا تستخدم username لتسجيل الدخول
+}
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+
+
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True

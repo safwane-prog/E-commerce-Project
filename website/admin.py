@@ -1,3 +1,5 @@
 from django.contrib import admin
+from .models import StoreSettings,StoreHeroImage
 
-# Register your models here.
+admin.site.register(StoreSettings)
+admin.site.register(StoreHeroImage)

@@ -21,16 +21,19 @@
         <header>
             <div class="logo-head">
                 <span onclick="showphoneModat()" style="display: none;" class="opne-phone-modal"><img src="\static\imges\icon\Style=Solid, Type=Rounded.svg" alt=""></span>
-                <img  src="\static\imges\icon\Brand-logo.svg" alt="">
+                {% if logo %}
+                    <img src="{{ logo.logo.url }}" alt="Store Logo">
+                {% else %}
+                    <img  src="{% static 'imges\icon\Brand-logo.svg' %}" alt="">
+                {% endif %}
             </div>
             <div class="searsh-head">
                 <div class="searsh-section">
                     <input type="text" name="" id="searsh-head-inpur" placeholder="Find product">
                     <select  name="" id="select-header">
-                        <option value="1">All category</option>
-                        <option value="2">All category</option>
-                        <option value="3">All category</option>
-                        <option value="4">All category</option>
+                        {% for category in categorys %}
+                            <option value="{{category.id}}">{{category.name|slice:":20"}}</option>
+                        {% endfor%}
                     </select>
                     <button onclick="saarchfunstion(document.getElementById('searsh-head-inpur').value,document.getElementById('select-header').value)">Search</button>
                 </div>
@@ -62,17 +65,17 @@
                     <span> <img src="\static\imges\icon\menu-01.svg" alt=""></span>
                     <span>All category</span>
                 </div>
-                <div class="page-name">Hot offers</div>
-                <div class="page-name">Services</div>
-                <div class="page-name">Bestsellers</div>
-                <div class="page-name">Gift boxes</div>
+                <div class="page-name"><a href="{% url 'home' %}">Home</a></div>
+                <div class="page-name"><a href="{% url 'Shop' %}">Shop Page</a></div>
+                <div class="page-name"><a href="{% url 'Contact' %}">Contact</a> </div>
+                <div class="page-name">About </div>
             </div>
             <div class="site-controul">
                 <select name="" id="">
-                    <option value="1">Germany</option>
+                    <option value="1">{{countries}}</option>
                 </select>
                 <select name="" id="">
-                    <option value="1">EUR</option>
+                    <option value="1">{{currency}}</option>
                 </select>
             </div>
         </div>
@@ -165,16 +168,21 @@
         <div class="footer-section-one">
             <div class="fout-pages">
                 <h1>
-                    <img src="\static\imges\icon\Brand-logo.svg" alt="">
+                    {% if logo %}
+                    <img src="{{ logo.logo.url }}" alt="Store Logo">
+                    {% else %}
+                        <img  src="{% static 'imges\icon\Brand-logo.svg' %}" alt="">
+                    {% endif %}
                 </h1>
                 <p> Contact us Contact us Contact us vv Contact us Contact us v</p>
                 <h3>Follow us</h3>
                 <div class="Follow-us-section">
-                    <a href=""><img src="\static\imges\icon\Icons-app.svg" alt=""></a>
-                    <a href=""><img src="\static\imges\icon\Icons-app (3).svg" alt=""></a>
-                    <a href=""><img src="\static\imges\icon\Icons-app (2).svg" alt=""></a>
-                    <a href=""><img src="\static\imges\icon\Icons-app (1).svg" alt=""></a>
+                    <a href="{{ logo.youtube|default:'#' }}"><img src="{% static 'imges/icon/Icons-app.svg' %}" alt=""></a>
+                    <a href="{{ logo.facebook|default:'#' }}"><img src="{% static 'imges/icon/Icons-app (3).svg' %}" alt=""></a>
+                    <a href="{{ logo.instagram|default:'#' }}"><img src="{% static 'imges/icon/Icons-app (2).svg' %}" alt=""></a>
+                    <a href="{{ logo.whatsapp|default:'#' }}"><img src="{% static 'imges/icon/Icons-app (1).svg' %}" alt=""></a>
                 </div>
+
             </div>
             <div class="fout-pages">
                 <h1>Help</h1>
@@ -230,7 +238,10 @@
         </div>
     </footer>
     </div>
-
+    <script>
+        const mainDomain = "{{ main_domin|escapejs }}";
+        const currencySymbol = "{{ currency|escapejs }}";
+    </script>
     <script src="{% static 'js/base.js' %}"></script>
 </body>
 </html>

@@ -469,5 +469,9 @@
         </div>
     </div>
 </section>
+<script>
+    const mainDomain = "{{ main_domin|escapejs }}";
+    const currencySymbol = "{{ currency|escapejs }}";
+</script>
 <script src="{% static 'js/product-details.js' %}"></script>
 {% endblock %}

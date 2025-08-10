@@ -4,26 +4,37 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/home.css' %}">
 
-<section class="heor-section" >
-    <div class="hero-image">
-        <img src="\static\imges\icon\domino-studio-164_6wVEHfI-unsplash.jpg.jpg" alt="">
-        <div class="hero-image-gryd">
-            <h2>New Trending</h2>
-            <h2>Summer Fashion</h2>
-            <p>Hot summer discounts ending soon</p>
-            <button>
-                <span>Get Deals Now</span>
-                <span><img src="\static\imges\icon\icon (1).svg" alt=""></span>
-            </button>
+<section class="heor-section">
+    <div class="swiper mySwiper">
+        <div class="swiper-wrapper">
+
+            {% for images in hero_images %}
+                <div class="swiper-slide">
+                    <div class="hero-image">
+                        <img src="{{ images.image.url }}" alt="">
+                        <div class="hero-image-gryd">
+                            <h2>{{ images.slide_name }}</h2>
+                            <p>{{ images.slide_description }}</p>
+                            <button>
+                                <span>Get Deals Now</span>
+                                <span><img src="{% static 'imges/icon/icon (1).svg' %}" alt=""></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
-        <div class="go-next-image-left-bnt">
-            <img src="\static\imges\icon\icon.svg" alt="">
-        </div>
-        <div class="go-next-image-right-bnt">
-            <img src="\static\imges\icon\icon (1).svg" alt="">
-        </div>
+
+        <!-- أزرار التنقل -->
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+
+        <!-- نقاط المؤشر -->
+        <div class="swiper-pagination"></div>
     </div>
 </section>
+
+
 <!-- Deals_and_offers -->
 <section class="Deals_and_offers">
     <div class="product-offers-card-time">
@@ -52,7 +63,24 @@
             </div>
         </div>
     </div>
-    <div class="product-offers-card">
+    {% for product in top_discount_products %}
+        <div class="product-offers-card">
+            <div class="product-offers-card-image">
+                {% if product.image_1 %}
+                    <img src="{{ product.image_1.url }}" alt="{{ product.name }}">
+                {% else %}
+                    <img src="{% static 'imges/istockphoto-1147544807-612x612.jpg' %}" alt="Product">
+                {% endif %}
+            </div>
+            <div class="product-offers-card-name">
+                {{ product.name|slice:":20" }}{% if product.name|length > 20 %}...{% endif %}
+            </div>
+            <div class="product-offers-card-descount">
+                {{ product.discount|default:"--------" }}%
+            </div>
+        </div>
+    {% endfor %}
+    <!-- <div class="product-offers-card">
         <div class="product-offers-card-image">
             <img src="\static\imges\icon\img.svg" alt="">
         </div>
@@ -95,18 +123,7 @@
         <div class="product-offers-card-descount">
             -25%
         </div>
-    </div>
-    <div class="product-offers-card">
-        <div class="product-offers-card-image">
-            <img src="\static\imges\icon\img.svg" alt="">
-        </div>
-        <div class="product-offers-card-name">
-            The Product name 
-        </div>
-        <div class="product-offers-card-descount">
-            -25%
-        </div>
-    </div>
+    </div> -->
 </section>
 <!-- Catigory-section -->
 <section class="Catigory-section">
@@ -286,7 +303,64 @@
  <section class="products-section">
     <h1>Recommended items</h1>
     <div class="products-grid">
+{% if not new_products %}
+    <style>
+        .products-grid{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+    <div class="empty-products">
+        <div class="empty-products-container">
+            <div class="empty-products-icon">
+                <i class="bi bi-box-seam" style="font-size: 4rem; color: #ccc;"></i>
+            </div>
+            <div class="empty-products-message">
+                <h3>No products found</h3>
+                <p>Sorry, there are no products available at this time.</p>
+            </div>
+        </div>
+    </div>
+{% else %}
+    {% for new in new_products %}
         <div class="product-card">
+            <!-- الكود الأصلي لعرض المنتجات -->
+            <div class="products-img">
+                {% if new.image_1 %}
+                    <img src="{{ new.image_1.url }}" alt="{{ new.name }}">
+                {% else %}
+                    <img src="{% static 'imges/istockphoto-1147544807-612x612.jpg' %}" alt="Product">
+                {% endif %}
+            </div>
+            <div class="products-prices">
+                <span class="main-price">{{ currency }}{{ new.price }}</span>
+                {% if new.old_price %}
+                    <span class="old-price">{{ currency }}{{ new.old_price }}</span>
+                {% endif %}
+            </div>
+            <div class="products-range">
+                <div class="products-range22">
+                    <div class="products-range33">
+                        {% for i in stars %}
+                            {% if i <= new.average_rating %}
+                                <i class="bi bi-star-fill"></i>
+                            {% else %}
+                                <i class="bi bi-star-fill bi-star-fill2"></i>
+                            {% endif %}
+                        {% endfor %}
+                        <span>{{ new.average_rating }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="products-name">
+                {{ new.name|slice:":20" }}{% if new.name|length > 20 %}...{% endif %}
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}
+
+        <!-- <div class="product-card">
             <div class="products-img">
                 <img src="\static\imges\icon\img.svg" alt="">
             </div>
@@ -474,28 +548,7 @@
             <div class="products-name">
                 Samsung Galaxy Note 4 SM-N910C 32GB
             </div>
-        </div>
-        <div class="product-card">
-            <div class="products-img">
-                <img src="\static\imges\icon\img.svg" alt="">
-            </div>
-            <div class="products-prices">
-                <span class="main-price">$1128.00</span>
-                <span class="old-price">$99.50</span>
-            </div>
-            <div class="products-range">
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <br>
-                <span>4.5</span>
-            </div>
-            <div class="products-name">
-                Samsung Galaxy Note 4 SM-N910C 32GB
-            </div>
-        </div>
+        </div> -->
     </div>
  </section>
 <section class="home-contact-section">
@@ -510,23 +563,56 @@
                     Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt.
                 </p>
             </div>
-            <form action="">
-                <label for="">Send quote to suppliers</label>
-                <input type="text" name="" id="" placeholder="What item you need?">
-                <input type="text" placeholder="Type more details">
-                <div class="form-group">
-                    <input type="text" placeholder="Qty">
-                    <select name="" id="">
-                        <option value="">helo world</option>
-                    </select>
+            <div id="Sendinquiry-form" action="">
+                <div id="Sendinquiry_message">
+
                 </div>
-                <button>
+                <label for="">Send quote to suppliers</label>
+                <input type="text" name="" id="suppliers-input" placeholder="What item you need?">
+                <input type="text" id="Sendinquiry_details" placeholder="Type more details">
+                <div class="form-group">
+                    <input type="text" id="Sendinquiry_Qty" placeholder="Qty">
+                    <input type="text" id="Sendinquiry_phone" placeholder="Type You Phone Number">
+                </div>
+                <button onclick="Sendinquiry()">
                     <span>Send inquiry</span>
                     <span><img src="\static\imges\icon\elements (2).svg" alt=""></span>
+                    <span id="sendinquiry_loudre"></span>
                 </button>
-            </form>
+            </div>
         </div>
     </div>
-    
 </section>
+<link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css"/>
+<script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var swiper = new Swiper(".mySwiper", {
+        loop: true,
+        autoplay: {
+            delay: 4000,
+            disableOnInteraction: false,
+        },
+        navigation: {
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+        },
+        pagination: {
+            el: ".swiper-pagination",
+            clickable: true,
+        },
+        effect: "slide",
+        grabCursor: true,
+    });
+});
+</script>
+
+
+
+<script>
+    const mainDomain = "{{ main_domin|escapejs }}";
+    const currencySymbol = "{{ currency|escapejs }}";
+</script>
+<script src="\static\js\home.js"></script>
 {% endblock %}

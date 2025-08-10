@@ -1,0 +1,2 @@
+
+console.log(mainDomain, currencySymbol);

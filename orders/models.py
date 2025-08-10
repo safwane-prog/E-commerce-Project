@@ -43,3 +43,7 @@ class SupplierInquiry(models.Model):
 
     def __str__(self):
         return f"Inquiry for {self.item} - Qty: {self.quantity}"
+    
+
+
+

@@ -165,6 +165,11 @@ header{
     cursor: pointer;
 }
 
+.page-name a{
+    text-decoration: none;
+    color: black;
+}
+
 .All-category-name{
     border-right: 2px solid #DCE0E5;
     padding-right: 16px;

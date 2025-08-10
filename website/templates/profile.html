@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Arimo:ital,wght@0,400..700;1,400..700&family=Changa:wght@200..800&family=El+Messiri:wght@400..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>My Profile - Ecommerce Store</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            font-family: "Changa", sans-serif;
+            font-optical-sizing: auto;
+        }
+
+        body {
+            background-color: #f8f9fa;
+        }
+
+        /* Header styles (copied from base.css) */
+        .header-contener {
+            width: 100%;
+            border-bottom: 1px solid #DCE0E5;
+            background-color: white;
+        }
+
+        header {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 80px;
+            max-width: 1240px;
+            margin: 0px auto;
+            padding: 0 20px;
+        }
+
+        .logo-head {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            gap: 10px;
+        }
+
+        .logo-head img {
+            height: 40px;
+        }
+
+        .searsh-head {
+            border: 2px solid #3348FF;
+            border-radius: 8px;
+            width: 50%;
+            height: 40px;
+        }
+
+        .searsh-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            height: 100%;
+        }
+
+        .searsh-section input {
+            width: 70%;
+            height: 100%;
+            border: none;
+            background: none;
+            padding: 0px 10px;
+        }
+
+        .searsh-section input:focus {
+            outline: none;
+        }
+
+        .searsh-section select {
+            height: 100%;
+            width: 15%;
+            border: none;
+            background: none;
+            cursor: pointer;
+            margin: 0px 10px 0px 0px;
+        }
+
+        .searsh-section button {
+            height: 100%;
+            width: 15%;
+            color: #FFFFFF;
+            background-color: #3348FF;
+            border: none;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .play-icon-list {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .order-icon-head {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            cursor: pointer;
+            line-height: 1;
+            gap: 5px;
+        }
+
+        .order-icon-head span {
+            font-size: 13px;
+            color: #14181F;
+        }
+
+        /* Profile Page Styles */
+        .profile-container {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+            min-height: calc(100vh - 200px);
+        }
+
+        .profile-sidebar {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            height: fit-content;
+            min-width: 280px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #EDF0F2;
+        }
+
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3348FF, #6366f1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .profile-info h3 {
+            color: #14181F;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .profile-info p {
+            color: #525E6F;
+            font-size: 14px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 8px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            color: #525E6F;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background-color: #f0f2ff;
+            color: #3348FF;
+        }
+
+        .sidebar-menu i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .profile-content {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-title {
+            color: #14181F;
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .profile-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            color: #14181F;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 12px 15px;
+            border: 2px solid #EDF0F2;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3348FF;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn-primary {
+            background-color: #3348FF;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #2a3ccc;
+        }
+
+        .btn-secondary {
+            background-color: #EDF0F2;
+            color: #525E6F;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-left: 10px;
+        }
+
+        .btn-secondary:hover {
+            background-color: #DCE0E5;
+        }
+
+        .order-card {
+            border: 1px solid #EDF0F2;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .order-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .order-id {
+            font-weight: 600;
+            color: #14181F;
+        }
+
+        .order-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-delivered {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-shipped {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .order-items {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .order-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .item-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .item-details h4 {
+            color: #14181F;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .item-details p {
+            color: #525E6F;
+            font-size: 12px;
+        }
+
+        .order-total {
+            text-align: right;
+            font-weight: 600;
+            color: #14181F;
+            font-size: 16px;
+        }
+
+        .wishlist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .wishlist-item {
+            border: 1px solid #EDF0F2;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .wishlist-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .wishlist-item img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background-color: #f8f9fa;
+        }
+
+        .wishlist-item h4 {
+            color: #14181F;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .wishlist-item .price {
+            color: #3348FF;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .settings-section {
+            margin-bottom: 30px;
+        }
+
+        .settings-section h3 {
+            color: #14181F;
+            font-size: 18px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #EDF0F2;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-info h4 {
+            color: #14181F;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .setting-info p {
+            color: #525E6F;
+            font-size: 14px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background-color: #DCE0E5;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background-color: #3348FF;
+        }
+
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-switch.active::before {
+            transform: translateX(26px);
+        }
+
+        @media (max-width: 768px) {
+            .profile-container {
+                flex-direction: column;
+                padding: 10px;
+            }
+
+            .profile-sidebar {
+                min-width: auto;
+            }
+
+            .profile-form {
+                grid-template-columns: 1fr;
+            }
+
+            .searsh-head {
+                width: 40%;
+            }
+
+            .order-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+
+        /* Footer styles (copied from base.css) */
+        .footer-content {
+            background-color: #EDF0F2;
+            width: 100%;
+            margin-top: 50px;
+        }
+
+        .footer-content footer {
+            max-width: 1240px;
+            margin: 0px auto;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 0 20px;
+        }
+
+        .footer-section-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            height: 90px;
+            color: #525E6F;
+            font-size: 15px;
+            font-weight: 400;
+        }
+
+        .footer-bottom-links a {
+            font-size: 15px;
+            text-decoration: none;
+            color: #525E6F;
+            margin-left: 16px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header-contener">
+        <header>
+            <div class="logo-head">
+                <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 40'><rect width='100' height='40' fill='%233348FF'/><text x='50' y='25' text-anchor='middle' fill='white' font-family='Arial, sans-serif' font-size='14' font-weight='bold'>LOGO</text></svg>" alt="Store Logo">
+            </div>
+            <div class="searsh-head">
+                <div class="searsh-section">
+                    <input type="text" placeholder="Find product">
+                    <select>
+                        <option>All Categories</option>
+                        <option>Electronics</option>
+                        <option>Fashion</option>
+                        <option>Home</option>
+                    </select>
+                    <button>Search</button>
+                </div>
+            </div>
+            <div class="play-icon-list">
+                <div class="order-icon-head">
+                    <i class="fas fa-box"></i>
+                    <span>Orders</span>
+                </div>
+                <div class="order-icon-head">
+                    <i class="fas fa-heart"></i>
+                    <span>Saved</span>
+                </div>
+                <div class="order-icon-head">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>My cart</span>
+                </div>
+                <div class="order-icon-head">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
+                </div>
+            </div>
+        </header>
+    </div>
+
+    <!-- Profile Container -->
+    <div class="profile-container">
+        <!-- Sidebar -->
+        <div class="profile-sidebar">
+            <div class="profile-header">
+                <div class="profile-avatar">JD</div>
+                <div class="profile-info">
+                    <h3>John Doe</h3>
+                    <p>john.doe@example.com</p>
+                </div>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="#" class="menu-item active" data-section="profile"><i class="fas fa-user"></i> Profile Information</a></li>
+                <li><a href="#" class="menu-item" data-section="orders"><i class="fas fa-box"></i> My Orders</a></li>
+                <li><a href="#" class="menu-item" data-section="wishlist"><i class="fas fa-heart"></i> Wishlist</a></li>
+                <li><a href="#" class="menu-item" data-section="addresses"><i class="fas fa-map-marker-alt"></i> Addresses</a></li>
+                <li><a href="#" class="menu-item" data-section="settings"><i class="fas fa-cog"></i> Settings</a></li>
+                <li><a href="#" class="menu-item" data-section="security"><i class="fas fa-shield-alt"></i> Security</a></li>
+                <li><a href="#" style="color: #dc3545;"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="profile-content">
+            <!-- Profile Information Section -->
+            <div class="content-section active" id="profile">
+                <h2 class="section-title">Profile Information</h2>
+                <form class="profile-form">
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <input type="text" id="firstName" value="John">
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <input type="text" id="lastName" value="Doe">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" value="john.doe@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" value="+1234567890">
+                    </div>
+                    <div class="form-group">
+                        <label for="birthDate">Date of Birth</label>
+                        <input type="date" id="birthDate" value="1990-01-01">
+                    </div>
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select id="gender">
+                            <option>Male</option>
+                            <option>Female</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="bio">About Me</label>
+                        <textarea id="bio" placeholder="Tell us about yourself..."></textarea>
+                    </div>
+                </form>
+                <button class="btn-primary">Update Profile</button>
+                <button class="btn-secondary">Cancel</button>
+            </div>
+
+            <!-- Orders Section -->
+            <div class="content-section" id="orders">
+                <h2 class="section-title">My Orders</h2>
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-id">Order #ORD-2025-001</div>
+                        <div class="order-status status-delivered">Delivered</div>
+                    </div>
+                    <div class="order-items">
+                        <div class="order-item">
+                            <div class="item-image" style="background-image: linear-gradient(45deg, #f0f2ff, #e6e8ff);"></div>
+                            <div class="item-details">
+                                <h4>Wireless Bluetooth Headphones</h4>
+                                <p>Quantity: 1 • Color: Black</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="order-total">Total: $89.99</div>
+                </div>
+
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-id">Order #ORD-2025-002</div>
+                        <div class="order-status status-shipped">Shipped</div>
+                    </div>
+                    <div class="order-items">
+                        <div class="order-item">
+                            <div class="item-image" style="background-image: linear-gradient(45deg, #ffe6e6, #ffcccc);"></div>
+                            <div class="item-details">
+                                <h4>Smart Watch Series 5</h4>
+                                <p>Quantity: 1 • Size: 42mm</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="order-total">Total: $299.99</div>
+                </div>
+
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-id">Order #ORD-2025-003</div>
+                        <div class="order-status status-pending">Processing</div>
+                    </div>
+                    <div class="order-items">
+                        <div class="order-item">
+                            <div class="item-image" style="background-image: linear-gradient(45deg, #e6ffe6, #ccffcc);"></div>
+                            <div class="item-details">
+                                <h4>Gaming Keyboard RGB</h4>
+                                <p>Quantity: 1 • Switch: Blue</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="order-total">Total: $129.99</div>
+                </div>
+            </div>
+
+            <!-- Wishlist Section -->
+            <div class="content-section" id="wishlist">
+                <h2 class="section-title">My Wishlist</h2>
+                <div class="wishlist-grid">
+                    <div class="wishlist-item">
+                        <div style="width: 100%; height: 120px; background: linear-gradient(45deg, #f0f2ff, #e6e8ff); border-radius: 8px; margin-bottom: 10px;"></div>
+                        <h4>MacBook Pro M2</h4>
+                        <div class="price">$1,299.99</div>
+                    </div>
+                    <div class="wishlist-item">
+                        <div style="width: 100%; height: 120px; background: linear-gradient(45deg, #ffe6e6, #ffcccc); border-radius: 8px; margin-bottom: 10px;"></div>
+                        <h4>iPhone 15 Pro</h4>
+                        <div class="price">$999.99</div>
+                    </div>
+                    <div class="wishlist-item">
+                        <div style="width: 100%; height: 120px; background: linear-gradient(45deg, #e6ffe6, #ccffcc); border-radius: 8px; margin-bottom: 10px;"></div>
+                        <h4>Sony WH-1000XM5</h4>
+                        <div class="price">$399.99</div>
+                    </div>
+                    <div class="wishlist-item">
+                        <div style="width: 100%; height: 120px; background: linear-gradient(45deg, #fff0e6, #ffe6cc); border-radius: 8px; margin-bottom: 10px;"></div>
+                        <h4>iPad Air</h4>
+                        <div class="price">$599.99</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Addresses Section -->
+            <div class="content-section" id="addresses">
+                <h2 class="section-title">My Addresses</h2>
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-id">Home Address</div>
+                        <div class="order-status status-delivered">Default</div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <h4 style="color: #14181F; margin-bottom: 8px;">John Doe</h4>
+                        <p style="color: #525E6F; line-height: 1.5;">
+                            123 Main Street, Apt 4B<br>
+                            New York, NY 10001<br>
+                            United States<br>
+                            Phone: +1 (555) 123-4567
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-id">Office Address</div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <h4 style="color: #14181F; margin-bottom: 8px;">John Doe</h4>
+                        <p style="color: #525E6F; line-height: 1.5;">
+                            456 Business Ave, Suite 201<br>
+                            New York, NY 10002<br>
+                            United States<br>
+                            Phone: +1 (555) 987-6543
+                        </p>
+                    </div>
+                </div>
+                
+                <button class="btn-primary" style="margin-top: 20px;">Add New Address</button>
+            </div>
+
+            <!-- Settings Section -->
+            <div class="content-section" id="settings">
+                <h2 class="section-title">Settings</h2>
+                
+                <div class="settings-section">
+                    <h3>Notifications</h3>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4>Email Notifications</h4>
+                            <p>Receive order updates and promotional emails</p>
+                        </div>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4>SMS Notifications</h4>
+                            <p>Get text messages for order status updates</p>
+                        </div>
+                        <div class="toggle-switch" onclick="toggleSwitch(this)"></div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4>Push Notifications</h4>
+                            <p>Receive notifications in your browser</p>
+                        </div>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Privacy</h3>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4>Profile Visibility</h4>
+                            <p>Allow others to see your profile information</p>
+                        </div>
+                        <div class="toggle-switch" onclick="toggleSwitch(this)"></div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4>Order History</h4>
+                            <p>Show your purchase history to friends</p>
+                        </div>
+                        <div class="toggle-switch" onclick="toggleSwitch(this)"></div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Language & Region</h3>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label for="language">Language</label>
+                        <select id="language">
+                            <option>English</option>
+                            <option>العربية</option>
+                            <option>Français</option>
+                            <option>Español</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="currency">Currency</label>
+                        <select id="currency">
+                            <option>USD ($)</option>
+                            <option>EUR (€)</option>
+                            <option>MAD (DH)</option>
+                            <option>GBP (£)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Section -->
+            <div class="content-section" id="security">
+                <h2 class="section-title">Security</h2>
+                
+                <div class="settings-section">
+                    <h3>Password</h3>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label for="currentPassword">Current Password</label>
+                        <input type="password" id="currentPassword" placeholder="Enter current password">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label for="newPassword">New Password</label>
+                        <input type="password" id="newPassword" placeholder="Enter new password">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label for="confirmPassword">Confirm New Password</label>
+                        <input type="password" id="confirmPassword" placeholder="Confirm new password">
+                    </div>
+                    <button class="btn-primary">Change Password</button>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Two-Factor Authentication</h3>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4>SMS Authentication</h4>
+                            <p>Add an extra layer of security with SMS verification</p>
+                        </div>
+                        <div class="toggle-switch" onclick="toggleSwitch(this)"></div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4>Email Authentication</h4>
+                            <p>Receive verification codes via email</p>
+                        </div>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Login Activity</h3>
+                    <div class="order-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h4 style="color: #14181F; margin-bottom: 5px;">Desktop - Chrome</h4>
+                                <p style="color: #525E6F; font-size: 14px;">New York, NY • Active now</p>
+                            </div>
+                            <div style="color: #22c55e; font-size: 12px; font-weight: 500;">Current</div>
+                        </div>
+                    </div>
+                    <div class="order-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h4 style="color: #14181F; margin-bottom: 5px;">Mobile - Safari</h4>
+                                <p style="color: #525E6F; font-size: 14px;">New York, NY • 2 hours ago</p>
+                            </div>
+                            <button style="background: none; border: none; color: #dc3545; cursor: pointer; font-size: 12px;">End Session</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Account Actions</h3>
+                    <button class="btn-secondary" style="margin-bottom: 10px;">Download My Data</button><br>
+                    <button class="btn-secondary" style="margin-bottom: 10px;">Export Order History</button><br>
+                    <button style="background-color: #dc3545; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer;">Delete Account</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-content">
+        <footer>
+            <div class="footer-section-bottom">
+                <div class="footer-bottom-text">
+                    Copyright © 1995-2025 Company Inc. All Rights Reserved
+                </div>
+                <div class="footer-bottom-links">
+                    <a href="">Terms of service</a>
+                    <a href="">Privacy policy</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Menu navigation
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Remove active class from all menu items
+                document.querySelectorAll('.menu-item').forEach(menuItem => {
+                    menuItem.classList.remove('active');
+                });
+                
+                // Add active class to clicked item
+                this.classList.add('active');
+                
+                // Hide all content sections
+                document.querySelectorAll('.content-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                
+                // Show selected content section
+                const sectionId = this.getAttribute('data-section');
+                document.getElementById(sectionId).classList.add('active');
+            });
+        });
+
+        // Toggle switch functionality
+        function toggleSwitch(element) {
+            element.classList.toggle('active');
+        }
+
+        // Form validation and submission
+        document.addEventListener('DOMContentLoaded', function() {
+            // Profile form submission
+            const updateProfileBtn = document.querySelector('.btn-primary');
+            if (updateProfileBtn) {
+                updateProfileBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Simple validation
+                    const firstName = document.getElementById('firstName').value;
+                    const lastName = document.getElementById('lastName').value;
+                    const email = document.getElementById('email').value;
+                    
+                    if (!firstName || !lastName || !email) {
+                        alert('Please fill in all required fields.');
+                        return;
+                    }
+                    
+                    if (!isValidEmail(email)) {
+                        alert('Please enter a valid email address.');
+                        return;
+                    }
+                    
+                    // Simulate API call
+                    this.textContent = 'Updating...';
+                    this.disabled = true;
+                    
+                    setTimeout(() => {
+                        this.textContent = 'Profile Updated!';
+                        this.style.backgroundColor = '#22c55e';
+                        
+                        setTimeout(() => {
+                            this.textContent = 'Update Profile';
+                            this.style.backgroundColor = '#3348FF';
+                            this.disabled = false;
+                        }, 2000);
+                    }, 1000);
+                });
+            }
+            
+            // Password change form
+            const changePasswordBtn = document.querySelector('.settings-section .btn-primary');
+            if (changePasswordBtn) {
+                changePasswordBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const currentPassword = document.getElementById('currentPassword').value;
+                    const newPassword = document.getElementById('newPassword').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
+                    
+                    if (!currentPassword || !newPassword || !confirmPassword) {
+                        alert('Please fill in all password fields.');
+                        return;
+                    }
+                    
+                    if (newPassword !== confirmPassword) {
+                        alert('New passwords do not match.');
+                        return;
+                    }
+                    
+                    if (newPassword.length < 8) {
+                        alert('Password must be at least 8 characters long.');
+                        return;
+                    }
+                    
+                    // Simulate API call
+                    this.textContent = 'Changing...';
+                    this.disabled = true;
+                    
+                    setTimeout(() => {
+                        this.textContent = 'Password Changed!';
+                        this.style.backgroundColor = '#22c55e';
+                        
+                        // Clear form
+                        document.getElementById('currentPassword').value = '';
+                        document.getElementById('newPassword').value = '';
+                        document.getElementById('confirmPassword').value = '';
+                        
+                        setTimeout(() => {
+                            this.textContent = 'Change Password';
+                            this.style.backgroundColor = '#3348FF';
+                            this.disabled = false;
+                        }, 2000);
+                    }, 1000);
+                });
+            }
+        });
+
+        // Email validation function
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        // Add to cart from wishlist
+        function addToCart(productName, price) {
+            alert(`Added ${productName} to cart for ${price}`);
+        }
+
+        // Remove from wishlist
+        function removeFromWishlist(element) {
+            if (confirm('Remove this item from your wishlist?')) {
+                element.closest('.wishlist-item').remove();
+            }
+        }
+
+        // Add hover effects and interactions
+        document.querySelectorAll('.wishlist-item').forEach(item => {
+            // Add action buttons on hover
+            const actionButtons = document.createElement('div');
+            actionButtons.style.cssText = `
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+                display: flex;
+                gap: 5px;
+            `;
+            
+            const cartBtn = document.createElement('button');
+            cartBtn.innerHTML = '<i class="fas fa-shopping-cart"></i>';
+            cartBtn.style.cssText = `
+                background-color: #3348FF;
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 35px;
+                height: 35px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            `;
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            removeBtn.style.cssText = `
+                background-color: #dc3545;
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 35px;
+                height: 35px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            `;
+            
+            actionButtons.appendChild(cartBtn);
+            actionButtons.appendChild(removeBtn);
+            
+            item.style.position = 'relative';
+            item.appendChild(actionButtons);
+            
+            item.addEventListener('mouseenter', () => {
+                actionButtons.style.opacity = '1';
+            });
+            
+            item.addEventListener('mouseleave', () => {
+                actionButtons.style.opacity = '0';
+            });
+            
+            cartBtn.addEventListener('click', () => {
+                const productName = item.querySelector('h4').textContent;
+                const price = item.querySelector('.price').textContent;
+                addToCart(productName, price);
+            });
+            
+            removeBtn.addEventListener('click', () => {
+                removeFromWishlist(removeBtn);
+            });
+        });
+
+        // Mobile responsiveness
+        function handleMobileView() {
+            if (window.innerWidth <= 768) {
+                // Convert sidebar to tabs on mobile
+                const sidebar = document.querySelector('.profile-sidebar');
+                const content = document.querySelector('.profile-content');
+                
+                if (sidebar && content) {
+                    // Add mobile-specific styles
+                    sidebar.style.position = 'sticky';
+                    sidebar.style.top = '0';
+                    sidebar.style.zIndex = '100';
+                }
+            }
+        }
+
+        window.addEventListener('resize', handleMobileView);
+        handleMobileView(); // Call on load
+    </script>
+</body>
+</html>
