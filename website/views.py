@@ -2,7 +2,7 @@ from django.shortcuts import render
 from products.models import Product
 from django.conf import settings
 from .models import StoreHeroImage,StoreSettings
-from products.models import Category
+from products.models import Category,Option
 
 def Base(request):
     logo = StoreSettings.objects.first()
@@ -49,11 +49,12 @@ def Product_Details(request,pk):
 
 # Shop
 def Shop(request):
-    
     base_context = Base(request)  # جلب logo
-
+    categorys = Category.objects.all()
+    option = Option.objects.all()
     context = {
-        
+        "category":categorys,
+        "option":option,
     }
     context.update(base_context)  # دمج logo مع بقية البيانات
     return render(request,'shop.html')

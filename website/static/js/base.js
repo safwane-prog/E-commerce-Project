@@ -10,7 +10,26 @@ function AddToCart(product_id) {
             "Content-Type": "application/json",
             "X-CSRFToken": getCookie("csrftoken") // إذا كان عندك CSRF
         },
-        body: JSON.stringify({ product_id: '4aa931b4-2605-4272-ade7-8d2f08d02621' })
+        body: JSON.stringify({ product_id: product_id })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        alert(data.message);
+    })
+    .catch(error => console.error("Error:", error));
+}
+function AddToWishlist(product_id) {
+    console.log(product_id);
+
+    fetch('/orders/add-to-wishlist/', {
+        method: "POST",
+        credentials: "include", // مهم لإرسال الكوكيز (JWT)
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken") // إذا كان عندك CSRF
+        },
+        body: JSON.stringify({ product_id: product_id })
     })
     .then(response => response.json())
     .then(data => {
@@ -37,6 +56,10 @@ function getCookie(name) {
 }
 
 
+
+function viewProductdetailes(product_id){
+    window.location.href = `product-details/${product_id}`
+}
 const apiUrls = '/orders/supplier-inquiry/'
 
 function saarchfunstion(value,categorie){

@@ -7,78 +7,16 @@
 <div class="all-category">
     <h1>Electronics & Gadgets</h1>
     <div class="category-grid">
-        <div class="category-item">
-            <div class="category-img">
-                <img src="{% static 'imges/icon/img.svg' %}" alt="Phone icon">
+        {% for category in categorys %}
+            <div class="category-item">
+                <div class="category-img">
+                    <img src="{{ category.image.url }}" alt="Phone icon">
+                </div>
+                <div class="category-name">
+                    {{category.name}}
+                </div>
             </div>
-            <div class="category-name">
-                Phone
-            </div>
-        </div>
-        <div class="category-item">
-            <div class="category-img">
-                <img src="{% static 'imges/icon/img.svg' %}" alt="Phone icon">
-            </div>
-            <div class="category-name">
-                Phone
-            </div>
-        </div>
-        <div class="category-item">
-            <div class="category-img">
-                <img src="{% static 'imges/icon/img.svg' %}" alt="Phone icon">
-            </div>
-            <div class="category-name">
-                Phone
-            </div>
-        </div>
-        <div class="category-item">
-            <div class="category-img">
-                <img src="{% static 'imges/icon/img.svg' %}" alt="Phone icon">
-            </div>
-            <div class="category-name">
-                Phone
-            </div>
-        </div>
-        <div class="category-item">
-            <div class="category-img">
-                <img src="{% static 'imges/icon/domino-studio-164_6wVEHfI-unsplash.jpg' %}" alt="Phone icon">
-            </div>
-            <div class="category-name">
-                Phone
-            </div>
-        </div>
-        <div class="category-item">
-            <div class="category-img">
-                <img src="{% static 'imges/icon/img.svg' %}" alt="Phone icon">
-            </div>
-            <div class="category-name">
-                Phone
-            </div>
-        </div>
-        <div class="category-item">
-            <div class="category-img">
-                <img src="{% static 'imges/icon/img.svg' %}" alt="Phone icon">
-            </div>
-            <div class="category-name">
-                Phone
-            </div>
-        </div>
-        <div class="category-item">
-            <div class="category-img">
-                <img src="{% static 'imges/icon/img.svg' %}" alt="Phone icon">
-            </div>
-            <div class="category-name">
-                Phone
-            </div>
-        </div>
-        <div class="category-item">
-            <div class="category-img">
-                <img src="{% static 'imges/icon/img.svg' %}" alt="Phone icon">
-            </div>
-            <div class="category-name">
-                Phone
-            </div>
-        </div>
+        {% endfor %}
     </div>
 </div>
 <div class="product-container">

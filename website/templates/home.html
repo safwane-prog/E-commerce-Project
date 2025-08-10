@@ -67,9 +67,9 @@
         <div class="product-offers-card">
             <div class="product-offers-card-image">
                 {% if product.image_1 %}
-                    <img onclick="AddToCart('{{product.id}}')" src="{{ product.image_1.url }}" alt="{{ product.name }}">
+                    <img onclick="viewProductdetailes('{{product.id}}')" src="{{ product.image_1.url }}" alt="{{ product.name }}">
                 {% else %}
-                    <img src="{% static 'imges/istockphoto-1147544807-612x612.jpg' %}" alt="Product">
+                    <img  onclick="viewProductdetailes('{{product.id}}')"  src="{% static 'imges/istockphoto-1147544807-612x612.jpg' %}" alt="Product">
                 {% endif %}
             </div>
             <div class="product-offers-card-name">
@@ -328,9 +328,9 @@
             <!-- الكود الأصلي لعرض المنتجات -->
             <div class="products-img">
                 {% if new.image_1 %}
-                    <img src="{{ new.image_1.url }}" alt="{{ new.name }}">
+                    <img  onclick="viewProductdetailes('{{new.id}}')"  src="{{ new.image_1.url }}" alt="{{ new.name }}">
                 {% else %}
-                    <img src="{% static 'imges/istockphoto-1147544807-612x612.jpg' %}" alt="Product">
+                    <img  onclick="viewProductdetailes('{{new.id}}')"  src="{% static 'imges/istockphoto-1147544807-612x612.jpg' %}" alt="Product">
                 {% endif %}
             </div>
             <div class="products-prices">

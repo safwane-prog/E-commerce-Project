@@ -31,9 +31,26 @@ class Add_To_Cart(APIView):
         )
 
         return Response({"message": "Product added successfully"})
+        
 
+class Add_To_Wishlist(APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
-
+    def post(self, request):
+        user = request.user
+        wishlists, created = wishlist.objects.get_or_create(user=user)
+        product_id = request.data.get('product_id')
+        if not product_id:
+            return Response({"message": "Product ID is required"}, status=400)
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            return Response({"message": "Product not found"}, status=404)
+        
+        wishlistItem.objects.create(
+            wishlist=wishlists,
+            product=product,
+        )
 
 class SupplierinquiryView(APIView):
     def post(self, request, *args, **kwargs):
