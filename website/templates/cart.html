@@ -1,10 +1,220 @@
 {% extends 'base.html' %}
 
-{% block title %}Contact Us{% endblock %}
+{% block title %}Your Cart{% endblock %}
 
 {% block content %}
-
 <link rel="stylesheet" href="\static\css\cart.css">
+<section class="cart-title">
+    <div>Your Cart</div> <span id="cart-items-count">4</span> Items
+</section>
+<div class="container">
+    <div class="cart-section">
+        <!-- Item 1 -->
+        <div class="cart-items">
+            <div class="cart-items-image">
+                <img src="\static\imges\products\lumia.jpg" alt="Microsoft Lumia">
+            </div>
+            <div class="cart-items-detailes">
+                <div class="cart-items-detailes-name">
+                    Microsoft Lumia 640 XL RM-1065 8GB Dual SIM
+                </div>
+                <div class="cart-items-detailes-options">
+                    <div class="option-name">
+                        <span class="ferst-span">Size:</span>
+                        <span>Medium</span>
+                    </div>
+                    <div class="option-name">
+                        <span class="ferst-span">Color:</span>
+                        <span>Blue</span>
+                    </div>
+                </div>
+                <div class="cart-items-detailes-buttons">
+                    <div class="qontity-section">
+                        <button>-</button>
+                        <input type="number" value="1" class="no-arrows" min="1">
+                        <button>+</button>
+                    </div>
+                    <div class="delete-btn">
+                        <button>
+                            <span><i class="bi bi-trash"></i></span>
+                            <span>Remove</span>
+                        </button>
+                    </div>
+                    <div class="save-btn">
+                        <button>
+                            <span><i class="bi bi-heart"></i></span>
+                            <span>Save for later</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="cart-items-prices">
+                <span>{{currency}}572.90</span>
+                <span>Price for <span class="items-count">2</span></span>
+            </div>
+        </div>
+
+        <!-- Item 2 -->
+        <div class="cart-items">
+            <div class="cart-items-image">
+                <img src="\static\imges\products\iphone.jpg" alt="iPhone 12 Mini">
+            </div>
+            <div class="cart-items-detailes">
+                <div class="cart-items-detailes-name">
+                    Apple iPhone 12 Mini, 64GB, White - Unlocked
+                </div>
+                <div class="cart-items-detailes-options">
+                    <div class="option-name">
+                        <span class="ferst-span">Memory:</span>
+                        <span>64 GB</span>
+                    </div>
+                    <div class="option-name">
+                        <span class="ferst-span">Color:</span>
+                        <span>Black</span>
+                    </div>
+                </div>
+                <div class="cart-items-detailes-buttons">
+                    <div class="qontity-section">
+                        <button>-</button>
+                        <input type="number" value="4" class="no-arrows" min="1">
+                        <button>+</button>
+                    </div>
+                    <div class="delete-btn">
+                        <button>
+                            <span><i class="bi bi-trash"></i></span>
+                            <span>Remove</span>
+                        </button>
+                    </div>
+                    <div class="save-btn">
+                        <button>
+                            <span><i class="bi bi-heart"></i></span>
+                            <span>Save for later</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="cart-items-prices">
+                <span>{{currency}}6780.00</span>
+                <span>Price for <span class="items-count">4</span></span>
+            </div>
+        </div>
+
+        <!-- Item 3 -->
+        <div class="cart-items">
+            <div class="cart-items-image">
+                <img src="\static\imges\products\coffee.jpg" alt="Keurig Coffee Maker">
+            </div>
+            <div class="cart-items-detailes">
+                <div class="cart-items-detailes-name">
+                    Keurig K-Express Coffee Maker, Single Serve K-Cup
+                </div>
+                <div class="cart-items-detailes-options">
+                    <div class="option-name">
+                        <span class="ferst-span">Size:</span>
+                        <span>Medium</span>
+                    </div>
+                </div>
+                <div class="cart-items-detailes-buttons">
+                    <div class="qontity-section">
+                        <button>-</button>
+                        <input type="number" value="2" class="no-arrows" min="1">
+                        <button>+</button>
+                    </div>
+                    <div class="delete-btn">
+                        <button>
+                            <span><i class="bi bi-trash"></i></span>
+                            <span>Remove</span>
+                        </button>
+                    </div>
+                    <div class="save-btn">
+                        <button>
+                            <span><i class="bi bi-heart"></i></span>
+                            <span>Save for later</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="cart-items-prices">
+                <span>{{currency}}99.95</span>
+                <span>Price for <span class="items-count">2</span></span>
+            </div>
+        </div>
+
+        <!-- Item 4 -->
+        <div class="cart-items">
+            <div class="cart-items-image">
+                <img src="\static\imges\products\oppo.jpg" alt="Oppo Mobile">
+            </div>
+            <div class="cart-items-detailes">
+                <div class="cart-items-detailes-name">
+                    Original Used Second hand Oppo Mobile phone 128GB
+                </div>
+                <div class="cart-items-detailes-options">
+                    <div class="option-name">
+                        <span class="ferst-span">Size:</span>
+                        <span>Medium</span>
+                    </div>
+                    <div class="option-name">
+                        <span class="ferst-span">Color:</span>
+                        <span>Blue</span>
+                    </div>
+                </div>
+                <div class="cart-items-detailes-buttons">
+                    <div class="qontity-section">
+                        <button>-</button>
+                        <input type="number" value="1" class="no-arrows" min="1">
+                        <button>+</button>
+                    </div>
+                    <div class="delete-btn">
+                        <button>
+                            <span><i class="bi bi-trash"></i></span>
+                            <span>Remove</span>
+                        </button>
+                    </div>
+                    <div class="save-btn">
+                        <button>
+                            <span><i class="bi bi-heart"></i></span>
+                            <span>Save for later</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="cart-items-prices">
+                <span>{{currency}}75.90</span>
+                <span>Price for <span class="items-count">1</span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="cart-subtotal">
+        <div class="cart-subtotal-card">
+            <div class="subtotal-title">
+                <span>Subtotal:</span>
+                <span>{{currency}}1703.00</span>
+            </div>
+            <div class="subtotal-title">
+                <span>Discount:</span>
+                <span>- {{currency}}60.00</span>
+            </div>
+            <div class="subtotal-title">
+                <span>Tax:</span>
+                <span>+ {{currency}}14.00</span>
+            </div>
+            <div class="subtotal-total">
+                <span>Total:</span>
+                <span>{{currency}}1655.99</span>
+            </div>
+            <div class="subtotal-button">
+                <button>Checkout</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="delivery-info">
+    Delivered by<br>
+    Fri, May 20, 2024
+</div>
 
 <script>
     const mainDomain = "{{ main_domin|escapejs }}";

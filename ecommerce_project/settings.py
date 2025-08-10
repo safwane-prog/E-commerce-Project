@@ -2,7 +2,7 @@ from pathlib import Path
 import os
 from datetime import timedelta
 
-CURRENCY_SYMBOL = "MAD"  # أو "$"
+CURRENCY_SYMBOL = "MAD \n"  # أو "$"
 MINE_DOMINE = "http://127.0.0.1:8000/"
 MINE_COUNTRIES = "Morocco"
 # Build paths inside the project like this: BASE_DIR / 'subdir'.

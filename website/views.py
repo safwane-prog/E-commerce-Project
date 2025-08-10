@@ -7,9 +7,11 @@ from products.models import Category,Option
 def Base(request):
     logo = StoreSettings.objects.first()
     categorys = Category.objects.all()
+    currency = settings.CURRENCY_SYMBOL
     context = {
         'logo':logo,
         'categorys':categorys,
+        'currency':currency,
     }
     return context
 
