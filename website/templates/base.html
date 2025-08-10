@@ -31,6 +31,7 @@
                 <div class="searsh-section">
                     <input type="text" name="" id="searsh-head-inpur" placeholder="Find product">
                     <select  name="" id="select-header">
+                        <option value="">Choose a category</option>
                         {% for category in categorys %}
                             <option value="{{category.id}}">{{category.name|slice:":20"}}</option>
                         {% endfor%}
@@ -39,22 +40,22 @@
                 </div>
             </div>
             <div class="play-icon-list">
-                <div class="order-icon-head order-icon-head22">
+                <a  href="{% url 'login_page' %}" class="order-icon-head order-icon-head22">
                     <img src="\static\imges\icon\delivery-box-02.svg" alt="">
                     <span>Orders</span>
-                </div>
-                <div class="order-icon-head order-icon-head22">
+                </a>
+                <a  href="{% url 'login_page' %}"  class="order-icon-head order-icon-head22">
                     <img src="\static\imges\icon\favourite.svg" alt="">
                     <span>Saved</span>
-                </div>
-                <div class="order-icon-head ">
+                </a>
+                <a  href="{% url 'login_page' %}"  class="order-icon-head ">
                     <img src="\static\imges\icon\shopping-basket-01.svg" alt="">
                     <span>My cart</span>
-                </div>
-                <div class="order-icon-head">
+                </a>
+                <a  href="{% url 'login_page' %}"  class="order-icon-head">
                     <img src="\static\imges\icon\user.svg" alt="">
                     <span>Sign in</span>
-                </div>
+                </a>
             </div>
         </header>
     </div>

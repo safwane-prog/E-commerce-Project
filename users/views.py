@@ -143,24 +143,37 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
+
 class RefreshTokenView(APIView):
-    # يمكنك وضع صلاحيات إذا تريد تأمين هذا المسار
-    permission_classes = [IsAuthenticated]  
-    authentication_classes = [SessionAuthentication, BasicAuthentication]  # أو حسب استخدامك
+    authentication_classes = []  # لا نتحقق من التوكن هنا
+    permission_classes = []       # مفتوح
 
     def post(self, request):
         refresh_token = request.COOKIES.get('refresh_token')
 
         if not refresh_token:
-            return Response({'detail': 'لا يوجد توكن تحديث في الكوكيز'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'detail': 'لا يوجد refresh token في الكوكيز'}, status=status.HTTP_401_UNAUTHORIZED)
 
         try:
             refresh = RefreshToken(refresh_token)
             new_access = str(refresh.access_token)
 
+            # ترجيع الـ access الجديد + تخزينه في الكوكي
             res = Response({'access': new_access}, status=status.HTTP_200_OK)
-            res.set_cookie('access_token', new_access, httponly=True, samesite='Lax', path='/', secure=False)
+            res.set_cookie(
+                'access_token',
+                new_access,
+                httponly=True,
+                samesite='Lax',
+                secure=False,  # خليها True لو HTTPS
+                path='/'
+            )
             return res
 
-        except Exception as e:
-            return Response({'detail': 'توكن التحديث غير صالح أو منتهي الصلاحية'}, status=status.HTTP_401_UNAUTHORIZED)
+        except TokenError:
+            return Response({'detail': 'Refresh token غير صالح أو منتهي'}, status=status.HTTP_401_UNAUTHORIZED)

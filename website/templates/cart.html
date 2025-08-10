@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Contact Us{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="\static\css\cart.css">
+
+<script>
+    const mainDomain = "{{ main_domin|escapejs }}";
+    const currencySymbol = "{{ currency|escapejs }}";
+</script>
+
+<script src="\static\js\cart.js"></script>
+{% endblock %}

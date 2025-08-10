@@ -51,13 +51,14 @@ def Product_Details(request,pk):
 def Shop(request):
     base_context = Base(request)  # جلب logo
     categorys = Category.objects.all()
-    option = Option.objects.all()
+    options = Option.objects.all()
     context = {
-        "category":categorys,
-        "option":option,
+        "category": categorys,
+        "options": options,  # ✅ تعديل الاسم ليتوافق مع القالب
     }
     context.update(base_context)  # دمج logo مع بقية البيانات
-    return render(request,'shop.html')
+    return render(request, 'shop.html', context)
+  # أضف context هنا
 
 # contact
 def Contact(request):
@@ -78,3 +79,8 @@ def Login(request):
 
 def Profile(request):
     return render(request,'profile.html')
+
+
+
+def cart(request):
+    return render(request,'cart.html')

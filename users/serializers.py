@@ -1,6 +1,6 @@
 from djoser.serializers import UserCreateSerializer
 from .models import CustomUser
-from orders.models import  Cart
+from orders.models import  Cart,wishlist
 from website.models import Profile
 class CustomUserCreateSerializer(UserCreateSerializer):
     class Meta(UserCreateSerializer.Meta):
@@ -10,6 +10,7 @@ class CustomUserCreateSerializer(UserCreateSerializer):
             user = super().create(validated_data)
             # إنشاء ملف التعريف Profile تلقائياً عند إنشاء المستخدم
             Cart.objects.create(user=user)
+            wishlist.objects.create(user=user)
             Profile.objects.create(
                 user=user,
                 phone_number="-------------",

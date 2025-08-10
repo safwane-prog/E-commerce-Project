@@ -64,6 +64,7 @@ header{
     cursor: pointer;
     line-height: 1;
     gap: 5px;
+    text-decoration: none;
 }
 
 .order-icon-head span{

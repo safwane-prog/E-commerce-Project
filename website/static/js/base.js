@@ -1,69 +1,15 @@
 
 
-function AddToCart(product_id) {
-    console.log(product_id);
 
-    fetch('/orders/add-to-cart/', {
-        method: "POST",
-        credentials: "include", // مهم لإرسال الكوكيز (JWT)
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCookie("csrftoken") // إذا كان عندك CSRF
-        },
-        body: JSON.stringify({ product_id: product_id })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log(data);
-        alert(data.message);
-    })
-    .catch(error => console.error("Error:", error));
-}
-function AddToWishlist(product_id) {
-    console.log(product_id);
 
-    fetch('/orders/add-to-wishlist/', {
-        method: "POST",
-        credentials: "include", // مهم لإرسال الكوكيز (JWT)
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCookie("csrftoken") // إذا كان عندك CSRF
-        },
-        body: JSON.stringify({ product_id: product_id })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log(data);
-        alert(data.message);
-    })
-    .catch(error => console.error("Error:", error));
+function viewProductdetailes(productId){
+    window.location.href = `/product-details/${String(productId)}`;
 }
 
-// دالة لجلب CSRF Token إذا كنت تستخدم Django CSRF
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
-
-
-function viewProductdetailes(product_id){
-    window.location.href = `product-details/${product_id}`
-}
 const apiUrls = '/orders/supplier-inquiry/'
 
 function saarchfunstion(value,categorie){
-    window.location.href = `/shop/?${value}&${categorie}`
+    window.location.href = `/shop/?search=${value}&category=${categorie}`
 }
 
 

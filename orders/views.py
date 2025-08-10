@@ -49,8 +49,9 @@ class Add_To_Wishlist(APIView):
         
         wishlistItem.objects.create(
             wishlist=wishlists,
-            product=product,
+            product=product
         )
+        return Response({"message": "Product added successfully"})
 
 class SupplierinquiryView(APIView):
     def post(self, request, *args, **kwargs):
