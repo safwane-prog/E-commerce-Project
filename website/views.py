@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render,get_object_or_404
 from products.models import Product
 from django.conf import settings
 from .models import StoreHeroImage,StoreSettings
@@ -41,11 +41,14 @@ def Home(request):
 
 # Product_Details
 def Product_Details(request,pk):
-
+    product = get_object_or_404(Product, id=pk)
+    similar_products = Product.objects.filter(
+            categories__in=product.categories.all()
+        ).exclude(id=product.id).distinct()[:8]
     base_context = Base(request)  # جلب logo
 
     context = {
-        
+        "similar_products":similar_products
     }
     context.update(base_context)  # دمج logo مع بقية البيانات
     return render(request,'product-details.html',context)

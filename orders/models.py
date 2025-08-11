@@ -6,18 +6,6 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
-class Order(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    is_completed = models.BooleanField(default=False)
-    customer_name = models.CharField(max_length=200)
-    customer_address = models.TextField()
-
-class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(default=1)
-    price = models.DecimalField(max_digits=10, decimal_places=2)  # سعر المنتج وقت الطلب
 
 
 class Cart(models.Model):
@@ -25,10 +13,60 @@ class Cart(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items',null=True,blank=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
 
+class Order(models.Model):
+    class OrderState(models.TextChoices):
+        PENDING = "Pending", "Pending"
+        CONFIRMED = "Confirmed", "Confirmed"
+        NO_RESPONSE = "No Response", "No Response"
+        CANCELLED = "Cancelled", "Cancelled"
+        DELIVERED = "Delivered", "Delivered"
+
+    class PaymentMethod(models.TextChoices):
+        CASH_ON_DELIVERY = "Cash on Delivery", "Cash on Delivery"
+        CREDIT_CARD = "Credit Card", "Credit Card"
+        PAYPAL = "PayPal", "PayPal"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_completed = models.BooleanField(default=False)
+
+    
+    options = models.CharField(max_length=100,null=True, blank=True)
+    color = models.CharField( max_length=100,null=True, blank=True)
+    size = models.CharField(max_length=100,null=True, blank=True)
+
+    customer_name = models.CharField(max_length=200)
+    customer_email = models.EmailField(null=True, blank=True)
+    customer_phone = models.CharField(max_length=20)
+
+    customer_address = models.TextField()
+    city = models.CharField(max_length=100, null=True, blank=True)
+
+    payment_method = models.CharField(
+        max_length=50,
+        choices=PaymentMethod.choices,
+        default=PaymentMethod.CASH_ON_DELIVERY
+    )
+    # أنصح بتغيير هذا إلى ManyToManyField(Product) لو حبيت تخزن فقط المنتجات بدون تفاصيل الكمية والسعر
+    products = models.ManyToManyField('products.Product', blank=True)
+
+    state = models.CharField(
+        max_length=50,
+        choices=OrderState.choices,
+        default=OrderState.PENDING
+    )
+
+    def save(self, *args, **kwargs):
+        if self.state == self.OrderState.DELIVERED:
+            self.is_completed = True
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Order {self.id} - {self.customer_name}"
 
 
 class SupplierInquiry(models.Model):

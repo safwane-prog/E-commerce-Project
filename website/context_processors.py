@@ -9,6 +9,9 @@ def base_vars(request):
         'main_domin': settings.MINE_DOMINE,
         'currency': settings.CURRENCY_SYMBOL,
         'countries': settings.MINE_COUNTRIES,
+        'option_1': settings.OPTION1,
+        'option_2': settings.OPTION2,
+        'option_3': settings.OPTION3,
     }
 
 def store_settings(request):

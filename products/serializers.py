@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product
+from .models import *
 
 class ProductShopSerializer(serializers.ModelSerializer):
     average_rating = serializers.SerializerMethodField()
@@ -13,7 +13,7 @@ class ProductShopSerializer(serializers.ModelSerializer):
             'id', 'name', 'price', 'old_price', 'discount',
             'description_1', 'image_1',
             'average_rating', 'total_reviews',
-            'options', 'categories'
+            'options', 'categories','sales_count'
         ]
 
     def get_average_rating(self, obj):
@@ -42,7 +42,38 @@ class ProductShopSerializer(serializers.ModelSerializer):
         ]
 
 
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'image']  # تقدر تعدل الحقول
+
+class OptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Option
+        fields = ['id', 'name']
+
+class ColorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Color
+        fields = ['id', 'name']
+
+class SizeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Size
+        fields = ['id', 'name']
+
 class ProductDetileserializers(serializers.ModelSerializer):
+    categories = CategorySerializer(many=True, read_only=True)
+    options = OptionSerializer(many=True, read_only=True)
+    color = ColorSerializer(many=True, read_only=True)
+    size = SizeSerializer(many=True, read_only=True)
+
     class Meta:
         model = Product
         fields = '__all__'
+
+class RatingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rating
+        fields = ['id', 'product', 'name', 'email', 'rating', 'review', 'created_at']
+        read_only_fields = ['id', 'created_at']

@@ -6,38 +6,34 @@
 <link rel="stylesheet" href="{% static 'css/product-details.css' %}">
 
 <section  class="container">
-    <div class="products-gellory">
-        <div class="products-main-image">
-            <img src="\static\imges\icon\Variant=tech-9.svg" alt="">
+    <div class="products-gallery">
+        <!-- Main image swiper -->
+        <div class="swiper main-swiper">
+            <div class="swiper-wrapper" id="main-image-wrapper">
+                <!-- صور رئيسية هنا -->
+            </div>
         </div>
-        <div class="product-all-images">
-            <div class="products-img-box">
-                <img src="\static\imges\icon\Variant=tech-9.svg" alt="">
-            </div>
-            <div class="products-img-box">
-                <img src="\static\imges\icon\Variant=tech-9.svg" alt="">
-            </div>
-            <div class="products-img-box">
-                <img src="\static\imges\icon\Variant=tech-9.svg" alt="">
-            </div>
-            <div class="products-img-box">
-                <img src="\static\imges\icon\Variant=tech-9.svg" alt="">
-            </div>
-            <div class="products-img-box">
-                <img src="\static\imges\icon\Variant=tech-9.svg" alt="">
+
+        <!-- Thumbnails swiper -->
+        <div class="swiper thumbs-swiper">
+            <div class="swiper-wrapper" id="thumbs-wrapper">
+                <!-- صور مصغرة هنا -->
             </div>
         </div>
     </div>
+    <!-- Swiper CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css"/>
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
     <div class="product-details">
-        <div class="products-name-section">
+        <div id="products-name-section" class="products-name-section">
             products-name-section products-name-sectionv products-name-section
         </div>
         <div class="product-prices-section">
-            <span class="products-main-price">100$</span>
-            <span class="products-old-price">100$</span>
+            <span id="products-main-price" class="products-main-price">100$</span>
+            <span id="products-old-price" class="products-old-price">100$</span>
             <span  class="products-descounte">
                 <span>-</span>
-                <span>10</span>
+                <span id="products-descounte-count">10</span>
                 <span class="poursinte">%</span>
             </span>
         </div>
@@ -61,41 +57,60 @@
             <div class="product-description-title">
              : description
             </div>
-            <div class="product-description-main">
+            <div id="product-description-main" class="product-description-main">
             Discover our unique Moroccan T-Shirt, made with 100% organic cotton and crafted with passion. This design blends traditional Amazigh symbols with a modern touch, delivering both style and cultural heritage. Perfect for everyday wear or special occasions, this shirt is soft, durable, and a true statement of identity.
             </div>
         </div>
-        <div class="product-color-section">
+        <!-- =================== color =================== -->
+        <div id="product-color-section-sectopn" class="product-color-section">
             <div class="option-section-title">
-                <h1> : select Color</h1>
+                <h1> : select {{option_3}}</h1>
             </div>
-            <input type="checkbox" name="" id="">
-            <input type="checkbox" name="" id="">
-            <input type="checkbox" name="" id="">
-            <input type="checkbox" name="" id="">
+            <div id="main-color-section-box" class="mina-option-section-32">
+                <input type="checkbox" name="" id="">
+                <input type="checkbox" name="" id="">
+                <input type="checkbox" name="" id="">
+                <input type="checkbox" name="" id="">
+            </div>
         </div>
-        <div class="product-size-section">
+        <!-- =================== size =================== -->
+        <div id="product-size-section-sectopn"  class="product-size-section">
             <div class="option-section-title">
-                <h1> : select Color</h1>
+                <h1> : select {{option_2}}</h1>
             </div>
-            <input type="checkbox" name="" id="">
-            <input type="checkbox" name="" id="">
-            <input type="checkbox" name="" id="">
-            <input type="checkbox" name="" id="">
+            <div id="main-size-section-box" class="mina-option-section-32">
+                <input type="checkbox" name="" id="">
+                <input type="checkbox" name="" id="">
+                <input type="checkbox" name="" id="">
+                <input type="checkbox" name="" id="">
+            </div>
+        </div>
+        <!-- =================== option =================== -->
+        <div  id="product-option-section-sectopn"  class="product-option-section">
+            <div class="option-section-title">
+                <h1> : select {{option_3}}</h1>
+            </div>
+            <div id="main-option-section-box" class="mina-option-section-32">
+                <input type="checkbox" name="" id="">
+                <input type="checkbox" name="" id="">
+                <input type="checkbox" name="" id="">
+                <input type="checkbox" name="" id="">
+            </div>
         </div>
         <div class="product-quantity-section">
             <label class="option-section-title" for="quantity"> : Quantity</label>
             <div class="quantity-controls">
-                <button class="qty-btn minus">−</button>
+                <button onclick="decrementQuantity()" class="qty-btn minus">−</button>
                 <input type="number" id="quantity" name="quantity" value="1" min="1" class="no-arrows">
-                <button class="qty-btn plus">+</button>
+                <button onclick="incrementQuantity()" class="qty-btn plus">+</button>
             </div>
         </div>
         <div class="product-buttons-section">
-            <button class="order-now-btn">
-                <span>Order Now</span>
-                <span><i class="fa-solid fa-bag-shopping"></i></span>
-            </button>
+                <a href="#order-section" class="order-now-btn">
+                    <span>Order Now</span>
+                    <span><i class="fa-solid fa-bag-shopping"></i></span>
+                </a>
+            
             <button class="add-to-cart-btn">
                 <span>Add To Cart</span>
                 <span><img src="\static\imges\icon\Style=Stroke, Type=Rounded (1).svg" alt=""></span>
@@ -180,26 +195,26 @@
     </div>
     <div class="all-desctiption-info">
         <h1>Desctiption information</h1>
-        <p>
+        <p id="desctiption_1">
             Crafted from premium full-grain leather, this backpack is perfect for daily commutes and travel. 
             It features a spacious main compartment, a padded laptop sleeve, and multiple zip pockets for easy organization. 
             Built to last and designed for style, this is your new go-to everyday carry.
-            <br>
-            <br>
+        </p>
+        <br>
+        <p id="desctiption_2">
             Crafted from premium full-grain leather, this backpack is perfect for daily commutes and travel. 
             It features a spacious main compartment, a padded laptop sleeve, and multiple zip pockets for easy organization. 
-            Built to last and designed for style, this is your new go-to everyday carry.ve, and multiple zip pockets for easy organization. 
             Built to last and designed for style, this is your new go-to everyday carry.
-             <br>
-            <br>
+        </p>
+        <br>
+        <p id="desctiption_3">
             Crafted from premium full-grain leather, this backpack is perfect for daily commutes and travel. 
             It features a spacious main compartment, a padded laptop sleeve, and multiple zip pockets for easy organization. 
-            Built to last and designed for style, this is your new go-to everyday carry.ve, and multiple zip pockets for easy organization. 
             Built to last and designed for style, this is your new go-to everyday carry.
         </p>
     </div>
 </div>
-<div class="order-section">
+<div id="order-section" class="order-section">
     <div class="order-image">
         <img src="\static\imges\icon\pexels-asphotograpy-230544.jpg" alt="Product image">
     </div>
@@ -210,23 +225,29 @@
         <div class="create-order-data">
             <div class="form-group">
                 <label for="firstName">First name</label>
-                <input type="text" id="firstName" placeholder="Enter You First name" name="firstName" required>
+                <input type="text" id="firstName" placeholder="Enter Your First name" name="firstName" required>
+                <div class="error-message" id="error-firstName"></div>
             </div>
             <div class="form-group">
                 <label for="lastName">Last name</label>
-                <input type="text" id="lastName"  placeholder="Enter You Last Name" name="lastName" required>
+                <input type="text" id="lastName" placeholder="Enter Your Last Name" name="lastName" required>
+                <div class="error-message" id="error-lastName"></div>
             </div>
             <div class="form-group">
                 <label for="address">Address</label>
-                <input type="text" id="address"  placeholder="Enter You Address"  name="address" required>
+                <input type="text" id="address" placeholder="Enter Your Address" name="address" required>
+                <div class="error-message" id="error-address"></div>
             </div>
             <div class="form-group">
                 <label for="phone">Phone number</label>
-                <input type="tel" id="phone" name="phone"  placeholder="Enter You Phone"  required>
+                <input type="tel" id="phone" name="phone" placeholder="Enter Your Phone" required>
+                <div class="error-message" id="error-phone"></div>
             </div>
-            <button type="submit" class="submit-button">
+            <button onclick="ConfirmOrder()" type="button" class="submit-button">
                 <i class="fas fa-check-circle"></i> Confirm Order
+                <span id="Orderloader"></span>
             </button>
+
         </div>
     </div>
 </div>
@@ -235,243 +256,57 @@
     <h1>Similar products</h1>
     <br>
     <div class="products-grid-2">
-                       <div class="product-card">
-            <div class="products-img">
-                <img src="\static\imges\icon\img.svg" alt="">
-            </div>
-            <div class="products-name">
-                Samsung Galaxy Note 4 SM-N910C 32GB
-            </div>
+        {% for card in  similar_products %}
+            <div class="product-card">
+                <div onclick="viewProductdetailes('{{ card.id }}')" class="products-img">
+                    {% if card.image_1 %}
+                        <img src="{{ card.image_1.url }}" alt="{{ card.name }}">
+                    {% else %}
+                        <img src="\static\imges\istockphoto-1147544807-612x612.jpg" alt="Default Image">
+                    {% endif %}
+                </div>
+                <div class="products-name">
+                    {{card.name}}
+                </div>
 
-            <div class="products-range">
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <br>
-                <span>4.5</span>
-                <span class="order-count">(123 Orders)</span>
+                <div class="products-range">
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <br>
+                    <span>4.5</span>
+                    {% if card.image %}
+                        <span class="order-count">({{ card.orders_count }} Orders)</span>
+                    {% else %}
+                        <span class="order-count"></span>
+                    {% endif %}
+                </div>
+                    <div class="products-prices">
+                    <span class="main-price">{{ card.price }}{{currency}}</span>
+                </div>
+                <div class="product-add-to-cart-btn">
+                    <button onclick="addToCart('{{ card.id }}')" class="add-to-cart-btn">
+                        <span>Add To Cart</span>
+                        <img src="\static\imges\icon\Style=Stroke, Type=Rounded (1).svg" alt="">
+                    </button>
+                    <main onclick="addToWishlist('{{ card.id }}')"><img src="\static\imges\icon\add-Saved-btn.svg" alt=""></main>
+                </div>
             </div>
-                <div class="products-prices">
-                <span class="main-price">$1128.00</span>
-            </div>
-            <div class="product-add-to-cart-btn">
-                <button class="add-to-cart-btn">
-                    <span>Add To Cart</span>
-                    <img src="\static\imges\icon\Style=Stroke, Type=Rounded (1).svg" alt="">
-                </button>
-                <main><img src="\static\imges\icon\add-Saved-btn.svg" alt=""></main>
-            </div>
-        </div>
-                        <div class="product-card">
-            <div class="products-img">
-                <img src="\static\imges\icon\img.svg" alt="">
-            </div>
-            <div class="products-name">
-                Samsung Galaxy Note 4 SM-N910C 32GB
-            </div>
-
-            <div class="products-range">
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <br>
-                <span>4.5</span>
-                <span class="order-count">(123 Orders)</span>
-            </div>
-                <div class="products-prices">
-                <span class="main-price">$1128.00</span>
-            </div>
-            <div class="product-add-to-cart-btn">
-                <button class="add-to-cart-btn">
-                    <span>Add To Cart</span>
-                    <img src="\static\imges\icon\Style=Stroke, Type=Rounded (1).svg" alt="">
-                </button>
-                <main><img src="\static\imges\icon\add-Saved-btn.svg" alt=""></main>
-            </div>
-        </div>
-                        <div class="product-card">
-            <div class="products-img">
-                <img src="\static\imges\icon\img.svg" alt="">
-            </div>
-            <div class="products-name">
-                Samsung Galaxy Note 4 SM-N910C 32GB
-            </div>
-
-            <div class="products-range">
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <br>
-                <span>4.5</span>
-                <span class="order-count">(123 Orders)</span>
-            </div>
-                <div class="products-prices">
-                <span class="main-price">$1128.00</span>
-            </div>
-            <div class="product-add-to-cart-btn">
-                <button class="add-to-cart-btn">
-                    <span>Add To Cart</span>
-                    <img src="\static\imges\icon\Style=Stroke, Type=Rounded (1).svg" alt="">
-                </button>
-                <main><img src="\static\imges\icon\add-Saved-btn.svg" alt=""></main>
-            </div>
-        </div>
-                        <div class="product-card">
-            <div class="products-img">
-                <img src="\static\imges\icon\img.svg" alt="">
-            </div>
-            <div class="products-name">
-                Samsung Galaxy Note 4 SM-N910C 32GB
-            </div>
-
-            <div class="products-range">
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <br>
-                <span>4.5</span>
-                <span class="order-count">(123 Orders)</span>
-            </div>
-                <div class="products-prices">
-                <span class="main-price">$1128.00</span>
-            </div>
-            <div class="product-add-to-cart-btn">
-                <button class="add-to-cart-btn">
-                    <span>Add To Cart</span>
-                    <img src="\static\imges\icon\Style=Stroke, Type=Rounded (1).svg" alt="">
-                </button>
-                <main><img src="\static\imges\icon\add-Saved-btn.svg" alt=""></main>
-            </div>
-        </div>
-                        <div class="product-card">
-            <div class="products-img">
-                <img src="\static\imges\icon\img.svg" alt="">
-            </div>
-            <div class="products-name">
-                Samsung Galaxy Note 4 SM-N910C 32GB
-            </div>
-
-            <div class="products-range">
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <br>
-                <span>4.5</span>
-                <span class="order-count">(123 Orders)</span>
-            </div>
-                <div class="products-prices">
-                <span class="main-price">$1128.00</span>
-            </div>
-            <div class="product-add-to-cart-btn">
-                <button class="add-to-cart-btn">
-                    <span>Add To Cart</span>
-                    <img src="\static\imges\icon\Style=Stroke, Type=Rounded (1).svg" alt="">
-                </button>
-                <main><img src="\static\imges\icon\add-Saved-btn.svg" alt=""></main>
-            </div>
-        </div>
-                        <div class="product-card">
-            <div class="products-img">
-                <img src="\static\imges\icon\img.svg" alt="">
-            </div>
-            <div class="products-name">
-                Samsung Galaxy Note 4 SM-N910C 32GB
-            </div>
-
-            <div class="products-range">
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <br>
-                <span>4.5</span>
-                <span class="order-count">(123 Orders)</span>
-            </div>
-                <div class="products-prices">
-                <span class="main-price">$1128.00</span>
-            </div>
-            <div class="product-add-to-cart-btn">
-                <button class="add-to-cart-btn">
-                    <span>Add To Cart</span>
-                    <img src="\static\imges\icon\Style=Stroke, Type=Rounded (1).svg" alt="">
-                </button>
-                <main><img src="\static\imges\icon\add-Saved-btn.svg" alt=""></main>
-            </div>
-        </div>
-                        <div class="product-card">
-            <div class="products-img">
-                <img src="\static\imges\icon\img.svg" alt="">
-            </div>
-            <div class="products-name">
-                Samsung Galaxy Note 4 SM-N910C 32GB
-            </div>
-
-            <div class="products-range">
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <br>
-                <span>4.5</span>
-                <span class="order-count">(123 Orders)</span>
-            </div>
-                <div class="products-prices">
-                <span class="main-price">$1128.00</span>
-            </div>
-            <div class="product-add-to-cart-btn">
-                <button class="add-to-cart-btn">
-                    <span>Add To Cart</span>
-                    <img src="\static\imges\icon\Style=Stroke, Type=Rounded (1).svg" alt="">
-                </button>
-                <main><img src="\static\imges\icon\add-Saved-btn.svg" alt=""></main>
-            </div>
-        </div>
-                        <div class="product-card">
-            <div class="products-img">
-                <img src="\static\imges\icon\img.svg" alt="">
-            </div>
-            <div class="products-name">
-                Samsung Galaxy Note 4 SM-N910C 32GB
-            </div>
-
-            <div class="products-range">
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <br>
-                <span>4.5</span>
-                <span class="order-count">(123 Orders)</span>
-            </div>
-                <div class="products-prices">
-                <span class="main-price">$1128.00</span>
-            </div>
-            <div class="product-add-to-cart-btn">
-                <button class="add-to-cart-btn">
-                    <span>Add To Cart</span>
-                    <img src="\static\imges\icon\Style=Stroke, Type=Rounded (1).svg" alt="">
-                </button>
-                <main><img src="\static\imges\icon\add-Saved-btn.svg" alt=""></main>
-            </div>
-        </div>
+        {% endfor %}
     </div>
 </section>
+
 <script>
     const mainDomain = "{{ main_domin|escapejs }}";
     const currencySymbol = "{{ currency|escapejs }}";
 </script>
 <script src="{% static 'js/product-details.js' %}"></script>
+<div class="spinre">
+    <div class="loader"></div>
+</div>
+
 {% endblock %}
+
+

@@ -5,6 +5,11 @@ from datetime import timedelta
 CURRENCY_SYMBOL = "MAD \n"  # أو "$"
 MINE_DOMINE = "http://127.0.0.1:8000/"
 MINE_COUNTRIES = "Morocco"
+
+OPTION1 = "Color"
+OPTION2 = "size"
+OPTION3 = "memory"
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
