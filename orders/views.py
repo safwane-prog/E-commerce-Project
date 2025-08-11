@@ -5,6 +5,8 @@ from rest_framework import status
 from rest_framework import permissions
 from .models import *
 from .serializers import *
+from rest_framework.permissions import AllowAny,IsAdminUser,IsAuthenticated
+from django.shortcuts import get_object_or_404
 
 
 class Add_To_Cart(APIView):
@@ -74,3 +76,41 @@ class SupplierinquiryView(APIView):
             },
             status=status.HTTP_400_BAD_REQUEST
         )
+    
+
+class CartItemsViewsBuyUser(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, id=None):
+
+        user = request.user
+
+        if not user.is_authenticated:
+            return Response({"error": "User undefined"}, status=401)
+
+        items = CartItem.objects.filter(cart__user=user)
+        serializer = CartItemSerializer(items, many=True)
+        return Response(serializer.data)
+
+    def delete(self, request, id):
+        item = get_object_or_404(CartItem, id=id)
+        item.delete()
+        return Response({"message": "Item deleted successfully"})
+
+    def put(self, request, id):
+        item = get_object_or_404(CartItem, id=id)
+        quantity_change = request.data.get("quantity_change")  # example: +1 or -1
+
+        try:
+            quantity_change = int(quantity_change)
+        except (TypeError, ValueError):
+            return Response({"error": "Invalid quantity value"}, status=400)
+
+        item.quantity += quantity_change
+        if item.quantity <= 0:
+            item.delete()
+            return Response({"message": "Item removed from cart"})
+        
+        item.save()
+        return Response({"message": "Quantity updated", "quantity": item.quantity})
+

@@ -3,6 +3,7 @@ from products.models import Product
 from django.conf import settings
 from .models import StoreHeroImage,StoreSettings
 from products.models import Category,Option
+from orders.models import CartItem
 
 def Base(request):
     logo = StoreSettings.objects.first()
@@ -85,4 +86,4 @@ def Profile(request):
 
 
 def cart(request):
-    return render(request,'cart.html')
+    return render(request, 'cart.html')

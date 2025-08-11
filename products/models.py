@@ -20,6 +20,18 @@ class Option(models.Model):
     def __str__(self):
         return self.name
 
+class Color(models.Model):
+    name = models.CharField(max_length=200)
+    
+    def __str__(self):
+        return self.name
+    
+
+class Size(models.Model):
+    name = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.name
 
 class Product(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -45,8 +57,10 @@ class Product(models.Model):
     is_active = models.BooleanField(default=True)
     sales_count = models.PositiveIntegerField(default=0)
 
-    categories = models.ManyToManyField(Category, related_name='products')
-    options = models.ManyToManyField(Option, related_name='products')
+    categories = models.ManyToManyField(Category, related_name='products', null=True, blank=True)
+    options = models.ManyToManyField(Option, related_name='products', null=True, blank=True)
+    color = models.ManyToManyField(Color, related_name='products', null=True, blank=True)
+    size = models.ManyToManyField(Size, related_name='products', null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

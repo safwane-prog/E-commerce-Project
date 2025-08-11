@@ -1,10 +1,11 @@
 from rest_framework import generics
+from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import PageNumberPagination
 from .models import Product
 from .serializers import ProductShopSerializer
-from .filters import ProductFilter  # الفلتر الذي كتبناه
+from .filters import ProductFilter  
 
 class ProductPagination(PageNumberPagination):
     page_size = 12
@@ -18,3 +19,4 @@ class ProductShop(generics.ListAPIView):
     pagination_class = ProductPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = ProductFilter
+

@@ -1,14 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Arimo:ital,wght@0,400..700;1,400..700&family=Changa:wght@200..800&family=El+Messiri:wght@400..700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <title>My Profile - Ecommerce Store</title>
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}My Profile - Ecommerce Store{% endblock %}
+{% block content %}
     <style>
         * {
             padding: 0;
@@ -552,47 +545,6 @@
             margin-left: 16px;
         }
     </style>
-</head>
-<body>
-    <!-- Header -->
-    <div class="header-contener">
-        <header>
-            <div class="logo-head">
-                <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 40'><rect width='100' height='40' fill='%233348FF'/><text x='50' y='25' text-anchor='middle' fill='white' font-family='Arial, sans-serif' font-size='14' font-weight='bold'>LOGO</text></svg>" alt="Store Logo">
-            </div>
-            <div class="searsh-head">
-                <div class="searsh-section">
-                    <input type="text" placeholder="Find product">
-                    <select>
-                        <option>All Categories</option>
-                        <option>Electronics</option>
-                        <option>Fashion</option>
-                        <option>Home</option>
-                    </select>
-                    <button>Search</button>
-                </div>
-            </div>
-            <div class="play-icon-list">
-                <div class="order-icon-head">
-                    <i class="fas fa-box"></i>
-                    <span>Orders</span>
-                </div>
-                <div class="order-icon-head">
-                    <i class="fas fa-heart"></i>
-                    <span>Saved</span>
-                </div>
-                <div class="order-icon-head">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span>My cart</span>
-                </div>
-                <div class="order-icon-head">
-                    <i class="fas fa-user"></i>
-                    <span>Profile</span>
-                </div>
-            </div>
-        </header>
-    </div>
-
     <!-- Profile Container -->
     <div class="profile-container">
         <!-- Sidebar -->
@@ -918,21 +870,6 @@
         </div>
     </div>
 
-    <!-- Footer -->
-    <div class="footer-content">
-        <footer>
-            <div class="footer-section-bottom">
-                <div class="footer-bottom-text">
-                    Copyright © 1995-2025 Company Inc. All Rights Reserved
-                </div>
-                <div class="footer-bottom-links">
-                    <a href="">Terms of service</a>
-                    <a href="">Privacy policy</a>
-                </div>
-            </div>
-        </footer>
-    </div>
-
     <script>
         // Menu navigation
         document.querySelectorAll('.menu-item').forEach(item => {
@@ -1157,5 +1094,4 @@
         window.addEventListener('resize', handleMobileView);
         handleMobileView(); // Call on load
     </script>
-</body>
-</html>
+{% endblock %}
