@@ -40,3 +40,9 @@ class ProductShopSerializer(serializers.ModelSerializer):
             }
             for option in obj.options.all()
         ]
+
+
+class ProductDetileserializers(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = '__all__'
