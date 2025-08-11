@@ -1,6 +1,23 @@
-from djoser.views import UserViewSet
+# Django
+from django.contrib.auth import get_user_model, login
+from django.contrib.auth.models import update_last_login
+
+# Django REST Framework
+from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+
+# JWT (SimpleJWT)
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import get_user_model
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+# Djoser
+from djoser.views import UserViewSet
+
 
 User = get_user_model()
 
@@ -39,19 +56,6 @@ class CustomUserViewSet(UserViewSet):
 
         return response
 
-
-# views.py
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework_simplejwt.tokens import RefreshToken
-
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.response import Response
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from django.contrib.auth import login
-from django.contrib.auth.models import update_last_login
-
 class CookieTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
@@ -88,13 +92,6 @@ class CookieTokenObtainPairView(TokenObtainPairView):
                 return Response({'detail': 'فشل التحقق من المستخدم'}, status=401)
 
         return response
-    
-
-from djoser.views import UserViewSet
-from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import login
-from django.contrib.auth.models import update_last_login
 
 class CustomRegisterView(UserViewSet):
     def create(self, request, *args, **kwargs):
@@ -123,31 +120,12 @@ class CustomRegisterView(UserViewSet):
             return res
         return response
 
-
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-
 class LogoutView(APIView):
     def post(self, request):
         res = Response({"message": "تم تسجيل الخروج بنجاح"})
         res.delete_cookie("access_token", path="/")
         res.delete_cookie("refresh_token", path="/")
         return res
-
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.exceptions import TokenError
 
 class RefreshTokenView(APIView):
     authentication_classes = []  # لا نتحقق من التوكن هنا
