@@ -6,4 +6,5 @@ urlpatterns = [
     path("auth/users/register/", CustomRegisterView.as_view({"post": "create"}), name="user_register"),  # تسجيل حساب
     path("auth/users/logout/", LogoutView.as_view(), name="logout"),  # تسجيل خروج
     path('auth/jwt/refresh/', RefreshTokenView.as_view(), name='token_refresh'),
+    # path('api/profile/', ProfileAPIView.as_view(), name='api-profile'),
 ]

@@ -4,17 +4,25 @@ from django.conf import settings
 from .models import StoreHeroImage,StoreSettings
 from products.models import Category,Option
 from orders.models import CartItem
+from rest_framework.permissions import IsAuthenticated
 
 def Base(request):
+    # تحديد حالة المستخدم
+    is_user_authenticated = request.user.is_authenticated
+
+    # البيانات الأساسية
     logo = StoreSettings.objects.first()
-    categorys = Category.objects.all()
+    categories = Category.objects.all()
     currency = settings.CURRENCY_SYMBOL
+
     context = {
-        'logo':logo,
-        'categorys':categorys,
-        'currency':currency,
+        'logo': logo,
+        'categories': categories,
+        'currency': currency,
+        'user_authenticated': is_user_authenticated,
     }
     return context
+
 
 # Home
 def Home(request):

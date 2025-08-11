@@ -8,6 +8,7 @@ class CustomUserCreateSerializer(UserCreateSerializer):
         fields = ('id', 'username', 'email', 'password')
         def create(self, validated_data):
             user = super().create(validated_data)
+            # إنشاء ملف التعريف Profile تلقائياً عند إنشاء المستخدم
             Cart.objects.create(user=user)
             wishlist.objects.create(user=user)
             Profile.objects.create(

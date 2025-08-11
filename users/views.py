@@ -2,6 +2,12 @@
 from django.contrib.auth import get_user_model, login
 from django.contrib.auth.models import update_last_login
 
+# tables
+from orders.models import Order ,CartItem,wishlist,wishlistItem
+from website.models import Profile
+from .models import CustomUser
+from .serializers import *
+
 # Django REST Framework
 from rest_framework import status
 from rest_framework.views import APIView
@@ -155,3 +161,4 @@ class RefreshTokenView(APIView):
 
         except TokenError:
             return Response({'detail': 'Refresh token غير صالح أو منتهي'}, status=status.HTTP_401_UNAUTHORIZED)
+
