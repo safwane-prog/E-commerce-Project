@@ -2,7 +2,7 @@ from django.db import models
 import uuid
 from  products.models import Product
 from django.contrib.auth import get_user_model
-
+from django.conf import settings
 User = get_user_model()
 
 
@@ -13,14 +13,18 @@ class Cart(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items',null=True,blank=True)
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items', null=True, blank=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
-    options = models.CharField(max_length=100,null=True, blank=True)
-    color = models.CharField( max_length=100,null=True, blank=True)
-    size = models.CharField(max_length=100,null=True, blank=True)
+    options = models.CharField(max_length=100, null=True, blank=True)
+    color = models.CharField(max_length=100, null=True, blank=True)
+    size = models.CharField(max_length=100, null=True, blank=True)
+    is_ordered = models.BooleanField(default=False)
+
 
 class Order(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders', null=True, blank=True)
+
     class OrderState(models.TextChoices):
         PENDING = "Pending", "Pending"
         CONFIRMED = "Confirmed", "Confirmed"
@@ -70,6 +74,7 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order {self.id} - {self.customer_name}"
+
 
 
 class SupplierInquiry(models.Model):

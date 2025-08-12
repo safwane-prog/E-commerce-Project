@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="empty-cart">
                     <h3>Cart is Empty</h3>
                     <p>No products in the shopping cart</p>
-                    <a href="/" class="continue-shopping-btn">Continue Shopping</a>
+                    <a href="/shop" class="continue-shopping-btn">Continue Shopping</a>
                 </div>
             `;
             updateCartCount(0);
@@ -316,34 +316,58 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Attach Event Listeners
-    function attachEventListeners() {
-        document.querySelectorAll('.quantity-btn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                const itemId = this.dataset.itemId;
-                const action = this.dataset.action;
-                const quantityChange = action === 'increase' ? 1 : -1;
+// Attach Event Listeners
+function attachEventListeners() {
+    document.querySelectorAll('.quantity-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const itemId = this.dataset.itemId;
+            const action = this.dataset.action;
+            const quantityChange = action === 'increase' ? 1 : -1;
+
+            // الحصول على الكمية الحالية من الحقل المرتبط بالمنتج
+            const quantityInput = document.querySelector(
+                `.quantity-input[data-item-id="${itemId}"]`
+            );
+            const currentQuantity = parseInt(quantityInput.value) || 1;
+
+            // منع الإنقاص إذا الكمية 1
+            if (quantityChange < 0 && currentQuantity <= 1) {
+                // رسالة بسيطة للمستخدم
+                const msg = document.createElement('div');
+                msg.style.color = 'red';
+                msg.style.fontSize = '13px';
+                msg.style.marginTop = '5px';
                 
-                updateItemQuantity(itemId, quantityChange);
-            });
-        });
+                // إظهار الرسالة أسفل الحقل إذا لم تكن موجودة
+                if (!quantityInput.nextElementSibling || quantityInput.nextElementSibling.textContent !== msg.textContent) {
+                    quantityInput.parentNode.appendChild(msg);
+                    setTimeout(() => msg.remove(), 2000);
+                }
+                return;
+            }
 
-        document.querySelectorAll('.remove-item-btn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                const itemId = this.dataset.itemId;
-                removeItem(itemId);
-            });
+            updateItemQuantity(itemId, quantityChange);
         });
+    });
 
-        document.querySelectorAll('.save-for-later-btn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                const itemId = this.dataset.itemId;
-                saveForLater(itemId);
-            });
+    document.querySelectorAll('.remove-item-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const itemId = this.dataset.itemId;
+            removeItem(itemId);
         });
-    }
+    });
+
+    document.querySelectorAll('.save-for-later-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const itemId = this.dataset.itemId;
+            saveForLater(itemId);
+        });
+    });
+}
+
 
     // Checkout functionality
     function handleCheckout() {

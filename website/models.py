@@ -59,3 +59,16 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+
+
+class Contact(models.Model):
+    foll_name = models.CharField(max_length=50)
+    email = models.EmailField(blank=True, null=True)
+    subject = models.CharField(max_length=100)
+    message = models.TextField()
+    is_reading = models.BooleanField(default=False)  # هل تم قراءة الرسالة؟
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f" {self.foll_name} - {self.subject}"

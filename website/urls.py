@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import *
 
 
 urlpatterns = [
@@ -12,4 +13,8 @@ urlpatterns = [
     path('cart/',views.cart,name='cart_page'),
     path('checkout/',views.checkout,name='checkout'),
     path('confirmation/<str:id>',views.Confirmation,name='Confirmation'),
+
+
+    # api urls
+    path('contact/create/', ContactCreateAPIView.as_view(), name='contact-create'),
 ]

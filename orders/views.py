@@ -8,6 +8,7 @@ from .serializers import *
 from rest_framework.permissions import AllowAny,IsAdminUser,IsAuthenticated
 from django.shortcuts import get_object_or_404
 
+
 class Add_To_Cart(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -19,23 +20,41 @@ class Add_To_Cart(APIView):
         if not product_id:
             return Response({"message": "Product ID is required"}, status=400)
 
+        # التحقق من وجود المنتج
         try:
             product = Product.objects.get(id=product_id)
         except Product.DoesNotExist:
             return Response({"message": "Product not found"}, status=404)
 
-        existing_item = CartItem.objects.filter(cart=cart, product=product).first()
+        # قراءة القيم (مع التعامل مع null و "")
+        quantity = request.data.get('quantity') or 1
+        color = request.data.get('color') or None
+        size = request.data.get('size') or None
+        options = request.data.get('options') or None
+
+        # إذا حابب تعتبر المنتج نفسه إذا نفس اللون والحجم والاختيار
+        existing_item = CartItem.objects.filter(
+            cart=cart,
+            product=product,
+            color=color,
+            size=size,
+            options=options
+        ).first()
+
         if existing_item:
-            # بدل 400، نرجع 200 مع رسالة مناسبة
             return Response({"message": "Product already in cart"}, status=200)
 
         CartItem.objects.create(
             cart=cart,
             product=product,
-            quantity=1
+            quantity=quantity,
+            color=color,
+            size=size,
+            options=options
         )
 
         return Response({"message": "Product added successfully"}, status=201)
+
 
 
 class Add_To_Wishlist(APIView):
@@ -98,7 +117,7 @@ class CartItemsViewsBuyUser(APIView):
         if not user.is_authenticated:
             return Response({"error": "User undefined"}, status=401)
 
-        items = CartItem.objects.filter(cart__user=user)
+        items = CartItem.objects.filter(cart__user=user,is_ordered=False)
         serializer = CartItemSerializer(items, many=True)
         return Response(serializer.data)
 
@@ -174,13 +193,71 @@ class CreateOrderNoAuthenticated(APIView):
 class CreateOrder(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
-        
+    def get(self, request):
         user = request.user
-
         if not user.is_authenticated:
             return Response({"error": "User undefined"}, status=401)
 
-        items = CartItem.objects.filter(cart__user=user)
-
+        # جلب العناصر التي لم تُشترى فقط
+        items = CartItem.objects.filter(cart__user=user, is_ordered=False)
         
+        # حساب المبالغ
+        subtotal = 0
+        shipping = 10  # مثلا قيمة ثابتة أو يمكن تعديلها حسب النظام
+        discount = 0   # خصم ثابت أو من النظام
+        for item in items:
+            price = item.product.price  # تأكد من وجود حقل السعر في المنتج
+            subtotal += price * item.quantity
+        
+        total = subtotal + shipping - discount
+
+        serializer = CartItemSerializer(items, many=True)
+
+        return Response({
+            "items": serializer.data,
+            "subtotal": subtotal,
+            "shipping": shipping,
+            "discount": discount,
+            "total": total
+        })
+
+    def post(self, request):
+        user = request.user
+        if not user.is_authenticated:
+            return Response({"error": "User undefined"}, status=401)
+
+        customer_name = request.data.get("customer_name")
+        customer_email = request.data.get("customer_email")
+        customer_phone = request.data.get("customer_phone")
+        customer_address = request.data.get("customer_address")
+        city = request.data.get("city")
+
+        if not all([customer_name, customer_phone, customer_address, city]):
+            return Response({"error": "Missing required customer information"}, status=400)
+
+        items = CartItem.objects.filter(cart__user=user, is_ordered=False)
+        if not items.exists():
+            return Response({"error": "Cart is empty"}, status=400)
+
+        order = Order.objects.create(
+            state=Order.OrderState.PENDING,
+            payment_method=Order.PaymentMethod.CASH_ON_DELIVERY,
+            customer_name=customer_name,
+            customer_email=customer_email,
+            customer_phone=customer_phone,
+            customer_address=customer_address,
+            city=city,
+            user=user
+        )
+
+        # إضافة المنتجات للطلب (ManyToManyField)
+        for item in items:
+            order.products.add(item.product)
+
+            # تعيين is_ordered=True
+            item.is_ordered = True
+            item.save()
+
+        order.save()
+
+        return Response({"message": "Order created successfully", "order_id": order.id}, status=201)

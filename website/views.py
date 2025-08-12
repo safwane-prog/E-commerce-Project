@@ -6,7 +6,7 @@ from products.models import Category,Option
 from orders.models import CartItem
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
-
+from orders.models import Order
 
 def Base(request):
     # تحديد حالة المستخدم
@@ -126,8 +126,50 @@ def checkout(request):
 
 def Confirmation(request, id):
     base_context = Base(request)  # جلب logo
-    context = {
 
+    order = get_object_or_404(Order, id=id)
+    subtotal = sum(float(product.price) for product in order.products.all())
+    shipping = 9.99  # مثال ثابت
+    tax = subtotal * 0.08  # مثال 8%
+    discount = 20.00  # مثال ثابت
+    total = subtotal + shipping + tax - discount
+
+    context = {
+        'order': order,
+        'subtotal': subtotal,
+        'shipping': shipping,
+        'tax': tax,
+        'discount': discount,
+        'total': total,
     }
     context.update(base_context)
     return render(request,'Confirmation.html',context)
+
+
+
+
+
+
+
+# ________________________________________________________________________
+# 
+#                              create api
+# ________________________________________________________________________
+
+
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+from rest_framework import status
+from .serializers import ContactSerializer
+
+class ContactCreateAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = ContactSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Contact message created successfully"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

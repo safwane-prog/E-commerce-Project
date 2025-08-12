@@ -155,8 +155,57 @@ if (!data.options || data.options.length === 0) {
 }
 
 document.querySelector('.add-to-cart-btn').addEventListener('click', () => {
+    let hasError = false;
+    let firstErrorElement = null;
+
+    // أقسام الخيارات اللي نتحقق منها
+    const optionSections = [
+        { id: 'product-color-section-sectopn', name: 'color', errorId: 'error-color' },
+        { id: 'product-size-section-sectopn', name: 'size', errorId: 'error-size' },
+        { id: 'product-option-section-sectopn', name: 'option', errorId: 'error-option' }
+    ];
+
+    // مسح أي رسائل خطأ قديمة
+    optionSections.forEach(section => {
+        const oldError = document.getElementById(section.errorId);
+        if (oldError) oldError.remove();
+    });
+
+    // التحقق من كل قسم إذا كان ظاهر ومطلوب
+    optionSections.forEach(section => {
+        const sectionEl = document.getElementById(section.id);
+        if (sectionEl && sectionEl.style.display !== 'none') {
+            const inputs = sectionEl.querySelectorAll(`input[name="${section.name}"]`);
+            if (inputs.length > 0) {
+                const checked = sectionEl.querySelector(`input[name="${section.name}"]:checked`);
+                if (!checked) {
+                    // إنشاء رسالة خطأ تحت القسم
+                    let errorEl = document.getElementById(section.errorId);
+                    if (!errorEl) {
+                        errorEl = document.createElement('div');
+                        errorEl.id = section.errorId;
+                        errorEl.style.color = 'red';
+                        errorEl.style.marginTop = '5px';
+                        sectionEl.appendChild(errorEl);
+                    }
+                    errorEl.textContent = `Please select a ${section.name}`;
+                    hasError = true;
+                    if (!firstErrorElement) firstErrorElement = sectionEl;
+                }
+            }
+        }
+    });
+
+    // إذا فيه خطأ، نسكرول لأول خطأ ونوقف
+    if (hasError) {
+        firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+    }
+
+    // إذا مافيه خطأ، نضيف للعربة
     addToCart(productId);
 });
+
 
 document.querySelector('.add-Saved-btn').addEventListener('click', () => {
     addToWishlist(productId);

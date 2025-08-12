@@ -4,378 +4,66 @@
 
 {% block content %}
 <link rel="stylesheet" href="\static\css\Confirmation.css">
-    <style>
-        * {
-            padding: 0;
-            margin: 0;
-            box-sizing: border-box;
-            font-family: "Changa", sans-serif;
-        }
 
-        :root {
-            --border-color: #DCE0E5;
-            --text-color: #14181F;
-            --light-text: #525E6F;
-            --bg-light: #EDF0F2;
-            --success-color: #48BB78;
-        }
+<div class="confirmation-container">
+    <div class="confirmation-card">
+        <div class="confirmation-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h1 class="confirmation-title">Thank You For Your Order!</h1>
+        <p class="confirmation-subtitle">Your order has been received and is being processed</p>
+        <div class="order-number">Order #{{ order.id }}</div>
+        <p class="confirmation-message">
+            We've sent a confirmation email to <strong>{{ order.customer_email }}</strong> with your order details. 
+            You'll receive another email when your order ships. If you have any questions, please contact our customer service.
+        </p>
+        <div class="btn-group">
+            <a href="{% url 'Shop' %}" class="btn btn-primary">Continue Shopping</a>
+            <a href="{% url 'profile' %}#orders" class="btn btn-outline">Track Your Order</a>
+        </div>
+    </div>
 
-        body {
-            background-color: var(--bg-light);
-        }
-
-        .confirmation-container {
-            max-width: 1240px;
-            margin: 40px auto;
-        }
-
-        .confirmation-card {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            padding: 40px;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .confirmation-icon {
-            font-size: 60px;
-            color: var(--success-color);
-            margin-bottom: 20px;
-        }
-
-        .confirmation-title {
-            font-size: 32px;
-            color: var(--text-color);
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-
-        .confirmation-subtitle {
-            font-size: 18px;
-            color: var(--light-text);
-            margin-bottom: 30px;
-        }
-
-        .order-number {
-            font-size: 20px;
-            color: var(--main-color);
-            font-weight: 600;
-            margin-bottom: 30px;
-        }
-
-        .confirmation-message {
-            font-size: 16px;
-            color: var(--light-text);
-            margin-bottom: 30px;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-            line-height: 1.6;
-        }
-
-        .btn {
-            padding: 14px 30px;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            transition: all 0.3s ease;
-            display: inline-block;
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background-color: var(--main-color);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: #2a3fd1;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(51, 72, 255, 0.2);
-        }
-
-        .btn-outline {
-            background: white;
-            color: var(--main-color);
-            border: 2px solid var(--main-color);
-            margin-left: 15px;
-        }
-
-        .btn-outline:hover {
-            background: rgba(51, 72, 255, 0.05);
-        }
-
-        .order-details {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            padding: 30px;
-            margin-bottom: 30px;
-        }
-
-        .order-details h2 {
-            font-size: 24px;
-            color: var(--text-color);
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-
-        .details-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-        }
-
-        .detail-section {
-            margin-bottom: 20px;
-        }
-
-        .detail-section h3 {
-            font-size: 18px;
-            color: var(--text-color);
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-
-        .detail-content {
-            font-size: 16px;
-            color: var(--light-text);
-            line-height: 1.6;
-        }
-
-        .detail-content p {
-            margin-bottom: 8px;
-        }
-
-        .order-items {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            padding: 30px;
-        }
-
-        .order-items h2 {
-            font-size: 24px;
-            color: var(--text-color);
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-
-        .order-item {
-            display: flex;
-            gap: 20px;
-            padding: 20px 0;
-            border-bottom: 1px solid var(--border-color);
-            align-items: center;
-        }
-
-        .order-item:last-child {
-            border-bottom: none;
-        }
-
-        .item-image {
-            width: 80px;
-            height: 80px;
-            background: var(--bg-light);
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--light-text);
-            font-weight: bold;
-            flex-shrink: 0;
-        }
-
-        .item-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 6px;
-        }
-
-        .item-details {
-            flex: 1;
-            text-align: left;
-        }
-
-        .item-name {
-            font-size: 18px;
-            color: var(--text-color);
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-
-        .item-sku {
-            font-size: 14px;
-            color: var(--light-text);
-            margin-bottom: 5px;
-        }
-
-        .item-price {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-color);
-        }
-
-        .item-quantity {
-            font-size: 16px;
-            color: var(--light-text);
-        }
-
-        .order-totals {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px solid var(--border-color);
-        }
-
-        .total-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-        }
-
-        .total-row:last-child {
-            margin-bottom: 0;
-        }
-
-        .total-label {
-            font-size: 16px;
-            color: var(--light-text);
-        }
-
-        .total-value {
-            font-size: 16px;
-            color: var(--text-color);
-            font-weight: 600;
-        }
-
-        .grand-total {
-            font-size: 20px;
-            color: var(--main-color);
-            font-weight: 700;
-        }
-
-        @media (max-width: 768px) {
-            .confirmation-card {
-                padding: 30px 20px;
-            }
-            
-            .confirmation-title {
-                font-size: 28px;
-            }
-            
-            .confirmation-subtitle {
-                font-size: 16px;
-            }
-            
-            .btn-group {
-                display: flex;
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            .btn-outline {
-                margin-left: 0;
-            }
-            
-            .order-item {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .item-image {
-                margin-bottom: 15px;
-            }
-        }
-    </style>
-    <div class="confirmation-container">
-        <div class="confirmation-card">
-            <div class="confirmation-icon">
-                <i class="fas fa-check-circle"></i>
+    <div class="order-items">
+        <h2>Order Items</h2>
+        
+        {% for product in order.products.all %}
+        <div class="order-item">
+            <div class="item-image">
+                <img src="{{ product.image_1.url }}" alt="{{ product.name }}">
             </div>
-            <h1 class="confirmation-title">Thank You For Your Order!</h1>
-            <p class="confirmation-subtitle">Your order has been received and is being processed</p>
-            <div class="order-number">Order #123456</div>
-            <p class="confirmation-message">
-                We've sent a confirmation email to <strong>customer@example.com</strong> with your order details. 
-                You'll receive another email when your order ships. If you have any questions, please contact our customer service.
-            </p>
-            <div class="btn-group">
-                <a href="{% url 'Shop' %}" class="btn btn-primary" >Continue Shopping</a>
-                <a href="{% url 'profile' %}#orders" class="btn btn-outline">Track Your Order</a>
+            <div class="item-details">
+                <div class="item-name">{{ product.name }}</div>
+                <!-- لو عندك حقل SKU أو رمز تعريفي استخدمه هنا -->
+                <!-- <div class="item-sku">SKU: {{ product.sku }}</div> -->
+                <div class="item-price">{{ product.price }} {{ currencySymbol|default:"$" }}</div>
+                <div class="item-quantity">Qty: 1</div> <!-- الكمية مفقودة في موديل Order حاليا -->
             </div>
         </div>
-
-        <div class="order-items">
-            <h2>Order Items</h2>
-            
-            <div class="order-item">
-                <div class="item-image">
-                    <img src="" alt="Premium Headphones">
-                </div>
-                <div class="item-details">
-                    <div class="item-name">Premium Headphones</div>
-                    <div class="item-sku">SKU: HD-2023-BLK</div>
-                    <div class="item-price">$299.99</div>
-                    <div class="item-quantity">Qty: 1</div>
-                </div>
+        {% endfor %}
+        
+        <div class="order-totals">
+            <div class="total-row">
+                <span class="total-label">Subtotal:</span>
+                <span class="total-value">{{ subtotal|floatformat:2 }} {{ currencySymbol|default:"$" }}</span>
             </div>
-            
-            <div class="order-item">
-                <div class="item-image">
-                    <img src="" alt="Protective Case">
-                </div>
-                <div class="item-details">
-                    <div class="item-name">Protective Case</div>
-                    <div class="item-sku">SKU: CS-2023-BLK</div>
-                    <div class="item-price">$49.99</div>
-                    <div class="item-quantity">Qty: 1</div>
-                </div>
+            <div class="total-row">
+                <span class="total-label">Shipping:</span>
+                <span class="total-value">{{ shipping|floatformat:2 }} {{ currencySymbol|default:"$" }}</span>
             </div>
-            
-            <div class="order-item">
-                <div class="item-image">
-                    <img src="" alt="USB-C Cable">
-                </div>
-                <div class="item-details">
-                    <div class="item-name">USB-C Cable</div>
-                    <div class="item-sku">SKU: CB-2023-USB</div>
-                    <div class="item-price">$14.99</div>
-                    <div class="item-quantity">Qty: 2</div>
-                </div>
+            <div class="total-row">
+                <span class="total-label">Tax:</span>
+                <span class="total-value">{{ tax|floatformat:2 }} {{ currencySymbol|default:"$" }}</span>
             </div>
-            
-            <div class="order-totals">
-                <div class="total-row">
-                    <span class="total-label">Subtotal:</span>
-                    <span class="total-value">$379.96</span>
-                </div>
-                <div class="total-row">
-                    <span class="total-label">Shipping:</span>
-                    <span class="total-value">$9.99</span>
-                </div>
-                <div class="total-row">
-                    <span class="total-label">Tax:</span>
-                    <span class="total-value">$31.19</span>
-                </div>
-                <div class="total-row">
-                    <span class="total-label">Discount:</span>
-                    <span class="total-value" style="color: var(--success-color);">-$20.00</span>
-                </div>
-                <div class="total-row grand-total">
-                    <span>Total:</span>
-                    <span>$401.14</span>
-                </div>
+            <div class="total-row">
+                <span class="total-label">Discount:</span>
+                <span class="total-value" style="color: var(--success-color);">-{{ discount|floatformat:2 }} {{ currencySymbol|default:"$" }}</span>
+            </div>
+            <div class="total-row grand-total">
+                <span>Total:</span>
+                <span>{{ total|floatformat:2 }} {{ currencySymbol|default:"$" }}</span>
             </div>
         </div>
     </div>
-<script>
-    const mainDomain = "{{ main_domin|escapejs }}";
-    const currencySymbol = "{{ currency|escapejs }}";
-</script>
+</div>
 
-<script src="\static\js\Confirmation.js"></script>
 {% endblock %}
