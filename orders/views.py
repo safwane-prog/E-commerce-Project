@@ -168,3 +168,19 @@ class CreateOrderNoAuthenticated(APIView):
         order.save()
 
         return Response({"message": "Order created successfully", "order_id": str(order.id)}, status=status.HTTP_201_CREATED)
+
+
+
+class CreateOrder(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        
+        user = request.user
+
+        if not user.is_authenticated:
+            return Response({"error": "User undefined"}, status=401)
+
+        items = CartItem.objects.filter(cart__user=user)
+
+        

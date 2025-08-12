@@ -16,6 +16,9 @@ class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items',null=True,blank=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
+    options = models.CharField(max_length=100,null=True, blank=True)
+    color = models.CharField( max_length=100,null=True, blank=True)
+    size = models.CharField(max_length=100,null=True, blank=True)
 
 class Order(models.Model):
     class OrderState(models.TextChoices):

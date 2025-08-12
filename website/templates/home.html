@@ -76,7 +76,7 @@
                 {{ product.name|slice:":20" }}{% if product.name|length > 20 %}...{% endif %}
             </div>
             <div class="product-offers-card-descount">
-                {{ product.discount|default:"--------" }}%
+                {{ product.discount|default:"--" }}%
             </div>
         </div>
     {% endfor %}

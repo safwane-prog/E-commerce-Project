@@ -72,6 +72,14 @@ header{
     gap: 5px;
     text-decoration: none;
 }
+.order-icon-head i{
+    font-size: 22px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #14181F;
+}
 
 .order-icon-head span{
     font-size: 13px;

@@ -53,10 +53,17 @@
                         <img src="{% static 'imges/icon/shopping-basket-01.svg' %}" alt="">
                         <span>My cart</span>
                     </a>
+                    <a href="{% url 'profile' %}" class="order-icon-head order-icon-head22">
+                        <i class="bi bi-person"></i>
+                        <span>profile</span>
+                    </a>
                 </div>
             {% else %}
-                <button>Login</button>
-                <button>Register</button>
+                <div class="auth-bottons">
+                    <a href="{% url 'login_page' %}">
+                        <button>Login</button>
+                    </a>
+                </div>
             {% endif %}
         </header>
     </div>

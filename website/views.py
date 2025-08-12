@@ -5,6 +5,8 @@ from .models import StoreHeroImage,StoreSettings
 from products.models import Category,Option
 from orders.models import CartItem
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+
 
 def Base(request):
     # تحديد حالة المستخدم
@@ -72,29 +74,60 @@ def Shop(request):
     }
     context.update(base_context)  # دمج logo مع بقية البيانات
     return render(request, 'shop.html', context)
-  # أضف context هنا
 
 # contact
 def Contact(request):
-    
     base_context = Base(request)  # جلب logo
-
     context = {
-        
+
     }
-    context.update(base_context)  # دمج logo مع بقية البيانات
-    return render(request,'contact.html')
+    context.update(base_context) 
+    return render(request,'contact.html',context)
 
 
 def Login(request):
-    return render(request,'login.html')
+    base_context = Base(request)  # جلب logo
+    context = {
+
+    }
+    context.update(base_context) 
+    return render(request,'login.html',context)
 
 
 
 def Profile(request):
-    return render(request,'profile.html')
+    base_context = Base(request)  # جلب logo
+    context = {
+
+    }
+    context.update(base_context) 
+    return render(request,'profile.html',context)
 
 
 
 def cart(request):
-    return render(request, 'cart.html')
+    base_context = Base(request)  # جلب logo
+    context = {
+
+    }
+    context.update(base_context) 
+    return render(request, 'cart.html',context)
+
+
+
+def checkout(request):
+    base_context = Base(request)  # جلب logo
+    context = {
+
+    }
+    context.update(base_context) 
+    return render(request,'checkout.html',context)
+
+
+def Confirmation(request, id):
+    base_context = Base(request)  # جلب logo
+    context = {
+
+    }
+    context.update(base_context)
+    return render(request,'Confirmation.html',context)

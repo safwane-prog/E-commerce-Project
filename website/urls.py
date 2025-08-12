@@ -10,4 +10,6 @@ urlpatterns = [
     path('login/',views.Login,name='login_page'),
     path('profile/',views.Profile,name='profile'),
     path('cart/',views.cart,name='cart_page'),
+    path('checkout/',views.checkout,name='checkout'),
+    path('confirmation/<str:id>',views.Confirmation,name='Confirmation'),
 ]

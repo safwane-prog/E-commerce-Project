@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Your Store</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Changa:wght@200..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            font-family: "Changa", sans-serif;
+        }
+
+        :root {
+            --main-color: #3348FF;
+            --main-color2: #7B93FF;
+            --border-color: #DCE0E5;
+            --text-color: #14181F;
+            --light-text: #525E6F;
+            --bg-light: #EDF0F2;
+        }
+
+        body {
+            background-color: var(--bg-light);
+        }
+
+        .checkout-container {
+            max-width: 1240px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .checkout-form {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .checkout-form h1 {
+            font-size: 28px;
+            color: var(--text-color);
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--border-color);
+            z-index: 1;
+            transform: translateY(-50%);
+        }
+
+        .progress-step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--border-color);
+            color: var(--light-text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .progress-step.completed {
+            background: var(--main-color);
+            color: white;
+        }
+
+        .progress-step.active {
+            background: var(--main-color2);
+            color: white;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section h2 {
+            font-size: 20px;
+            color: var(--text-color);
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            flex: 1;
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--light-text);
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--main-color);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .checkbox-group input {
+            accent-color: var(--main-color);
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .payment-method {
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .payment-method:hover {
+            border-color: var(--main-color);
+        }
+
+        .payment-method.active {
+            border-color: var(--main-color);
+            background: rgba(51, 72, 255, 0.1);
+        }
+
+        .security-badges {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            font-size: 14px;
+            color: var(--light-text);
+        }
+
+        .security-badge {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn {
+            padding: 14px 20px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--main-color);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background-color: #2a3fd1;
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-light);
+            color: var(--text-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--border-color);
+        }
+
+        /* Order Summary Styles */
+        .order-summary {
+            flex: 0 0 350px;
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .order-summary h2 {
+            font-size: 20px;
+            color: var(--text-color);
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .order-item {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            align-items: center;
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-image {
+            width: 50px;
+            height: 50px;
+            background: var(--bg-light);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--light-text);
+            font-weight: bold;
+        }
+
+        .item-details {
+            flex: 1;
+        }
+
+        .item-name {
+            font-size: 15px;
+            color: var(--text-color);
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .item-quantity {
+            color: var(--light-text);
+            font-size: 14px;
+        }
+
+        .item-price {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .promo-code {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .promo-code input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 15px;
+        }
+
+        .summary-row.total {
+            font-weight: 700;
+            font-size: 17px;
+            color: var(--text-color);
+            border-bottom: none;
+            padding-top: 10px;
+        }
+
+        .summary-row.total span:last-child {
+            color: var(--main-color);
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 840px) {
+            .checkout-container {
+                flex-direction: column;
+            }
+            
+            .order-summary {
+                flex: 1;
+                width: 100%;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="checkout-container">
+        <div class="checkout-form">
+            <h1>Checkout</h1>
+            
+            <div class="progress-bar">
+                <div class="progress-step completed">1</div>
+                <div class="progress-step active">2</div>
+                <div class="progress-step">3</div>
+            </div>
+
+            <form>
+                <div class="section">
+                    <h2>Shipping Information</h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">First Name</label>
+                            <input type="text" id="firstName" name="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" id="lastName" name="lastName" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address">Street Address</label>
+                        <input type="text" id="address" name="address" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" id="city" name="city" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <select id="state" name="state" required>
+                                <option value="">Select State</option>
+                                <option value="CA">California</option>
+                                <option value="NY">New York</option>
+                                <option value="TX">Texas</option>
+                                <option value="FL">Florida</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="zip">ZIP Code</label>
+                            <input type="text" id="zip" name="zip" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="country">Country</label>
+                            <select id="country" name="country" required>
+                                <option value="US">United States</option>
+                                <option value="CA">Canada</option>
+                                <option value="UK">United Kingdom</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="sameAsBilling" name="sameAsBilling">
+                        <label for="sameAsBilling">Billing address same as shipping</label>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>Payment Method</h2>
+                    
+                    <div class="payment-methods">
+                        <div class="payment-method active">
+                            <div><i class="far fa-credit-card"></i></div>
+                            <div>Credit Card</div>
+                        </div>
+                        <div class="payment-method">
+                            <div><i class="fab fa-cc-paypal"></i></div>
+                            <div>PayPal</div>
+                        </div>
+                        <div class="payment-method">
+                            <div><i class="fab fa-cc-apple-pay"></i></div>
+                            <div>Apple Pay</div>
+                        </div>
+                        <div class="payment-method">
+                            <div><i class="fab fa-google-pay"></i></div>
+                            <div>Google Pay</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cardNumber">Card Number</label>
+                        <input type="text" id="cardNumber" name="cardNumber" placeholder="1234 5678 9012 3456" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="expiry">Expiry Date</label>
+                            <input type="text" id="expiry" name="expiry" placeholder="MM/YY" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cvv">CVV</label>
+                            <input type="text" id="cvv" name="cvv" placeholder="123" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cardName">Name on Card</label>
+                        <input type="text" id="cardName" name="cardName" required>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="saveCard" name="saveCard">
+                        <label for="saveCard">Save this card for future purchases</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Complete Order</button>
+            </form>
+
+            <div class="security-badges">
+                <div class="security-badge">
+                    <i class="fas fa-lock"></i>
+                    <span>SSL Encrypted</span>
+                </div>
+                <div class="security-badge">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Secure Checkout</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="order-summary">
+            <h2>Order Summary</h2>
+            
+            <div class="order-item">
+                <div class="item-image">PRO</div>
+                <div class="item-details">
+                    <div class="item-name">Premium Headphones</div>
+                    <div class="item-quantity">Qty: 1</div>
+                </div>
+                <div class="item-price">$299.99</div>
+            </div>
+
+            <div class="order-item">
+                <div class="item-image">CASE</div>
+                <div class="item-details">
+                    <div class="item-name">Protective Case</div>
+                    <div class="item-quantity">Qty: 1</div>
+                </div>
+                <div class="item-price">$49.99</div>
+            </div>
+
+            <div class="order-item">
+                <div class="item-image">CABLE</div>
+                <div class="item-details">
+                    <div class="item-name">USB-C Cable</div>
+                    <div class="item-quantity">Qty: 2</div>
+                </div>
+                <div class="item-price">$29.98</div>
+            </div>
+
+            <div class="promo-code">
+                <input type="text" placeholder="Promo code">
+                <button type="button" class="btn btn-secondary">Apply</button>
+            </div>
+
+            <div class="summary-row">
+                <span>Subtotal:</span>
+                <span>$379.96</span>
+            </div>
+
+            <div class="summary-row">
+                <span>Shipping:</span>
+                <span>$9.99</span>
+            </div>
+
+            <div class="summary-row">
+                <span>Tax:</span>
+                <span>$31.19</span>
+            </div>
+
+            <div class="summary-row">
+                <span>Discount:</span>
+                <span style="color: #48bb78;">-$20.00</span>
+            </div>
+
+            <div class="summary-row total">
+                <span>Total:</span>
+                <span>$401.14</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Payment method selection
+        document.querySelectorAll('.payment-method').forEach(method => {
+            method.addEventListener('click', function() {
+                document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Card number formatting
+        document.getElementById('cardNumber').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+            let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+            e.target.value = formattedValue;
+        });
+
+        // Expiry date formatting
+        document.getElementById('expiry').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            }
+            e.target.value = value;
+        });
+
+        // Form submission
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Order submitted successfully!');
+        });
+
+        // Promo code application
+        document.querySelector('.promo-code button').addEventListener('click', function() {
+            const promoInput = document.querySelector('.promo-code input');
+            if (promoInput.value.toLowerCase() === 'save20') {
+                alert('Promo code applied! $20 discount added.');
+            } else if (promoInput.value) {
+                alert('Invalid promo code. Try "SAVE20" for a demo discount.');
+            }
+        });
+    </script>
+</body>
+</html>

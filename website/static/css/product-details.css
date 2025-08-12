@@ -219,22 +219,53 @@ html{
     text-align: end;
 }
 
-input[type="checkbox"] {
-    appearance: none;        /* لإزالة التصميم الافتراضي */
-    -webkit-appearance: none;
-    -moz-appearance: none;
+input[type="checkbox"],
+input[type="radio"] {
+    display: none;
+}
+.color-label {
+    display: inline-block;
     width: 40px;
     height: 40px;
-    border: 2px solid #888;
-    border-radius: 4px;
-    background-color: #ff0000;
+    border-radius: 6px;
     cursor: pointer;
-    position: relative;
-    margin: 10px 0px;
+    margin: 5px;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
 }
 
-input[type="checkbox"]:checked {
-    background-color: #4CAF50; /* لون عند التحديد */
+/* عند التحديد */
+input[type="checkbox"]:checked + .color-label,
+input[type="radio"]:checked + .color-label {
+    border-color: #000;
+    box-shadow: 0 0 5px rgba(0,0,0,0.4);
+}
+.mina-option-section-32{
+    display: flex;
+    align-items: center;
+    justify-content: end;
+}
+
+/* ======== الأحجام والخيارات ======== */
+.size-label, .option-label {
+    display: inline-block;
+    padding: 8px 15px;
+    margin: 5px;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    cursor: pointer;
+    background: #f7f7f7;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+/* عند التحديد */
+input[type="checkbox"]:checked + .size-label,
+input[type="radio"]:checked + .size-label,
+input[type="checkbox"]:checked + .option-label,
+input[type="radio"]:checked + .option-label {
+    background: #4CAF50;
+    color: #fff;
     border-color: #4CAF50;
 }
 

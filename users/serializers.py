@@ -1,6 +1,7 @@
 from djoser.serializers import UserCreateSerializer
+from rest_framework import serializers
 from .models import CustomUser
-from orders.models import  Cart,wishlist
+from orders.models import  Cart,wishlist,Order
 from website.models import Profile
 class CustomUserCreateSerializer(UserCreateSerializer):
     class Meta(UserCreateSerializer.Meta):
@@ -20,3 +21,7 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 
 
 
+# class OrderUserserializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Order
+#         fields = ['id','created_at','products','state']

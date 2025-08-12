@@ -70,7 +70,11 @@
                     </div>
                     <div class="card-content">
                         <h3>Our Address</h3>
-                        <p>123 Business Street, Berlin, Germany</p>
+                        {% if logo.address %}
+                            <p>{{logo.address}}</p>
+                        {% else %}
+                            <p>123 Business Street, Berlin, Germany</p>
+                        {% endif %}
                     </div>
                 </div>
                 
@@ -80,8 +84,11 @@
                     </div>
                     <div class="card-content">
                         <h3>Phone Number</h3>
-                        <p>+49 30 123 4567</p>
-                        <p>+49 30 987 6543</p>
+                        {% if logo.phone %}
+                            <p>{{logo.phone}}</p>
+                        {% else %}
+                            <p>+49 30 987 6543</p>
+                        {% endif %}
                     </div>
                 </div>
                 
@@ -91,8 +98,11 @@
                     </div>
                     <div class="card-content">
                         <h3>Working Hours</h3>
-                        <p>Mon-Fri: 9:00 - 18:00</p>
-                        <p>Sat: 10:00 - 15:00</p>
+                        {% if logo.working_hours %}
+                            <p>{{logo.working_hours}}</p>
+                        {% else %}
+                            <p>Mon-Fri: 9:00 - 18:00</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -105,19 +115,16 @@
                 </div>
                 
                 <div class="social-icons">
-                    <a href="#" class="social-icon" aria-label="Facebook">
+                    <a href="{{ logo.facebook|default:'#' }}" class="social-icon" aria-label="Facebook">
                         <i class="fab fa-facebook-f"></i>
                     </a>
-                    <a href="#" class="social-icon" aria-label="Twitter">
-                        <i class="fab fa-twitter"></i>
+                    <a href="{{ logo.whatsapp|default:'#' }}" class="social-icon" aria-label="Twitter">
+                        <i class="fab fa-whatsapp"></i>
                     </a>
-                    <a href="#" class="social-icon" aria-label="Instagram">
+                    <a href="{{ logo.instagram|default:'#' }}" class="social-icon" aria-label="Instagram">
                         <i class="fab fa-instagram"></i>
                     </a>
-                    <a href="#" class="social-icon" aria-label="LinkedIn">
-                        <i class="fab fa-linkedin-in"></i>
-                    </a>
-                    <a href="#" class="social-icon" aria-label="YouTube">
+                    <a href="{{ logo.youtube|default:'#' }}" class="social-icon" aria-label="YouTube">
                         <i class="fab fa-youtube"></i>
                     </a>
                 </div>
@@ -127,7 +134,7 @@
     
     <!-- Map Section -->
     <div class="map-section">
-        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2428.40922317922!2d13.37539531580709!3d52.51686597981038!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47a851c655f20989%3A0x26bbfb4e84674c63!2sBrandenburger%20Tor!5e0!3m2!1sen!2sde!4v1620000000000!5m2!1sen!2sde" 
+        <iframe src="{{ logo.location_map_link|default:'#' }}" 
                 width="100%" 
                 height="450" 
                 style="border:0;" 

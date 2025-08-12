@@ -162,3 +162,7 @@ class RefreshTokenView(APIView):
         except TokenError:
             return Response({'detail': 'Refresh token غير صالح أو منتهي'}, status=status.HTTP_401_UNAUTHORIZED)
 
+# class ProfileAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
