@@ -494,7 +494,11 @@ class ShopManager {
                 this.showNotification(data.message, 'success');
                 this.updateCartCount();
             } else {
-                this.showNotification(data.message || 'Failed to add product to cart', 'error');
+                if (response.status === 401) {
+                    this.showAuthMessage();
+                } else {
+                    this.showNotification(data.message || 'Failed to add product to cart', 'error');
+                }
             }
         } catch (error) {
             console.error('Error adding to cart:', error);
@@ -520,7 +524,11 @@ class ShopManager {
                 this.showNotification(data.message, 'success');
                 this.updateWishlistIcon(productId, true);
             } else {
-                this.showNotification(data.message || 'Failed to add product to wishlist', 'error');
+                if (response.status === 401) {
+                    this.showAuthMessage();
+                } else {
+                    this.showNotification(data.message || 'Failed to add product to wishlist', 'error');
+                }
             }
         } catch (error) {
             console.error('Error adding to wishlist:', error);
@@ -558,6 +566,36 @@ class ShopManager {
             this.elements.loadingIndicator.style.display = 'none';
         }
     }
+    showAuthMessage() {
+        // إنشاء عنصر الإشعار
+        const authAlert = document.createElement("div");
+        authAlert.className = "auth-alert auth-alert-warning";
+
+        // إضافة أيقونة مع النص
+        authAlert.innerHTML = `
+            <i class="fa-solid fa-exclamation-triangle" style="margin-right:8px;"></i>
+            Please log in to perform this action.
+        `;
+
+        // إضافته للصفحة
+        document.body.appendChild(authAlert);
+
+        // إظهار الإشعار بتأثير الإزاحة بعد قليل
+        setTimeout(() => {
+            authAlert.classList.add("auth-alert-show");
+        }, 50);
+
+        // إخفاؤه بعد 4 ثوانٍ
+        setTimeout(() => {
+            authAlert.classList.remove("auth-alert-show");
+            // إزالة العنصر بعد انتهاء التأثير
+            setTimeout(() => {
+                authAlert.remove();
+            }, 500);
+        }, 4000);
+    }
+
+
 
     showError(message) {
         const productSection = this.elements.productSection;
@@ -576,21 +614,29 @@ class ShopManager {
     }
 
     showNotification(message, type = 'info') {
-        let notification = document.getElementById('notification');
-        if (!notification) {
-            notification = document.createElement('div');
-            notification.id = 'notification';
-            document.body.appendChild(notification);
-        }
-
-        notification.className = `notification ${type}`;
-        notification.textContent = message;
-        notification.style.display = 'block';
-
-        setTimeout(() => {
-            notification.style.display = 'none';
-        }, 3000);
+    let notification = document.getElementById('notification');
+    if (!notification) {
+        notification = document.createElement('div');
+        notification.id = 'notification';
+        document.body.appendChild(notification);
     }
+
+    notification.className = `notification ${type}`;
+
+    // استخدام innerHTML لإضافة رسالة مع أيقونة
+    notification.innerHTML = `
+        <i class="fa-solid ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i>
+        <span>${message}</span>
+    `;
+
+    notification.style.display = 'block';
+
+    setTimeout(() => {
+        notification.classList.add('fade-out');
+        setTimeout(() => notification.remove(), 500);
+    }, 3000);
+}
+
 
     updateUrl() {
         const params = new URLSearchParams();

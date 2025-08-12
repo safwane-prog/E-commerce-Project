@@ -162,7 +162,102 @@ class RefreshTokenView(APIView):
         except TokenError:
             return Response({'detail': 'Refresh token غير صالح أو منتهي'}, status=status.HTTP_401_UNAUTHORIZED)
 
-# class ProfileAPIView(APIView):
-#     permission_classes = [IsAuthenticated]
 
-#     def get(self, request):
+
+# views.py
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+
+class UserProfileDetaile(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        orders = Order.objects.filter(user=user)
+        total_spent = sum(
+            sum(float(p.price) for p in order.products.all()) for order in orders
+        )
+
+        wishlist_count = wishlist.objects.filter(user=user).count()
+        user_wishlist, _ = wishlist.objects.get_or_create(user=user)
+        wishlist_user = wishlistItem.objects.filter(wishlist=user_wishlist)
+
+        messages = Contact.objects.filter(user=user)
+        data = {
+            "order_count": orders.count(),
+            "orders": OrderSerializer(orders, many=True, context={"request": request}).data,
+            "wishlist_count": wishlist_count,
+            "wishlist_items": WishlistItemSerializer(
+                wishlist_user, many=True, context={"request": request}
+            ).data,
+            "messages_count": messages.count(),
+            "messages": ContactSerializer(messages, many=True).data,  # هنا بيانات الرسائل كاملة مع الردود
+            "total_spent": total_spent,
+            "profile": UserSerializer(user, context={"request": request}).data
+        }
+        return Response(data)
+
+
+    def post(self, request):
+        """
+        إضافة أو تحديث تقييم لمنتج
+        """
+        product_id = request.data.get("product_id")
+        rating_value = request.data.get("rating")
+        review_text = request.data.get("review", "")
+
+        if not product_id or not rating_value:
+            return Response({"error": "product_id and rating are required"}, status=400)
+
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            return Response({"error": "Product not found"}, status=404)
+
+        Rating.objects.update_or_create(
+            product=product,
+            email=request.user.email,
+            defaults={
+                "name": request.user.get_full_name() or request.user.username,
+                "rating": rating_value,
+                "review": review_text
+            }
+        )
+        return Response({"message": "Rating saved successfully"})
+    def patch(self, request):
+            user = request.user
+            profile = getattr(user, "profile", None)
+
+            # تحديث بيانات user
+            profile_fields = ['phone_number', 'address', 'city', 'country', 'profile_img','first_name','last_name']  # لاحظ هنا عدلت avatar لـ profile_img حسب الحقل الجديد
+            for field in profile_fields:
+                if field in request.data:
+                    if field == 'profile_img' and request.FILES.get('avatar'):
+                        setattr(profile, field, request.FILES['avatar'])
+                    elif field != 'profile_img':
+                        value = request.data.getlist(field)[0]
+                        setattr(profile, field, value)
+            profile.save()
+            print(request.data)
+            # تحديث بيانات البروفايل
+            if profile:
+                profile_fields = ['phone_number', 'address', 'city', 'country', 'profile_img']
+                for field in profile_fields:
+                    if field == 'profile_img' and request.FILES.get('profile_img'):
+                        setattr(profile, field, request.FILES['profile_img'])
+                    elif field != 'profile_img' and field in request.data:
+                        setattr(profile, field, request.data[field])
+                profile.save()
+            else:
+                profile = Profile.objects.create(
+                    user=user,
+                    phone_number=request.data.get('phone_number', ''),
+                    address=request.data.get('address', ''),
+                    city=request.data.get('city', ''),
+                    country=request.data.get('country', ''),
+                    profile_img=request.FILES.get('profile_img')
+                )
+
+            return Response({"message": "Profile updated successfully"}, status=status.HTTP_200_OK)

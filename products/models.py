@@ -1,7 +1,7 @@
 from django.db import models
 import uuid
 from django.core.validators import MinValueValidator, MaxValueValidator
-
+from django.conf import settings
 
 class Category(models.Model):
     name = models.CharField(max_length=200)
@@ -82,6 +82,8 @@ class Product(models.Model):
 
 
 class Rating(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='Rating', null=True, blank=True)
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='ratings')
     name = models.CharField(max_length=200)

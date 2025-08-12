@@ -880,13 +880,19 @@ input[type="radio"]:checked + .option-label {
 }
 
 .notification.success {
-    background-color: #28a745;
+    background: linear-gradient(135deg, #10b981, #059669);
 }
 
 .notification.error {
-    background-color: #dc3545;
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
 }
-
+.notification.fade-out {
+    animation: fade-out 0.5s ease-out forwards;
+}
+@keyframes fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
 @keyframes slideIn {
     to {
         transform: translateX(0);
@@ -897,4 +903,25 @@ input[type="radio"]:checked + .option-label {
     color: red;
     font-size: 0.85em;
     margin-top: 4px;
+}
+
+.auth-alert {
+    position: fixed;
+    top: 20px;
+    right: -300px;
+    padding: 15px 20px;
+    color: #fff;
+    border-radius: 6px;
+    font-size: 16px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: right 0.5s ease;
+    z-index: 9999;
+}
+
+.auth-alert-warning {
+    background-color: #ff9800; /* برتقالي */
+}
+
+.auth-alert-show {
+    right: 20px;
 }

@@ -408,13 +408,50 @@ function showNotification(message, type = 'info') {
     }
 
     notification.className = `notification ${type}`;
-    notification.textContent = message;
+
+    // استخدام innerHTML لإضافة رسالة مع أيقونة
+    notification.innerHTML = `
+        <i class="fa-solid ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i>
+        <span>${message}</span>
+    `;
+
     notification.style.display = 'block';
 
     setTimeout(() => {
-        notification.style.display = 'none';
+        notification.classList.add('fade-out');
+        setTimeout(() => notification.remove(), 500);
     }, 3000);
 }
+
+
+  function  showAuthMessage() {
+        // إنشاء عنصر الإشعار
+        const authAlert = document.createElement("div");
+        authAlert.className = "auth-alert auth-alert-warning";
+
+        // إضافة أيقونة مع النص
+        authAlert.innerHTML = `
+            <i class="fa-solid fa-exclamation-triangle" style="margin-right:8px;"></i>
+            Please log in to perform this action.
+        `;
+
+        // إضافته للصفحة
+        document.body.appendChild(authAlert);
+
+        // إظهار الإشعار بتأثير الإزاحة بعد قليل
+        setTimeout(() => {
+            authAlert.classList.add("auth-alert-show");
+        }, 50);
+
+        // إخفاؤه بعد 4 ثوانٍ
+        setTimeout(() => {
+            authAlert.classList.remove("auth-alert-show");
+            // إزالة العنصر بعد انتهاء التأثير
+            setTimeout(() => {
+                authAlert.remove();
+            }, 500);
+        }, 4000);
+    }
 
 async function addToCart(product_Id) {
     try {
@@ -453,10 +490,14 @@ async function addToCart(product_Id) {
         });
 
         const data = await response.json();
-        if (!response.ok) {
-            showNotification(data.message || 'Error adding to cart', 'error');
-        } else {
+        if (response.ok) {
             showNotification(data.message || 'Added to cart successfully', 'success');
+        } else {
+            if (response.status === 401) {
+                showAuthMessage();
+            } else {
+                showNotification(data.message || 'Error adding to cart', 'error');
+            }
         }
     } catch (error) {
         console.error('Error adding to cart:', error);
@@ -481,7 +522,13 @@ async function addToWishlist(product_Id) {
 
         if (response.ok) {
             showNotification(data.message, 'success');
-        } 
+        } else {
+            if (response.status === 401) {
+                showAuthMessage();
+            } else {
+                showNotification(data.message || 'Failed to add product to wishlist', 'error');
+            }
+        }
     } catch (error) {
         console.error('Error adding to wishlist:', error);
         showNotification('Failed to add product to wishlist', 'error');

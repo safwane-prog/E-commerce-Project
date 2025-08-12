@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 import os
 import uuid
 from django.contrib.auth import get_user_model
+from django.conf import settings
 
 User = get_user_model()
 
@@ -43,17 +44,38 @@ class StoreHeroImage(models.Model):
 
 
 
+from django.db import models
+from django.contrib.auth import get_user_model
+import uuid
+
+
+def profile_img_upload_path(instance, filename):
+    return f'profiles/user_{instance.user.id}/{filename}'
+
 class Profile(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
-    phone_number = models.CharField(max_length=20, blank=True, null=True)
-    bio = models.TextField(blank=True, null=True)
-    address = models.CharField(max_length=255, blank=True, null=True)
-    birth_date = models.DateField(blank=True, null=True)
-    avatar = models.ImageField(upload_to="profiles/", blank=True, null=True)
-    city = models.CharField(max_length=100, blank=True, null=True)
+    
+    profile_img = models.ImageField(
+        upload_to=profile_img_upload_path,
+        blank=True,
+        null=True,
+        verbose_name="Profile Image"
+    )
+    
+    first_name = models.CharField(max_length=150, blank=True, null=True)
+    last_name = models.CharField(max_length=150, blank=True, null=True)
+    
+    email = models.EmailField(blank=True, null=True)
+    
     country = models.CharField(max_length=100, blank=True, null=True)
-    website = models.URLField(blank=True, null=True)
+    
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    
+    address = models.CharField(max_length=255, blank=True, null=True)
+    
+    city = models.CharField(max_length=100, blank=True, null=True)
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -63,6 +85,7 @@ class Profile(models.Model):
 
 
 class Contact(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     foll_name = models.CharField(max_length=50)
     email = models.EmailField(blank=True, null=True)
     subject = models.CharField(max_length=100)
@@ -72,3 +95,17 @@ class Contact(models.Model):
 
     def __str__(self):
         return f" {self.foll_name} - {self.subject}"
+
+
+class AdminRepliedForContactMessage(models.Model):
+    contact = models.ForeignKey(
+        Contact,
+        on_delete=models.CASCADE,
+        related_name="admin_replies"
+    )
+    admin_name = models.CharField(max_length=50)  # اسم الأدمن اللي رد
+    reply_message = models.TextField()  # نص الرد
+    created_at = models.DateTimeField(auto_now_add=True)  # وقت الرد
+
+    def __str__(self):
+        return f"Reply to: {self.contact.foll_name} - {self.contact.subject}"

@@ -83,6 +83,29 @@ class Add_To_Wishlist(APIView):
             product=product
         )
         return Response({"message": "Product added successfully"}, status=201)
+    
+    def delete(self, request, product_id=None):
+        user = request.user
+        wishlist_obj = wishlist.objects.filter(user=user).first()
+
+        if not product_id:
+            return Response({"message": "Product ID is required"}, status=400)
+
+        if not wishlist_obj:
+            return Response({"message": "Wishlist not found"}, status=404)
+
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            return Response({"message": "Product not found"}, status=404)
+
+        item = wishlistItem.objects.filter(wishlist=wishlist_obj, product=product).first()
+        if not item:
+            return Response({"message": "Product not in wishlist"}, status=404)
+
+        item.delete()
+        return Response({"message": "Product removed from wishlist"}, status=200)
+    
 
 class SupplierinquiryView(APIView):
     def post(self, request, *args, **kwargs):

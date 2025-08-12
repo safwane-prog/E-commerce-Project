@@ -24,7 +24,7 @@ class CartItem(models.Model):
 
 class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders', null=True, blank=True)
-
+    order_number = models.PositiveIntegerField(unique=True, null=True, blank=True)
     class OrderState(models.TextChoices):
         PENDING = "Pending", "Pending"
         CONFIRMED = "Confirmed", "Confirmed"
@@ -66,8 +66,13 @@ class Order(models.Model):
         choices=OrderState.choices,
         default=OrderState.PENDING
     )
-
     def save(self, *args, **kwargs):
+        if not self.order_number:
+            last_order = Order.objects.all().order_by('-order_number').first()
+            if last_order and last_order.order_number:
+                self.order_number = last_order.order_number + 1
+            else:
+                self.order_number = 1  # بداية الترقيم
         if self.state == self.OrderState.DELIVERED:
             self.is_completed = True
         super().save(*args, **kwargs)
