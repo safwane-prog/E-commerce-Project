@@ -31,11 +31,15 @@ def Base(request):
 
     logo = StoreSettings.objects.first()
     categories = Category.objects.all()
+    categories_show_5 = Category.objects.all().order_by('-id')[:5]
+    more_all_categories = Category.objects.all().order_by('-id')[5:]
     currency = settings.CURRENCY_SYMBOL
 
     context = {
         'logo': logo,
         'categories': categories,
+        'categories_': categories_show_5,
+        'more_all_categories': more_all_categories,
         'currency': currency,
         'user_authenticated': is_user_authenticated and token_valid,
     }
@@ -84,9 +88,13 @@ def Shop(request):
     base_context = Base(request)  # جلب logo
     categorys = Category.objects.all()
     options = Option.objects.all()
+    color = Color.objects.all()
+    size = Size.objects.all()
     context = {
         "category": categorys,
-        "options": options,  # ✅ تعديل الاسم ليتوافق مع القالب
+        "options": options,
+        "colors": color,
+        "sizes": size,
     }
     context.update(base_context)  # دمج logo مع بقية البيانات
     return render(request, 'shop.html', context)
@@ -177,6 +185,13 @@ def confirmation(request, id):
     context.update(base_context)
     return render(request,'Confirmation.html',context)
 
+
+def about(request):
+    base_context = Base(request)  # جلب logo
+    context = {
+    }
+    context.update(base_context) 
+    return render(request,'about.html',context)
 
 # ________________________________________________________________________
 # 

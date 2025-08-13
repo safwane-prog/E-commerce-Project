@@ -26,13 +26,13 @@ class Add_To_Cart(APIView):
         except Product.DoesNotExist:
             return Response({"message": "Product not found"}, status=404)
 
-        # قراءة القيم (مع التعامل مع null و "")
+        # قراءة القيم
         quantity = request.data.get('quantity') or 1
         color = request.data.get('color') or None
         size = request.data.get('size') or None
         options = request.data.get('options') or None
 
-        # إذا حابب تعتبر المنتج نفسه إذا نفس اللون والحجم والاختيار
+        # البحث عن المنتج نفسه
         existing_item = CartItem.objects.filter(
             cart=cart,
             product=product,
@@ -42,8 +42,16 @@ class Add_To_Cart(APIView):
         ).first()
 
         if existing_item:
-            return Response({"message": "Product already in cart"}, status=200)
+            if existing_item.is_ordered:
+                # إذا كان موجود لكن is_ordered=True → رجعه للسلة
+                existing_item.is_ordered = False
+                existing_item.quantity = quantity  # أو زيادة الكمية إذا حابب
+                existing_item.save()
+                return Response({"message": "Product restored to cart"}, status=200)
+            else:
+                return Response({"message": "Product already in cart"}, status=200)
 
+        # إذا غير موجود نهائيًا → أضفه
         CartItem.objects.create(
             cart=cart,
             product=product,
@@ -93,7 +101,7 @@ class Add_To_Wishlist(APIView):
 
         if not wishlist_obj:
             return Response({"message": "Wishlist not found"}, status=404)
-
+    
         try:
             product = Product.objects.get(id=product_id)
         except Product.DoesNotExist:
@@ -140,7 +148,7 @@ class CartItemsViewsBuyUser(APIView):
         if not user.is_authenticated:
             return Response({"error": "User undefined"}, status=401)
 
-        items = CartItem.objects.filter(cart__user=user,is_ordered=False)
+        items = CartItem.objects.filter(cart__user=user,is_ordered = False)
         serializer = CartItemSerializer(items, many=True)
         return Response(serializer.data)
 
@@ -151,7 +159,7 @@ class CartItemsViewsBuyUser(APIView):
 
     def put(self, request, id):
         item = get_object_or_404(CartItem, id=id)
-        quantity_change = request.data.get("quantity_change")  # example: +1 or -1
+        quantity_change = request.data.get("quantity_change")
 
         try:
             quantity_change = int(quantity_change)
@@ -165,7 +173,7 @@ class CartItemsViewsBuyUser(APIView):
         
         item.save()
         return Response({"message": "Quantity updated", "quantity": item.quantity})
-
+        
 
 
 
@@ -222,7 +230,7 @@ class CreateOrder(APIView):
             return Response({"error": "User undefined"}, status=401)
 
         # جلب العناصر التي لم تُشترى فقط
-        items = CartItem.objects.filter(cart__user=user, is_ordered=False)
+        items = CartItem.objects.filter(cart__user=user)
         
         # حساب المبالغ
         subtotal = 0
@@ -258,7 +266,7 @@ class CreateOrder(APIView):
         if not all([customer_name, customer_phone, customer_address, city]):
             return Response({"error": "Missing required customer information"}, status=400)
 
-        items = CartItem.objects.filter(cart__user=user, is_ordered=False)
+        items = CartItem.objects.filter(cart__user=user)
         if not items.exists():
             return Response({"error": "Cart is empty"}, status=400)
 
@@ -273,13 +281,11 @@ class CreateOrder(APIView):
             user=user
         )
 
-        # إضافة المنتجات للطلب (ManyToManyField)
         for item in items:
-            order.products.add(item.product)
-
-            # تعيين is_ordered=True
             item.is_ordered = True
+            item.order = order
             item.save()
+
 
         order.save()
 

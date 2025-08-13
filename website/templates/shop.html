@@ -3,27 +3,6 @@
 {% block title %}Electronics & Gadgets{% endblock %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/shop.css' %}">
-
-<div class="all-category">
-    <h1>Electronics & Gadgets</h1>
-    <div class="category-grid">
-        {% for category in categorys %}
-            <div class="category-item" data-category-id="{{ category.id }}">
-                <div class="category-img">
-                    {% if category.image %}
-                        <img src="{{ category.image.url }}" alt="{{ category.name }}">
-                    {% else %}
-                        <img src="{% static 'imges/istockphoto-1147544807-612x612.jpg' %}" alt="Default category image">
-                    {% endif %}
-                </div>
-                <div class="category-name">
-                    {{ category.name }}
-                </div>
-            </div>
-        {% endfor %}
-    </div>
-</div>
-
 <div class="product-container">
     <div class="filter-section">
         <div class="filter-title">
@@ -32,6 +11,7 @@
         </div>
         
         <!-- Category Filter -->
+        {% if category %}
         <div class="filter-group">
             <div class="filter-header">
                 <span>Categories</span>
@@ -40,45 +20,41 @@
                 </svg>
             </div>
             <div class="filter-body">
-                {% for category in categorys %}
+                {% for category in category %}
                     <div class="filter-item">
                         <input type="checkbox" 
-                               name="category" 
-                               id="category_{{ category.id }}" 
-                               value="{{ category.id }}"
-                               class="category-checkbox">
-                        <label for="category_{{ category.id }}">{{ category.name }}</label>
+                            name="category" 
+                            id="category_{{ category.id }}" 
+                            value="{{ category.id }}"
+                            class="category-checkbox">
+                        <label for="category_{{ category.id }}">{{ category.name|slice:":10" }}</label>
                     </div>
                 {% endfor %}
             </div>
         </div>
-
+        {% endif %}
+        
         <!-- Price Filter -->
         <div class="price-filter">
-            <div class="price-title">
-                <div class="price">Price</div>
-                <div class="price-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-up" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M1.646 10.854a.5.5 0 0 0 .708 0L8 5.207l5.646 5.647a.5.5 0 0 0 .708-.708l-6-6a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 0 .708z"/>
-                    </svg>
-                </div>
+            <div class="filter-header">
+                <span>Price Range</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-chevron-up" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M1.646 10.854a.5.5 0 0 0 .708 0L8 5.207l5.646 5.647a.5.5 0 0 0 .708-.708l-6-6a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 0 .708z" />
+                </svg>
             </div>
-
-            <div class="price-body">
+            <div class="filter-body">
                 <div class="price-range-container">
-                    <div id="main-price-black-range">
-                        <div class="price-range">
-                            <div class="range-fill"></div>
-                            <div id="price-range-left" class="handle"></div>
-                            <div id="price-range-right" class="handle"></div>
-                        </div>
+                    <input type="range" min="0" max="10000" value="10000" class="price-slider" id="price-slider">
+                    <div class="price-slider-track">
+                        <div class="price-slider-range" id="price-slider-range"></div>
                     </div>
                 </div>
-
                 <div class="price-values">
                     <div class="price-values-input">
                         <span>From</span>
-                        <input type="number" id="min-price" value="0" min="0" max="10000">
+                        <input type="number" id="min-price" value="0" min="0" max="10000" readonly>
                     </div>
                     <div class="price-values-input">
                         <span>To</span>
@@ -88,30 +64,80 @@
             </div>
         </div>
 
+
         <!-- Options Filter -->
-        <div class="option-filter-section">
-            <div class="option-filter-head">
-                <span>Options</span>
-                <span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-up" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M1.646 10.854a.5.5 0 0 0 .708 0L8 5.207l5.646 5.647a.5.5 0 0 0 .708-.708l-6-6a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 0 .708z"/>
-                    </svg>
-                </span>
+        {% if options %}
+        <div class="filter-group">
+            <div class="filter-header">
+                <span>{{option_1}}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-up" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M1.646 10.854a.5.5 0 0 0 .708 0L8 5.207l5.646 5.647a.5.5 0 0 0 .708-.708l-6-6a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 0 .708z"/>
+                </svg>
             </div>
-            <div class="option-filter-body">
+            <div class="filter-body" style="display:none;">
                 {% for option in options %}
-                    <div class="option-filter-body-input">
+                    <div class="filter-item">
                         <input type="checkbox" 
-                               id="option_{{ option.id }}" 
-                               name="option" 
-                               value="{{ option.id }}"
-                               class="option-checkbox">
-                        <label for="option_{{ option.id }}">{{ option.name }}</label>
+                            id="option_{{ option.id }}" 
+                            name="option" 
+                            value="{{ option.id }}"
+                            class="option-checkbox">
+                        <label for="option_{{ option.id }}">{{ option.name|slice:":10" }}</label>
                     </div>
                 {% endfor %}
             </div>
         </div>
-
+        {% endif %}
+        
+        {% if colors %}
+        <div class="filter-group">
+            <div class="filter-header">
+                <span>{{option_2}}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-up" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M1.646 10.854a.5.5 0 0 0 .708 0L8 5.207l5.646 5.647a.5.5 0 0 0 .708-.708l-6-6a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 0 .708z"/>
+                </svg>
+            </div>
+            <div class="filter-body" style="display:none;">
+                {% for color in colors %}
+                    <div class="filter-item">
+                        <input type="checkbox" 
+                            id="color_{{ color.id }}" 
+                            name="color" 
+                            value="{{ color.id }}"
+                            class="color-checkbox">
+                        <label for="color_{{ color.id }}">
+                            <span style="display:inline-block; width:15px; height:15px; background-color: {{ color.name|default:'#000' }}; margin-right:5px; vertical-align:middle; border:1px solid #ccc;"></span>
+                            {{ color.name|slice:":10" }}
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if sizes %}
+        <div class="filter-group">
+            <div class="filter-header">
+                <span>{{option_3}}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-up" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M1.646 10.854a.5.5 0 0 0 .708 0L8 5.207l5.646 5.647a.5.5 0 0 0 .708-.708l-6-6a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 0 .708z"/>
+                </svg>
+            </div>
+            <div class="filter-body" style="display:none;">
+                {% for size in sizes %}
+                    <div class="filter-item">
+                        <input type="checkbox" 
+                            id="size_{{ size.id }}" 
+                            name="size" 
+                            value="{{ size.id }}"
+                            class="size-checkbox">
+                        <label for="size_{{ size.id }}">{{ size.name|slice:":10" }}</label>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
         <!-- Filter Buttons -->
         <div class="filter-buttons">
             <button id="apply-filter-btn" type="button">Apply</button>
@@ -120,6 +146,23 @@
     </div>
 
     <div class="all-products-section">
+        <!-- Product Controls -->
+        <div class="product-controls">
+            <div class="product-count">
+                <span id="total-products">0</span> products found
+            </div>
+            <div class="sort-options">
+                <label for="sort-by">Sort by:</label>
+                <select id="sort-by">
+                    <option value="default">Default</option>
+                    <option value="price_asc">Price: Low to High</option>
+                    <option value="price_desc">Price: High to Low</option>
+                    <option value="bestseller">Best Selling</option>
+                    <option value="rating">Highest Rated</option>
+                </select>
+            </div>
+        </div>
+        
         <!-- Loading Indicator -->
         <div id="loading-indicator" class="loading-indicator" style="display: none;">
             <div class="spinner"></div>

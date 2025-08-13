@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About Us - YourStoreName{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/about.css' %}">
+<div class="about-page-container">
+    <div class="about-hero-section">
+        <div class="about-hero-content">
+            <h1>Our Story</h1>
+            <p>From humble beginnings to serving thousands of happy customers</p>
+        </div>
+    </div>
+
+    <div class="about-section">
+        <div class="about-content">
+            <h2>Who We Are</h2>
+            <p>Founded in 2010, YourStoreName has grown from a small local shop to one of the leading e-commerce platforms in the region. We're passionate about providing high-quality products, exceptional customer service, and a seamless shopping experience.</p>
+            
+            <div class="about-stats">
+                <div class="stat-item">
+                    <span class="stat-number">10,000+</span>
+                    <span class="stat-label">Happy Customers</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">500+</span>
+                    <span class="stat-label">Quality Products</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">24/7</span>
+                    <span class="stat-label">Customer Support</span>
+                </div>
+            </div>
+        </div>
+        <div class="about-image">
+            <img src="{% static 'imges/about-team.jpg' %}" alt="Our Team">
+        </div>
+    </div>
+
+    <div class="mission-section">
+        <h2>Our Mission</h2>
+        <p>To deliver exceptional value by offering high-quality products at competitive prices while providing outstanding customer service that builds lasting relationships.</p>
+        
+        <div class="values-grid">
+            <div class="value-card">
+                <div class="value-icon">
+                    <i class="bi bi-hand-thumbs-up"></i>
+                </div>
+                <h3>Quality</h3>
+                <p>We carefully select products that meet our high standards for quality and durability.</p>
+            </div>
+            <div class="value-card">
+                <div class="value-icon">
+                    <i class="bi bi-currency-dollar"></i>
+                </div>
+                <h3>Value</h3>
+                <p>Competitive pricing without compromising on quality or customer service.</p>
+            </div>
+            <div class="value-card">
+                <div class="value-icon">
+                    <i class="bi bi-headset"></i>
+                </div>
+                <h3>Service</h3>
+                <p>Our customer support team is always ready to help with any questions or concerns.</p>
+            </div>
+            <div class="value-card">
+                <div class="value-icon">
+                    <i class="bi bi-truck"></i>
+                </div>
+                <h3>Fast Delivery</h3>
+                <p>We process and ship orders quickly to get your products to you as fast as possible.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="team-section">
+        <h2>Meet The Team</h2>
+        <p>The passionate people behind YourStoreName</p>
+        
+        <div class="team-grid">
+            <div class="team-member">
+                <div class="member-image">
+                    <img src="{% static 'imges/team-member1.jpg' %}" alt="Team Member">
+                </div>
+                <h3>John Doe</h3>
+                <p>Founder & CEO</p>
+            </div>
+            <div class="team-member">
+                <div class="member-image">
+                    <img src="{% static 'imges/team-member2.jpg' %}" alt="Team Member">
+                </div>
+                <h3>Jane Smith</h3>
+                <p>Marketing Director</p>
+            </div>
+            <div class="team-member">
+                <div class="member-image">
+                    <img src="{% static 'imges/team-member3.jpg' %}" alt="Team Member">
+                </div>
+                <h3>Mike Johnson</h3>
+                <p>Customer Support Lead</p>
+            </div>
+            <div class="team-member">
+                <div class="member-image">
+                    <img src="{% static 'imges/team-member4.jpg' %}" alt="Team Member">
+                </div>
+                <h3>Sarah Williams</h3>
+                <p>Product Manager</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

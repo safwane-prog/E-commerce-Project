@@ -32,7 +32,7 @@
                     <input type="text" name="" id="searsh-head-inpur" placeholder="Find product">
                     <select  name="" id="select-header">
                         <option value="">Choose a category</option>
-                        {% for category in categorys %}
+                        {% for category in categories %}
                             <option value="{{category.id}}">{{category.name|slice:":20"}}</option>
                         {% endfor%}
                     </select>
@@ -53,7 +53,7 @@
                         <img src="{% static 'imges/icon/shopping-basket-01.svg' %}" alt="">
                         <span>My cart</span>
                     </a>
-                    <a href="{% url 'profile' %}" class="order-icon-head order-icon-head22">
+                    <a href="{% url 'profile' %}" class="order-icon-head">
                         <i class="bi bi-person"></i>
                         <span>profile</span>
                     </a>
@@ -77,9 +77,31 @@
     <div class="header-contener-pages-links">
         <div class="header-contener-pages-links-main">
             <div class="head-2-pages-list">
-                <div class="page-name All-category-name">
+                <div hover="show_category_name()" id="show-5-category-name" class="page-name All-category-name">
                     <span> <img src="\static\imges\icon\menu-01.svg" alt=""></span>
                     <span>All category</span>
+                </div>
+                <div class="show_category_name">
+                    {% for i in categories_%}
+                        <div class="categories_itms_smole">
+                            <span>{{i.name}}</span>
+                            <span><i class="fa-solid fa-angle-right"></i></span>
+                        </div>
+                    {% endfor %}
+                    {% if not categories_.lingth >= 0 %}
+                    <div class="categories_itms_smole" id="Shwocategories_itms_smolemore">
+                        <span>Shwo more</span>
+                        <img src="\static\imges\icon\Style=Stroke, Type=Rounded (4).svg" alt="">
+                    </div>
+                    {% endif %}
+                    <div class="shop-more-all-categories">
+                        {% for more in more_all_categories%}
+                            <div class="categories_itms_smole">
+                                <span>{{more.name}}</span>
+                                <span><i class="fa-solid fa-angle-right"></i></span>
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
                 <div class="page-name"><a href="{% url 'home' %}">Home</a></div>
                 <div class="page-name"><a href="{% url 'Shop' %}">Shop Page</a></div>
@@ -108,8 +130,8 @@
         </div>
         <div class="phone-tap-serash-section">
             <div class="phonesearsh-section">
-                <input type="text" name="" id="" placeholder="Find product">
-                <button>Search</button>
+                <input type="text" name="" id="searsh-head-inpurfor-pahon" placeholder="Find product">
+                <button onclick="saarchfunstionforphon()">Search</button>
             </div>
         </div>
         <div class="phone-taps">
@@ -122,58 +144,41 @@
         
 
         <div class="phone-tap-section phone-tap-pages-section active">
-            <div class="phone-tap-section-pages-name">
+            <a  href="{% url 'home' %}" class="phone-tap-section-pages-name">
                 <span>Home Page</span>
                 <span><i class="fas fa-home"></i></span>
-            </div>
-            <div class="phone-tap-section-pages-name page-active">
+            </a>
+            <a href="{% url 'Contact' %}"  class="phone-tap-section-pages-name page-active">
                 <span>Contact Page</span>
                 <span><i class="fas fa-envelope"></i></span>
-            </div>
-            <div class="phone-tap-section-pages-name">
+            </a>
+            <a href="{% url 'Shop' %}"  class="phone-tap-section-pages-name">
                 <span>Shop Page</span>
                 <span><i class="fas fa-store"></i></span>
-            </div>
-            <div class="phone-tap-section-pages-name">
+            </a>
+            <a href="{% url 'about' %}"  class="phone-tap-section-pages-name">
                 <span>About Page</span>
                 <span><i class="fas fa-info-circle"></i></span>
-            </div>
-            <div class="phone-tap-section-pages-name">
+            </a>
+            <a href="{% url 'profile' %}"  class="phone-tap-section-pages-name">
                 <span>Profile</span>
                 <span><i class="fas fa-user"></i></span>
-            </div>
-            <div class="phone-tap-section-pages-name Logout">
+            </a>
+            <a class="phone-tap-section-pages-name Logout">
                 <span>Logout</span>
                 <span><i class="fas fa-sign-out-alt"></i></span>
-            </div>
+            </a>
         </div>
 
         <!-- Categories Section -->
         <div class="phone-tap-section phone-tap-all-category-section">
-            <div class="phone-tap-section-pages-name">
-                <span>Men's Fashion</span>
-                <span><i class="fas fa-tshirt"></i></span>
-            </div>
-            <div class="phone-tap-section-pages-name">
-                <span>Women's Fashion</span>
-                <span><i class="fas fa-female"></i></span>
-            </div>
-            <div class="phone-tap-section-pages-name">
-                <span>Electronics</span>
-                <span><i class="fas fa-plug"></i></span>
-            </div>
-            <div class="phone-tap-section-pages-name">
-                <span>Home & Furniture</span>
-                <span><i class="fas fa-couch"></i></span>
-            </div>
-            <div class="phone-tap-section-pages-name">
-                <span>Beauty & Care</span>
-                <span><i class="fas fa-spa"></i></span>
-            </div>
-            <div class="phone-tap-section-pages-name">
-                <span>Sports</span>
-                <span><i class="fas fa-dumbbell"></i></span>
-            </div>
+            {% for category in categories %}
+                <div class="phone-tap-section-pages-name phone-tap-section-pages-name-category">
+                    <span>{{category.name}}</span>
+                    <span><img src="{{category.image.url}}" alt=""></span>
+                </div>
+            {% endfor%}
+            
         </div>
     </div>
     

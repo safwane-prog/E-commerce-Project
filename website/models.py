@@ -47,7 +47,7 @@ class StoreHeroImage(models.Model):
 
     def __str__(self):
         return self.slide_name
-
+    
     def save(self, *args, **kwargs):
         # حفظ الصورة الأصلية مؤقتاً
         img = Image.open(self.image)

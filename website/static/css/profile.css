@@ -2,8 +2,8 @@
     :root {
         --primary: #2563eb;
         --primary-dark: #1e40af;
-        --secondary: #10b981;
-        --error: #ef4444;
+        --secondary: linear-gradient(135deg, #10b981, #059669);
+        --error: linear-gradient(135deg, #ef4444, #b91c1c);
         --background: #f9fafb;
         --card-bg: #ffffff;
         --text-primary: #111827;
@@ -334,6 +334,7 @@
         border-radius: 10px;
         padding: 16px;
         transition: var(--transition);
+        margin: 10px 0;
     }
 
     .order-item:hover {
@@ -413,6 +414,10 @@
 
     .order-product-details {
         flex: 1;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
     }
 
     .order-product-title {
@@ -661,9 +666,9 @@
 
     .notification {
         position: fixed;
-        top: 16px;
-        right: 16px;
-        padding: 12px 24px;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
         border-radius: 8px;
         background: var(--primary);
         color: #ffffff;
@@ -671,11 +676,10 @@
         z-index: 1000;
         animation: slideIn 0.3s ease;
         font-family: 'Inter', sans-serif;
-        font-size: 0.875rem;
         font-weight: 500;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
     }
 
     .notification.success {

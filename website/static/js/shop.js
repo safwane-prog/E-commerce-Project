@@ -1,13 +1,3 @@
-// Enhanced Shop JavaScript with better error handling, performance, and functionality
-const params = new URLSearchParams(window.location.search);
-const searchValue = params.get('search');     // safwane
-const categoryId = params.get('category');   // 1
-
-
-
-document.getElementById('searsh-head-inpur').value = searchValue
-// قراءة الـ query string من الرابط
-
 class ShopManager {
     constructor() {
         this.config = {
@@ -20,23 +10,32 @@ class ShopManager {
         this.currentFilters = {
             categories: [],
             options: [],
+            colors: [],
+            sizes: [],
             priceMin: null,
             priceMax: null,
             search: '',
+            sort: 'default',
             page: 1
         };
         
         this.isLoading = false;
         this.currentPage = 1;
         this.totalPages = 1;
+        this.totalProducts = 0;
         this.debounceTimer = null;
 
         // Cache DOM elements for performance
         this.elements = {
             categoryCheckboxes: document.querySelectorAll('.category-checkbox'),
             optionCheckboxes: document.querySelectorAll('.option-checkbox'),
+            colorCheckboxes: document.querySelectorAll('.color-checkbox'),
+            sizeCheckboxes: document.querySelectorAll('.size-checkbox'),
             minPrice: document.getElementById('min-price'),
             maxPrice: document.getElementById('max-price'),
+            priceSliderMin: document.getElementById('price-slider-min'),
+            priceSliderMax: document.getElementById('price-slider-max'),
+            priceSliderRange: document.querySelector('.price-slider-range'),
             applyFilterBtn: document.getElementById('apply-filter-btn'),
             resetFilterBtn: document.getElementById('reset-filter-btn'),
             prevBtn: document.getElementById('prev-btn'),
@@ -45,9 +44,12 @@ class ShopManager {
             paginationNumbers: document.getElementById('pagination-numbers'),
             loadingIndicator: document.getElementById('loading-indicator'),
             searchInput: document.getElementById('search-head-input'),
-            rangeLeft: document.getElementById('price-range-left'),
-            rangeRight: document.getElementById('price-range-right'),
-            rangeFill: document.querySelector('.range-fill')
+            sortSelect: document.getElementById('sort-by'),
+            totalProductsElement: document.getElementById('total-products'),
+            filterHeaders: document.querySelectorAll('.filter-header'),
+            maxPrice: document.getElementById('max-price'),
+            priceSlider: document.getElementById('price-slider'), // سلايدر واحد فقط
+            priceSliderRange: document.querySelector('.price-slider-range'),
         };
         
         this.init();
@@ -60,6 +62,16 @@ class ShopManager {
     }
 
     bindEvents() {
+        // Filter headers toggle
+        this.elements.filterHeaders.forEach(header => {
+            header.addEventListener('click', () => {
+                header.classList.toggle('active');
+                const body = header.nextElementSibling;
+                body.classList.toggle('active');
+                body.style.display = body.classList.contains('active') ? 'block' : 'none';
+            });
+        });
+
         // Filter checkboxes using cached elements
         this.elements.categoryCheckboxes.forEach(checkbox => {
             checkbox.addEventListener('change', () => this.handleFilterChange());
@@ -69,18 +81,41 @@ class ShopManager {
             checkbox.addEventListener('change', () => this.handleFilterChange());
         });
 
+        this.elements.colorCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => this.handleFilterChange());
+        });
+
+        this.elements.sizeCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => this.handleFilterChange());
+        });
+
         // Price inputs with debouncing
         if (this.elements.minPrice) {
-            this.elements.minPrice.addEventListener('input', () => this.debounceFilterChange());
+            this.elements.minPrice.addEventListener('input', () => this.handlePriceInputChange('min'));
         }
 
         if (this.elements.maxPrice) {
-            this.elements.maxPrice.addEventListener('input', () => this.debounceFilterChange());
+            this.elements.maxPrice.addEventListener('input', () => this.handlePriceInputChange('max'));
+        }
+
+        // Price sliders
+        if (this.elements.priceSliderMin && this.elements.priceSliderMax) {
+            this.elements.priceSliderMin.addEventListener('input', () => this.handlePriceSliderChange('min'));
+            this.elements.priceSliderMax.addEventListener('input', () => this.handlePriceSliderChange('max'));
         }
 
         // Search input with debouncing
         if (this.elements.searchInput) {
             this.elements.searchInput.addEventListener('input', () => this.debounceFilterChange());
+        }
+
+        // Sort select
+        if (this.elements.sortSelect) {
+            this.elements.sortSelect.addEventListener('change', () => {
+                this.currentFilters.sort = this.elements.sortSelect.value;
+                this.currentPage = 1;
+                this.loadProducts();
+            });
         }
 
         // Filter buttons
@@ -104,37 +139,68 @@ class ShopManager {
         // Category cards click
         document.querySelectorAll('.category-item').forEach(item => {
             item.addEventListener('click', (e) => {
-                // نحصل على id الفئة المضغوط عليها
                 const categoryId = e.currentTarget.dataset.categoryId;
-
-                // نستدعي الفلترة مع استبدال أي ID قديم
                 this.filterByCategory(categoryId);
             });
         });
-
-
-        // Price range slider sync
-        if (this.elements.minPrice && this.elements.maxPrice && this.elements.rangeFill) {
-            const updateRangeFill = () => {
-                const min = parseFloat(this.elements.minPrice.value) || this.config.PRICE_MIN_DEFAULT;
-                const max = parseFloat(this.elements.maxPrice.value) || this.config.PRICE_MAX_DEFAULT;
-                const rangeMin = parseFloat(this.elements.minPrice.min) || this.config.PRICE_MIN_DEFAULT;
-                const rangeMax = parseFloat(this.elements.maxPrice.max) || this.config.PRICE_MAX_DEFAULT;
-
-                const leftPercent = ((min - rangeMin) / (rangeMax - rangeMin)) * 100;
-                const rightPercent = ((max - rangeMin) / (rangeMax - rangeMin)) * 100;
-
-                this.elements.rangeFill.style.left = `${leftPercent}%`;
-                this.elements.rangeFill.style.width = `${rightPercent - leftPercent}%`;
-            };
-
-            this.elements.minPrice.addEventListener('input', updateRangeFill);
-            this.elements.maxPrice.addEventListener('input', updateRangeFill);
-
-            // Initial update
-            updateRangeFill();
-        }
     }
+
+    handlePriceInputChange(type) {
+        const value = parseFloat(this.elements[`${type}Price`].value) || 0;
+        const clampedValue = Math.min(Math.max(value, 0), 10000);
+        
+        // Update the corresponding slider
+        if (type === 'min') {
+            this.elements.priceSliderMin.value = clampedValue;
+            this.elements.minPrice.value = clampedValue;
+        } else {
+            this.elements.priceSliderMax.value = clampedValue;
+            this.elements.maxPrice.value = clampedValue;
+        }
+        
+        this.updatePriceRange();
+        this.debounceFilterChange();
+    }
+
+    handlePriceSliderChange(type) {
+        const value = parseFloat(this.elements[`priceSlider${type.charAt(0).toUpperCase() + type.slice(1)}`].value);
+        
+        // Update the corresponding input
+        if (type === 'min') {
+            this.elements.minPrice.value = value;
+        } else {
+            this.elements.maxPrice.value = value;
+        }
+        
+        this.updatePriceRange();
+        this.debounceFilterChange();
+    }
+
+    updatePriceRange() {
+        const maxValue = parseFloat(this.elements.maxPrice.value) || this.config.PRICE_MAX_DEFAULT;
+
+        // القيم الدنيا والعليا الممكنة للسلايدر
+        const sliderMin = parseFloat(this.elements.maxPrice.min) || this.config.PRICE_MIN_DEFAULT;
+        const sliderMax = parseFloat(this.elements.maxPrice.max) || this.config.PRICE_MAX_DEFAULT;
+
+        // حساب النسبة
+        const maxPercent = ((maxValue - sliderMin) / (sliderMax - sliderMin)) * 100;
+
+        // تحديث الشريط من البداية حتى maxValue
+        this.elements.priceSliderRange.style.left = "0%";
+        this.elements.priceSliderRange.style.width = `${maxPercent}%`;
+        this.elements.priceSlider.addEventListener('input', () => {
+            this.elements.maxPrice.value = this.elements.priceSlider.value;
+            this.updatePriceRange();
+        });
+
+        this.elements.maxPrice.addEventListener('input', () => {
+            this.elements.priceSlider.value = this.elements.maxPrice.value;
+            this.updatePriceRange();
+        });
+
+    }
+
 
     loadUrlParameters() {
         const params = new URLSearchParams(window.location.search);
@@ -155,6 +221,12 @@ class ShopManager {
             }
         }
 
+        // Load sort parameter
+        this.currentFilters.sort = params.get('sort') || 'default';
+        if (this.elements.sortSelect) {
+            this.elements.sortSelect.value = this.currentFilters.sort;
+        }
+
         // Load page parameter
         this.currentFilters.page = parseInt(params.get('page')) || 1;
         this.currentPage = this.currentFilters.page;
@@ -169,8 +241,7 @@ class ShopManager {
 
     handleFilterChange() {
         this.updateCurrentFilters();
-        // Auto-apply filters can be enabled here if desired
-        // this.applyFilters();
+        // Don't apply filters automatically - wait for Apply button
     }
 
     updateCurrentFilters() {
@@ -181,6 +252,16 @@ class ShopManager {
 
         // Update options
         this.currentFilters.options = Array.from(this.elements.optionCheckboxes)
+            .filter(cb => cb.checked)
+            .map(cb => cb.value);
+
+        // Update colors
+        this.currentFilters.colors = Array.from(this.elements.colorCheckboxes)
+            .filter(cb => cb.checked)
+            .map(cb => cb.value);
+
+        // Update sizes
+        this.currentFilters.sizes = Array.from(this.elements.sizeCheckboxes)
             .filter(cb => cb.checked)
             .map(cb => cb.value);
 
@@ -203,21 +284,36 @@ class ShopManager {
     }
 
     resetFilters() {
+        window.location.href = '/shop/'; // Reload the shop page to reset all filters
         // Clear all checkboxes
         this.elements.categoryCheckboxes.forEach(cb => cb.checked = false);
         this.elements.optionCheckboxes.forEach(cb => cb.checked = false);
+        this.elements.colorCheckboxes.forEach(cb => cb.checked = false);
+        this.elements.sizeCheckboxes.forEach(cb => cb.checked = false);
 
         // Reset price inputs
         if (this.elements.minPrice) this.elements.minPrice.value = this.config.PRICE_MIN_DEFAULT;
         if (this.elements.maxPrice) this.elements.maxPrice.value = this.config.PRICE_MAX_DEFAULT;
+        if (this.elements.priceSliderMin) this.elements.priceSliderMin.value = this.config.PRICE_MIN_DEFAULT;
+        if (this.elements.priceSliderMax) this.elements.priceSliderMax.value = this.config.PRICE_MAX_DEFAULT;
+        this.updatePriceRange();
+
+        // Reset sort
+        if (this.elements.sortSelect) {
+            this.elements.sortSelect.value = 'default';
+            this.currentFilters.sort = 'default';
+        }
 
         // Reset filters object
         this.currentFilters = {
             categories: [],
             options: [],
+            colors: [],
+            sizes: [],
             priceMin: null,
             priceMax: null,
             search: this.currentFilters.search, // Keep search term
+            sort: 'default',
             page: 1
         };
 
@@ -227,12 +323,12 @@ class ShopManager {
     }
 
     filterByCategory(categoryId) {
-        // إلغاء تحديد كل checkboxes الخاصة بالفئات
+        // Uncheck all category checkboxes
         document.querySelectorAll('input[type="checkbox"][id^="category_"]').forEach(cb => {
             cb.checked = false;
         });
 
-        // تحديد checkbox الخاص بالفئة الجديدة فقط
+        // Check the selected category checkbox
         const checkbox = document.getElementById(`category_${categoryId}`);
         if (checkbox) {
             checkbox.checked = true;
@@ -241,7 +337,6 @@ class ShopManager {
         this.applyFilters();
     }
 
-
     async loadProducts() {
         if (this.isLoading) return;
 
@@ -249,9 +344,25 @@ class ShopManager {
         this.showLoading();
 
         try {
-            const data = await this.fetchProducts();
-            this.renderProducts(data.results || []);
-            this.updatePagination(data);
+            // Check if we should load bestsellers
+            if (this.currentFilters.sort === 'bestseller') {
+                const data = await this.fetchBestSellers();
+                // Ensure data is an array
+                const products = Array.isArray(data) ? data : (data && Array.isArray(data.results) ? data.results : []);
+                this.renderProducts(products);
+                this.totalProducts = products.length;
+                this.updateProductCount();
+                this.hidePagination(); // Hide pagination for bestsellers
+            } else {
+                const data = await this.fetchProducts();
+                // Ensure data.results is an array
+                const products = Array.isArray(data.results) ? data.results : [];
+                this.renderProducts(products);
+                this.totalProducts = data.count || 0;
+                this.updateProductCount();
+                this.updatePagination(data);
+                this.showPagination();
+            }
         } catch (error) {
             console.error('Error loading products:', error);
             this.showError(`Failed to load products: ${error.message}. Please try again.`);
@@ -272,6 +383,14 @@ class ShopManager {
             params.append('option', this.currentFilters.options.join(','));
         }
         
+        if (this.currentFilters.colors.length > 0) {
+            params.append('color', this.currentFilters.colors.join(','));
+        }
+        
+        if (this.currentFilters.sizes.length > 0) {
+            params.append('size', this.currentFilters.sizes.join(','));
+        }
+        
         if (this.currentFilters.priceMin) {
             params.append('price_min', this.currentFilters.priceMin);
         }
@@ -282,6 +401,17 @@ class ShopManager {
         
         if (this.currentFilters.search) {
             params.append('name', this.currentFilters.search);
+        }
+        
+        // Add sorting
+        if (this.currentFilters.sort && this.currentFilters.sort !== 'default') {
+            if (this.currentFilters.sort === 'price_asc') {
+                params.append('ordering', 'price');
+            } else if (this.currentFilters.sort === 'price_desc') {
+                params.append('ordering', '-price');
+            } else if (this.currentFilters.sort === 'rating') {
+                params.append('ordering', '-average_rating');
+            }
         }
         
         params.append('page', this.currentPage);
@@ -310,7 +440,40 @@ class ShopManager {
             throw new Error(errorMessage);
         }
 
-        return await response.json();
+        const responseData = await response.json();
+        
+        // Ensure the response has the expected structure
+        if (!responseData || typeof responseData !== 'object') {
+            console.warn('Invalid response format:', responseData);
+            return { results: [], count: 0 };
+        }
+
+        return responseData;
+    }
+
+    async fetchBestSellers() {
+        const url = `${mainDomain}/products/api/bestseller/`;
+
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch bestsellers: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        // Ensure data is in the expected format
+        if (!data) {
+            console.warn('No data received from bestsellers API');
+            return [];
+        }
+
+        return data;
     }
 
     renderProducts(products) {
@@ -319,7 +482,15 @@ class ShopManager {
 
         productSection.innerHTML = '';
 
-        if (!products || products.length === 0) {
+        // Ensure products is an array
+        if (!Array.isArray(products)) {
+            console.warn('Products is not an array:', products);
+            products = [];
+        }
+        if (products.length === 0) {
+            productSection.style.display = 'flex';
+            productSection.style.alignItems = 'center';
+            productSection.style.justifyContent = 'center';
             productSection.innerHTML = `
                 <div class="empty-state empty-state--no-products">
                     <i class="fas fa-search empty-state__icon"></i>
@@ -333,47 +504,63 @@ class ShopManager {
         }
 
         products.forEach(product => {
-            const productHTML = this.createProductHTML(product);
-            productSection.insertAdjacentHTML('beforeend', productHTML);
+            if (product && typeof product === 'object') {
+                const productHTML = this.createProductHTML(product);
+                productSection.insertAdjacentHTML('beforeend', productHTML);
+            } else {
+                console.warn('Invalid product data:', product);
+            }
         });
 
         // Re-bind event listeners for dynamically added elements
         this.bindProductEvents();
     }
 
-    createProductHTML(product) {
-        const hasDiscount = product.old_price && product.discount;
-        const displayPrice = product.price || 0;
-        const rating = product.average_rating || 0;
-        const imageUrl = product.image_1 || '/static/imges/default-product.jpg';
+createProductHTML(product) {
+    const hasDiscount = product.old_price && product.discount && parseFloat(product.discount) > 0;
+    const displayPrice = product.price || 0;
+    const rating = product.average_rating || 0;
+    const totalReviews = product.total_reviews || 0;
+    const imageUrl = product.image_1 || '/static/imges/default-product.jpg';
+    
+    // Determine cart and wishlist status
+    const isInCart = product.in_cart;
+    const isInWishlist = product.in_favorites;
 
-        return `
-            <div class="product-box" data-product-id="${product.id}">
-                <div class="shop-img" onclick="shopManager.viewProductDetails('${product.id}')">
-                    <img src="${imageUrl}" alt="${product.name}" loading="lazy">
-                    ${hasDiscount ? `<div class="discount-badge">-${product.discount}%</div>` : ''}
-                </div>
-                <div class="shop-wishlist" onclick="shopManager.addToWishlist('${product.id}')">
-                    <i class="bi bi-heart"></i>
-                </div>
-                <div class="shop-name" title="${product.name}">${product.name}</div>
-                <div class="shop-rating">
-                    ${this.generateStarRating(rating)}
-                    <span>(${rating})</span>
-                </div>
-                <div class="price-shop">
-                    <span class="products-main-price">${currencySymbol}${displayPrice}</span>
-                    ${product.old_price ? `<span class="products-old-price">${currencySymbol}${product.old_price}</span>` : ''}
-                </div>
-                <div class="shop-buttons">
-                    <button onclick="shopManager.addToCart('${product.id}')" class="add-to-cart-btn">
-                        Add To Cart 
-                        <span><img src="/static/imges/icon/Style=Stroke, Type=Rounded (2).svg" alt="cart"></span>
-                    </button>
-                </div>
+    // قص الاسم إذا تجاوز 100 حرف
+    const fullName = product.name || '';
+    const shortName = fullName.length > 100 ? fullName.substring(0, 100) + '...' : fullName;
+
+    return `
+        <div class="product-box" data-product-id="${product.id}">
+            <div class="shop-img" onclick="shopManager.viewProductDetails('${product.id}')">
+                <img src="${imageUrl}" alt="${fullName}" loading="lazy">
+                ${hasDiscount ? `<div class="discount-badge">-${product.discount}%</div>` : ''}
             </div>
-        `;
-    }
+            <div class="shop-wishlist ${isInWishlist ? 'wishlist-active' : ''}" onclick="shopManager.addToWishlist('${product.id}')">
+                <i class="bi ${isInWishlist ? 'bi-heart-fill' : 'bi-heart'}"></i>
+            </div>
+            <div class="shop-name" title="${fullName}">${shortName}</div>
+            <div class="shop-rating">
+                ${this.generateStarRating(rating)}
+                <span>(${rating} - ${totalReviews} reviews)</span>
+            </div>
+            <div class="price-shop">
+                <span class="products-main-price">${currencySymbol}${displayPrice}</span>
+                ${product.old_price && parseFloat(product.old_price) > parseFloat(displayPrice) ? `<span class="products-old-price">${currencySymbol}${product.old_price}</span>` : ''}
+            </div>
+            <div class="shop-buttons">
+                <button onclick="shopManager.addToCart('${product.id}')" 
+                        class="add-to-cart-btn ${isInCart ? 'cart-active' : ''}" 
+                        data-product-id="${product.id}">
+                    ${isInCart ? 'In Cart' : 'Add To Cart'}
+                    <span><img src="/static/imges/icon/Style=Stroke, Type=Rounded (2).svg" alt="cart"></span>
+                </button>
+            </div>
+        </div>
+    `;
+}
+
 
     generateStarRating(rating) {
         const fullStars = Math.floor(rating);
@@ -403,6 +590,26 @@ class ShopManager {
                 e.stopPropagation();
             });
         });
+    }
+
+    updateProductCount() {
+        if (this.elements.totalProductsElement) {
+            this.elements.totalProductsElement.textContent = this.totalProducts.toLocaleString();
+        }
+    }
+
+    hidePagination() {
+        const paginationSection = document.querySelector('.pagination-section');
+        if (paginationSection) {
+            paginationSection.style.display = 'none';
+        }
+    }
+
+    showPagination() {
+        const paginationSection = document.querySelector('.pagination-section');
+        if (paginationSection) {
+            paginationSection.style.display = 'flex';
+        }
     }
 
     updatePagination(data) {
@@ -492,6 +699,7 @@ class ShopManager {
             
             if (response.ok) {
                 this.showNotification(data.message, 'success');
+                this.updateCartButton(productId, true);
                 this.updateCartCount();
             } else {
                 if (response.status === 401) {
@@ -522,7 +730,9 @@ class ShopManager {
             
             if (response.ok) {
                 this.showNotification(data.message, 'success');
-                this.updateWishlistIcon(productId, true);
+                // Determine if product was added or removed from wishlist
+                const isAdded = data.message.includes('added') || data.message.includes('تم إضافة');
+                this.updateWishlistIcon(productId, isAdded);
             } else {
                 if (response.status === 401) {
                     this.showAuthMessage();
@@ -537,65 +747,90 @@ class ShopManager {
     }
 
     viewProductDetails(productId) {
-        // For now, navigate; can be updated to modal if needed
         window.location.href = `/product-details/${String(productId)}`;
     }
 
     updateCartCount() {
-        // Implement if cart counter exists, e.g., fetch cart count from server
+        // Implement this if you have a cart count display
+    }
+
+    updateCartButton(productId, isInCart) {
+        const productBox = document.querySelector(`[data-product-id="${productId}"]`);
+        if (productBox) {
+            const cartButton = productBox.querySelector('.add-to-cart-btn');
+            if (cartButton) {
+                if (isInCart) {
+                    cartButton.textContent = 'In Cart';
+                    cartButton.classList.add('cart-active');
+                } else {
+                    cartButton.textContent = 'Add To Cart';
+                    cartButton.classList.remove('cart-active');
+                }
+            }
+        }
     }
 
     updateWishlistIcon(productId, isInWishlist) {
         const productBox = document.querySelector(`[data-product-id="${productId}"]`);
         if (productBox) {
+            const wishlistButton = productBox.querySelector('.shop-wishlist');
             const heartIcon = productBox.querySelector('.shop-wishlist i');
-            if (heartIcon) {
-                heartIcon.className = isInWishlist ? 'bi bi-heart-fill' : 'bi bi-heart';
+            
+            if (wishlistButton && heartIcon) {
+                if (isInWishlist) {
+                    heartIcon.className = 'bi bi-heart-fill';
+                    wishlistButton.classList.add('wishlist-active');
+                } else {
+                    heartIcon.className = 'bi bi-heart';
+                    wishlistButton.classList.remove('wishlist-active');
+                }
             }
         }
     }
 
     showLoading() {
-        if (this.elements.loadingIndicator) {
-            this.elements.loadingIndicator.style.display = 'block';
-        }
+        const productSection = this.elements.productSection;
+        productSection.style.display = 'flex';
+        productSection.style.alignItems = 'center';
+        productSection.style.justifyContent = 'center';
     }
 
     hideLoading() {
+        const productSection = this.elements.productSection;
+        productSection.style.display = 'grid';
         if (this.elements.loadingIndicator) {
             this.elements.loadingIndicator.style.display = 'none';
         }
     }
+
     showAuthMessage() {
-        // إنشاء عنصر الإشعار
+        // Create notification element
         const authAlert = document.createElement("div");
         authAlert.className = "auth-alert auth-alert-warning";
 
-        // إضافة أيقونة مع النص
+        // Add icon with text
         authAlert.innerHTML = `
             <i class="fa-solid fa-exclamation-triangle" style="margin-right:8px;"></i>
             Please log in to perform this action.
         `;
 
-        // إضافته للصفحة
+        // Add to page
         document.body.appendChild(authAlert);
 
-        // إظهار الإشعار بتأثير الإزاحة بعد قليل
+        // Show notification with slide effect
         setTimeout(() => {
             authAlert.classList.add("auth-alert-show");
         }, 50);
 
-        // إخفاؤه بعد 4 ثوانٍ
+        // Hide after 4 seconds
         setTimeout(() => {
             authAlert.classList.remove("auth-alert-show");
-            // إزالة العنصر بعد انتهاء التأثير
+            // Remove element after animation
             setTimeout(() => {
                 authAlert.remove();
             }, 500);
         }, 4000);
     }
-
-
 
     showError(message) {
         const productSection = this.elements.productSection;
@@ -614,30 +849,28 @@ class ShopManager {
     }
 
     showNotification(message, type = 'info') {
-    let notification = document.getElementById('notification');
-    if (!notification) {
-        notification = document.createElement('div');
-        notification.id = 'notification';
-        document.body.appendChild(notification);
+        let notification = document.getElementById('notification');
+        if (!notification) {
+            notification = document.createElement('div');
+            notification.id = 'notification';
+            document.body.appendChild(notification);
+        }
+
+        notification.className = `notification ${type}`;
+
+        // Use innerHTML to add message with icon
+        notification.innerHTML = `
+            <i class="fa-solid ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i>
+            <span>${message}</span>
+        `;
+
+        notification.style.display = 'block';
+
+        setTimeout(() => {
+            notification.classList.add('fade-out');
+            setTimeout(() => notification.remove(), 500);
+        }, 3000);
     }
-
-    notification.className = `notification ${type}`;
-
-    // استخدام innerHTML لإضافة رسالة مع أيقونة
-    notification.innerHTML = `
-        <i class="fa-solid ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i>
-        <span>${message}</span>
-    `;
-
-    notification.style.display = 'block';
-
-    setTimeout(() => {
-        notification.classList.add('fade-out');
-        setTimeout(() => notification.remove(), 500);
-    }, 3000);
-}
-
-
     updateUrl() {
         const params = new URLSearchParams();
         
@@ -647,6 +880,10 @@ class ShopManager {
         
         if (this.currentFilters.categories.length > 0) {
             params.append('category', this.currentFilters.categories.join(','));
+        }
+        
+        if (this.currentFilters.sort !== 'default') {
+            params.append('sort', this.currentFilters.sort);
         }
         
         if (this.currentPage > 1) {
@@ -671,6 +908,7 @@ class ShopManager {
         }
         return cookieValue || '';
     }
+    
 }
 
 // Initialize shop manager when DOM is loaded

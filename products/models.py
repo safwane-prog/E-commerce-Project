@@ -2,6 +2,10 @@ from django.db import models
 import uuid
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.conf import settings
+from django.db import models
+from PIL import Image
+from io import BytesIO
+from django.core.files.base import ContentFile
 
 class Category(models.Model):
     name = models.CharField(max_length=200)
@@ -12,6 +16,29 @@ class Category(models.Model):
 
     class Meta:
         verbose_name_plural = "Categories"
+
+    def save(self, *args, **kwargs):
+        if self.image:
+            # افتح الصورة
+            img = Image.open(self.image)
+
+            # حوّلها إلى RGB إذا كانت بصيغة أخرى (مثلاً PNG فيها شفافية)
+            if img.mode in ("RGBA", "P"):
+                img = img.convert("RGB")
+
+            # تصغير حجم الصورة (هنا أقصى عرض/ارتفاع = 800px)
+            img.thumbnail((800, 800), Image.Resampling.LANCZOS)
+
+            # ضغط الصورة وجودة 70%
+            buffer = BytesIO()
+            img.save(buffer, format='JPEG', quality=70)
+            buffer.seek(0)
+
+            # حفظ الصورة المصغرة في نفس الحقل
+            self.image.save(self.image.name, ContentFile(buffer.read()), save=False)
+
+        super().save(*args, **kwargs)
+
 
 
 class Option(models.Model):
@@ -33,9 +60,6 @@ class Size(models.Model):
     def __str__(self):
         return self.name
 
-from PIL import Image
-from io import BytesIO
-from django.core.files.base import ContentFile
 
 class Product(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

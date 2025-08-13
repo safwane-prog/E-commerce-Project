@@ -6,4 +6,5 @@ urlpatterns = [
     path('details/<str:pk>/', ProductDetail.as_view(), name='products-details'),
     path('product/<str:pk>/stats-description/', ProductRatingStatsAndDescription.as_view(), name='product-stats-description'),
     path('ratings/add/', AddRating.as_view(), name='add-rating'),
+    path('api/bestseller/', BestsellerProductListAPIView.as_view(), name='BestsellerProductListAPIView'),
 ]

@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Configuration
-    const API_BASE_URL = '/orders';
+    const API_BASE_URL = mainDomain + '/orders';
     const CART_API_URL = `${API_BASE_URL}/items-list/cart/`;
     
     // DOM Elements
@@ -40,6 +40,65 @@ document.addEventListener('DOMContentLoaded', function() {
                 <button onclick="loadCartItems()" class="retry-btn">Try Again</button>
             </div>
         `;
+    }
+
+    // New function to show authentication required message
+    function showAuthRequired() {
+        cartItemsContainer.innerHTML = `
+            <div class="auth-required" style="text-align: center; padding: 40px 20px; background: #f8f9fa; border-radius: 12px; border: 1px solid #e9ecef; width: 100%; margin: 0 auto;">
+                <i class="bi bi-person-lock" style="font-size: 64px; color: ${mainColor}; margin-bottom: 20px; display: block;"></i>
+                <h3 style="color: #495057; margin-bottom: 15px; font-size: 24px; font-weight: 600;">Login required</h3>
+                <p style="color: #6c757d; margin-bottom: 25px; font-size: 16px; line-height: 1.6;">
+                    You must log in first to view your cart items.
+                </p>
+                <div class="auth-buttons" style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                    <button onclick="window.history.back()" class="back-btn" style="
+                        padding: 12px 24px;
+                        background: #6c757d;
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        font-size: 16px;
+                        font-weight: 500;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        text-decoration: none;
+                        min-width: 120px;
+                        justify-content: center;
+                    " onmouseover="this.style.background='#5a6268'" onmouseout="this.style.background='#6c757d'">
+                        <i class="bi bi-arrow-left"></i>
+                        Go back
+                    </button>
+                    <a href="/login/" class="login-btn" style="
+                        padding: 12px 24px;
+                        background: ${mainColor};
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        font-size: 16px;
+                        font-weight: 500;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        text-decoration: none;
+                        min-width: 120px;
+                        justify-content: center;
+                    " onmouseover="this.style.background='${mainColor2}'" onmouseout="this.style.background='${mainColor}'">
+                        <i class="bi bi-person-check"></i>
+                        Log in
+                    </a>
+                </div>
+            </div>
+        `;
+        
+        // Update cart count to 0
+        updateCartCount(0);
+        updateCartSummary([]);
     }
 
     function showMessage(message, type = 'success') {
@@ -101,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
                document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
     }
 
-    // API Functions with better error handling
+    // API Functions with better error handling including 401
     async function makeApiRequest(url, options = {}) {
         const defaultHeaders = {
             'Content-Type': 'application/json',
@@ -117,6 +176,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 credentials: 'include',
             });
+
+            // Handle 401 Unauthorized
+            if (response.status === 401) {
+                throw new Error('AUTHENTICATION_REQUIRED');
+            }
 
             if (!response.ok) {
                 const errorText = await response.text();
@@ -135,7 +199,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Load Cart Items
+    // Load Cart Items with 401 handling
     async function loadCartItems() {
         try {
             showLoader();
@@ -143,6 +207,11 @@ document.addEventListener('DOMContentLoaded', function() {
             renderCartItems(cartData);
             updateCartSummary(cartData);
         } catch (error) {
+            if (error.message === 'AUTHENTICATION_REQUIRED') {
+                showAuthRequired();
+                return;
+            }
+            
             const errorMessage = error.message.includes('Failed to fetch') 
                 ? 'Unable to connect to server. Please check your internet connection.'
                 : 'Failed to load cart items. Please try again.';
@@ -177,6 +246,10 @@ document.addEventListener('DOMContentLoaded', function() {
         attachEventListeners();
     }
 
+    function viewProductDetails(productId) {
+        window.location.href = `/product-details/${String(productId)}`;
+    }
+
     // Create Cart Item HTML
     function createCartItemHTML(item) {
         const product = item.product;
@@ -185,7 +258,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return `
             <div class="cart-items" data-item-id="${item.id}">
                 <div class="cart-items-image">
-                    <img src="${imageUrl}" alt="${product.name}" 
+                    <img  onclick="viewProductDetails('${product.id}')" src="${imageUrl}" alt="${product.name}" 
                          onerror="this.src='/static/images/placeholder.jpg'"
                          loading="lazy">
                 </div>
@@ -290,7 +363,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Update Item Quantity
+    // Update Item Quantity with 401 handling
     async function updateItemQuantity(itemId, quantityChange) {
         const itemElement = document.querySelector(`[data-item-id="${itemId}"]`);
         if (!itemElement) return;
@@ -340,6 +413,10 @@ document.addEventListener('DOMContentLoaded', function() {
             showMessage('Quantity updated successfully');
 
         } catch (error) {
+            if (error.message === 'AUTHENTICATION_REQUIRED') {
+                showAuthRequired();
+                return;
+            }
             console.error('Quantity update error:', error);
             showMessage('Failed to update quantity', 'error');
         } finally {
@@ -354,7 +431,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Remove Item from Cart with confirmation
+    // Remove Item from Cart with confirmation and 401 handling
     async function removeItem(itemId) {
         const itemElement = document.querySelector(`[data-item-id="${itemId}"]`);
         if (!itemElement) return;
@@ -382,6 +459,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 300);
             
         } catch (error) {
+            if (error.message === 'AUTHENTICATION_REQUIRED') {
+                showAuthRequired();
+                return;
+            }
             showMessage('Failed to remove item', 'error');
             console.error('Failed to remove item:', error);
             
@@ -391,13 +472,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Save for Later (Add to Favorites)
+    // Save for Later (Add to Favorites) with 401 handling
     async function saveForLater(itemId) {
         try {
             // Here you would make actual API call
             // const response = await makeApiRequest(`/favorites/${itemId}/`, { method: 'POST' });
             showMessage('Item added to favorites');
         } catch (error) {
+            if (error.message === 'AUTHENTICATION_REQUIRED') {
+                showAuthRequired();
+                return;
+            }
             showMessage('Failed to add item to favorites', 'error');
             console.error('Failed to save for later:', error);
         }
@@ -433,9 +518,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const itemId = this.dataset.itemId;
                 
                 // Simple confirmation
-                if (confirm('Are you sure you want to remove this item from the cart?')) {
-                    removeItem(itemId);
-                }
+                removeItem(itemId);
             });
         });
 
@@ -447,7 +530,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-
+    
     // Checkout functionality
     function handleCheckout() {
         if (checkoutBtn) {
@@ -463,9 +546,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.textContent = 'Redirecting...';
                 this.disabled = true;
                 
-                setTimeout(() => {
-                    window.location.href = '/checkout/';
-                }, 500);
+                window.location.href = '/checkout/';
             });
         }
     }

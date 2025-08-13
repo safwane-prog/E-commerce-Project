@@ -25,6 +25,15 @@ class ProductShop(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_class = ProductFilter
 
+class BestsellerProductListAPIView(generics.ListAPIView):
+    queryset = Product.objects.all().order_by('-sales_count')
+    serializer_class = ProductShopSerializer
+    permission_classes = [AllowAny]
+    pagination_class = ProductPagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ProductFilter
+
+
 class ProductDetail(APIView):
     permission_classes = [AllowAny]
 

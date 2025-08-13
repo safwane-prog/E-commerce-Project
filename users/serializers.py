@@ -19,6 +19,7 @@ class CustomUserCreateSerializer(UserCreateSerializer):
                 user=user,
                 phone_number="-------------",
                 address ="-------------",
+                email ="-------------",
             )
             return user
 

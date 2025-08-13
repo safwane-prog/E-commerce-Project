@@ -53,6 +53,8 @@ async function fetchUserData() {
 }
 
 function updateUI(userData) {
+    console.log(userData);
+    
     try {
         // Safely access nested properties
         const profile = userData?.profile?.profile || {};
@@ -75,7 +77,7 @@ function updateUI(userData) {
         // Update email with fallback
         const userEmail = document.getElementById('user-email');
         if (userEmail) {
-            userEmail.textContent = userProfile.email || 'No email provided';
+            userEmail.textContent = userData.profile.profile.email || 'No email provided';
         }
 
         // Update statistics with safe defaults
@@ -135,7 +137,7 @@ function populateProfileForm(user) {
     const fields = [
         { id: 'firstName', value: profile.first_name },
         { id: 'lastName', value: profile.last_name },
-        { id: 'email', value: user.email },
+        { id: 'email', value: profile.email },
         { id: 'phone', value: profile.phone_number },
         { id: 'address', value: profile.address },
         { id: 'city', value: profile.city },
@@ -163,37 +165,48 @@ function populateOrders(orders) {
     orders.forEach(order => {
         const orderItem = document.createElement('div');
         orderItem.className = 'order-item';
+        
         orderItem.innerHTML = `
             <div class="order-header">
                 <span>Order #${order.order_number || order.id || 'N/A'}</span>
-                <span class="${order.state === 'Pending' ? 'order-status-pending' : 'order-status-paid'}">${order.state || 'Unknown'}</span>
+                <span class="${order.state === 'Pending' ? 'order-status-pending' : 'order-status-paid'}">
+                    ${order.state || 'Unknown'}
+                </span>
             </div>
             <div class="order-date">${order.created_at ? new Date(order.created_at).toLocaleDateString() : 'Date not available'}</div>
             <button class="view-details-btn" onclick="toggleOrderDetails('${order.id}')">View Details</button>
             <div id="order-details-${order.id}" class="order-details">
-                ${(order.products || []).map(product => `
-                    <div class="order-product">
-                        <img class="viewDetails" 
-                             onclick="viewDetails('${product.id}')" 
-                             src="${product.image_1 || DEFAULT_PRODUCT_IMAGE}" 
-                             alt="${product.name || 'Product'}"
-                             onerror="this.src='${DEFAULT_PRODUCT_IMAGE}'">
-                        <div class="order-product-details">
-                            <div class="order-product-title">${product.name || 'Product name not available'}</div>
-                            <div class="order-product-price">$${parseFloat(product.price || 0).toFixed(2)}</div>
-                            <button class="rate-product-btn" 
-                                    onclick="openRatingModal('${product.id}', '${(product.name || 'Product').replace(/'/g, "\\'")}')" 
-                                    ${product.is_rated_by_user ? 'disabled aria-disabled="true"' : ''}>
-                                ${product.is_rated_by_user ? 'Rated' : 'Add Review'}
-                            </button>
+                ${(order.products || []).map(product => {
+                    const fullName = product.name || 'Product name not available';
+                    const shortName = fullName.length > 60 ? fullName.substring(0, 60) + '...' : fullName;
+                    return `
+                        <div class="order-product">
+                            <img class="viewDetails" 
+                                 onclick="viewDetails('${product.id}')" 
+                                 src="${product.image_1 || DEFAULT_PRODUCT_IMAGE}" 
+                                 alt="${product.name || 'Product'}"
+                                 onerror="this.src='${DEFAULT_PRODUCT_IMAGE}'">
+                            <div class="order-product-details">
+                                <div class="order-product-image">
+                                    <div class="order-product-title" title="${fullName}">${shortName}</div>
+                                    <div class="order-product-price">$${parseFloat(product.price || 0).toFixed(2)}</div>
+                                </div>
+                                <button class="rate-product-btn" 
+                                        onclick="openRatingModal('${product.id}', '${(product.name || 'Product').replace(/'/g, "\\'")}')" 
+                                        ${product.is_rated_by_user ? 'disabled aria-disabled="true"' : ''}>
+                                    ${product.is_rated_by_user ? 'Rated' : 'Add Review'}
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                `).join('')}
+                    `;
+                }).join('')}
             </div>
         `;
+        
         container.appendChild(orderItem);
     });
 }
+
 
 function populateWishlist(wishlist) {
     const container = document.getElementById('wishlist-grid');

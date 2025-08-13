@@ -11,7 +11,7 @@ from .serializers import *
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 
 # JWT (SimpleJWT)
@@ -99,6 +99,8 @@ class CookieTokenObtainPairView(TokenObtainPairView):
         return response
 
 class CustomRegisterView(UserViewSet):
+    permission_classes = [AllowAny]
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
 
@@ -238,7 +240,7 @@ class UserProfileDetaile(APIView):
 
 
             # تحديث بيانات user
-            profile_fields = ['phone_number', 'address', 'city', 'country', 'profile_img','first_name','last_name']  # لاحظ هنا عدلت avatar لـ profile_img حسب الحقل الجديد
+            profile_fields = ['phone_number', 'address', 'city', 'country', 'profile_img','first_name','last_name','email']  # لاحظ هنا عدلت avatar لـ profile_img حسب الحقل الجديد
             for field in profile_fields:
                 if field in request.data:
                     if field == 'profile_img' and request.FILES.get('avatar'):
@@ -247,18 +249,20 @@ class UserProfileDetaile(APIView):
                         value = request.data.getlist(field)[0]
                         setattr(profile, field, value)
             profile.save()
-
+            print(request.data)
             if profile:
-                profile_fields = ['phone_number', 'address', 'city', 'country', 'profile_img']
+                profile_fields = ['phone_number', 'address', 'city', 'country', 'profile_img', 'first_name', 'last_name','email']
                 for field in profile_fields:
                     if field == 'profile_img' and request.FILES.get('profile_img'):
                         setattr(profile, field, request.FILES['profile_img'])
                     elif field != 'profile_img' and field in request.data:
                         setattr(profile, field, request.data[field])
                 profile.save()
+                print("Profile updated:", profile)
             else:
                 profile = Profile.objects.create(
                     user=user,
+                    email=request.data.get('email', ''),
                     phone_number=request.data.get('phone_number', ''),
                     address=request.data.get('address', ''),
                     city=request.data.get('city', ''),

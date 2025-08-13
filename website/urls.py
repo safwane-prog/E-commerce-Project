@@ -13,6 +13,7 @@ urlpatterns = [
     path('cart/',views.cart,name='cart_page'),
     path('checkout/',views.checkout,name='checkout'),
     path('confirmation/<str:id>',views.confirmation,name='Confirmation'),
+    path('about/', views.about, name='about'),  # New about page URL
 
 
     # api urls

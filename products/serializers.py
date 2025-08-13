@@ -1,11 +1,13 @@
 from rest_framework import serializers
 from .models import *
-
+from orders.models import *
 class ProductShopSerializer(serializers.ModelSerializer):
     average_rating = serializers.SerializerMethodField()
     total_reviews = serializers.SerializerMethodField()
     categories = serializers.SerializerMethodField()
     options = serializers.SerializerMethodField()
+    in_favorites = serializers.SerializerMethodField()
+    in_cart = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
@@ -13,7 +15,9 @@ class ProductShopSerializer(serializers.ModelSerializer):
             'id', 'name', 'price', 'old_price', 'discount',
             'description_1', 'image_1',
             'average_rating', 'total_reviews',
-            'options', 'categories','sales_count'
+            'options', 'categories', 'sales_count',
+            'in_favorites',
+            'in_cart',
         ]
 
     def get_average_rating(self, obj):
@@ -40,6 +44,32 @@ class ProductShopSerializer(serializers.ModelSerializer):
             }
             for option in obj.options.all()
         ]
+
+    def get_in_favorites(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            user = request.user
+            # ابحث عن wishlist لهذا المستخدم
+            wishlist_obj = wishlist.objects.filter(user=user).first()
+            if wishlist_obj:
+                return wishlistItem.objects.filter(wishlist=wishlist_obj, product=obj).exists()
+        return False
+
+    def get_in_cart(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            user = request.user
+            # ابحث عن cart لهذا المستخدم (الغير مكتملة أو غير المرتبطة بالطلب)
+            cart_obj = Cart.objects.filter(user=user).first()
+            if cart_obj:
+                return CartItem.objects.filter(
+                    cart=cart_obj,
+                    product=obj,
+                    is_ordered=False
+                ).exists()
+        return False
+
+
 
 
 class CategorySerializer(serializers.ModelSerializer):
