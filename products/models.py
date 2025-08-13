@@ -33,6 +33,10 @@ class Size(models.Model):
     def __str__(self):
         return self.name
 
+from PIL import Image
+from io import BytesIO
+from django.core.files.base import ContentFile
+
 class Product(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=300)
@@ -57,10 +61,10 @@ class Product(models.Model):
     is_active = models.BooleanField(default=True)
     sales_count = models.PositiveIntegerField(default=0)
 
-    categories = models.ManyToManyField(Category, related_name='products', null=True, blank=True)
-    options = models.ManyToManyField(Option, related_name='products', null=True, blank=True)
-    color = models.ManyToManyField(Color, related_name='products', null=True, blank=True)
-    size = models.ManyToManyField(Size, related_name='products', null=True, blank=True)
+    categories = models.ManyToManyField('Category', related_name='products', blank=True)
+    options = models.ManyToManyField('Option', related_name='products', blank=True)
+    color = models.ManyToManyField('Color', related_name='products', blank=True)
+    size = models.ManyToManyField('Size', related_name='products', blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -76,6 +80,38 @@ class Product(models.Model):
 
     def total_reviews(self):
         return self.ratings.count()
+
+    def compress_image(self, image_field):
+        if not image_field:
+            return None
+        
+        img = Image.open(image_field)
+        img = img.convert('RGB')  # للتأكد من نوع الصورة
+
+        # تحديد الحد الأقصى للعرض (مثلاً 800 بكسل)
+        max_width = 800
+        if img.width > max_width:
+            ratio = max_width / float(img.width)
+            new_height = int(float(img.height) * ratio)
+            img = img.resize((max_width, new_height), Image.Resampling.LANCZOS)
+
+        # حفظ الصورة المضغوطة في ذاكرة مؤقتة
+        img_io = BytesIO()
+        img.save(img_io, format='JPEG', quality=70)  # الجودة 70% لضغط جيد دون فقد كبير
+        img_content = ContentFile(img_io.getvalue(), name=image_field.name)
+
+        return img_content
+
+    def save(self, *args, **kwargs):
+        # ضغط الصور قبل الحفظ
+        for field_name in ['image_1', 'image_2', 'image_3', 'image_4', 'image_5', 'image_6', 'image_7', 'image_8', 'image_9', 'image_10']:
+            image = getattr(self, field_name)
+            if image and hasattr(image, 'file'):
+                compressed_image = self.compress_image(image)
+                if compressed_image:
+                    setattr(self, field_name, compressed_image)
+
+        super().save(*args, **kwargs)
 
     class Meta:
         ordering = ['-created_at']

@@ -61,7 +61,14 @@
             {% else %}
                 <div class="auth-bottons">
                     <a href="{% url 'login_page' %}">
-                        <button>Login</button>
+                        <button>
+                            <span>Login</span>
+                            <span><i class="bi bi-person-circle"></i></span>
+                        </button>
+                    </a>
+                    <a href="{% url 'cart_page' %}" class="order-icon-head">
+                        <img src="{% static 'imges/icon/shopping-basket-01.svg' %}" alt="">
+                        <span>My cart</span>
                     </a>
                 </div>
             {% endif %}

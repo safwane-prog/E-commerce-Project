@@ -5,6 +5,11 @@ import os
 import uuid
 from django.contrib.auth import get_user_model
 from django.conf import settings
+from django.db import models
+from PIL import Image
+from io import BytesIO
+from django.core.files.base import ContentFile
+
 
 User = get_user_model()
 
@@ -32,6 +37,8 @@ class StoreSettings(models.Model):
         return f"StoreSettings (logo: {self.logo.name})"
 
 
+
+
 class StoreHeroImage(models.Model):
     image = models.ImageField(upload_to='hero_images/', verbose_name="صورة السلايدر")
     slide_name = models.CharField(max_length=255, verbose_name="عنوان السلايدر")
@@ -40,6 +47,28 @@ class StoreHeroImage(models.Model):
 
     def __str__(self):
         return self.slide_name
+
+    def save(self, *args, **kwargs):
+        # حفظ الصورة الأصلية مؤقتاً
+        img = Image.open(self.image)
+        img = img.convert("RGB")  # تأكد أن الصورة بصيغة RGB
+
+        # تغيير الحجم إذا كانت كبيرة جداً (مثلاً 1200px كحد أقصى للعرض)
+        max_width = 1200
+        if img.width > max_width:
+            ratio = max_width / float(img.width)
+            height = int(float(img.height) * ratio)
+            img = img.resize((max_width, height), Image.Resampling.LANCZOS)
+
+        # ضغط الصورة وجودة عالية نسبياً (80%)
+        buffer = BytesIO()
+        img.save(buffer, format="JPEG", quality=80)
+        buffer.seek(0)
+
+        # استبدال الصورة المضغوطة بالصورة الأصلية
+        self.image.save(self.image.name, ContentFile(buffer.read()), save=False)
+
+        super().save(*args, **kwargs)
 
 
 

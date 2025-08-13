@@ -10,9 +10,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const totalElement = document.querySelector('.subtotal-total span:last-child');
     const checkoutBtn = document.querySelector('.subtotal-button button');
 
-    // Loader HTML
+    // Get CSS variables
+    function getCSSVariable(variable) {
+        return getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+    }
+
+    const mainColor = getCSSVariable('--main-color') || '#3348FF';
+    const mainColor2 = getCSSVariable('--main-color2') || '#0066c0';
+
+    // Enhanced Loader HTML
     const loaderHTML = `
-        <div class="cart-loader">
+        <div class="loading-spinner">
             <div class="loader-spinner"></div>
             <p>Loading...</p>
         </div>
@@ -25,34 +33,61 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function showError(message) {
         cartItemsContainer.innerHTML = `
-            <div class="error-message">
-                <h3>Error</h3>
+            <div class="cart-error">
+                <i class="bi bi-exclamation-triangle"></i>
+                <h3>Loading Error</h3>
                 <p>${message}</p>
-                <button onclick="loadCartItems()" class="retry-btn">Retry</button>
+                <button onclick="loadCartItems()" class="retry-btn">Try Again</button>
             </div>
         `;
     }
 
     function showMessage(message, type = 'success') {
+        // Remove existing messages first
+        const existingMessages = document.querySelectorAll('.toast-message');
+        existingMessages.forEach(msg => msg.remove());
+
         const messageDiv = document.createElement('div');
-        messageDiv.className = `${type}-message`;
-        messageDiv.textContent = message;
+        messageDiv.className = 'toast-message';
+        messageDiv.innerHTML = `
+            <div class="toast-content">
+                <i class="bi ${type === 'success' ? 'bi-check-circle' : 'bi-x-circle'}"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        
         messageDiv.style.cssText = `
             position: fixed;
             top: 20px;
             right: 20px;
-            padding: 10px 20px;
+            padding: 12px 20px;
             background: ${type === 'success' ? '#4CAF50' : '#f44336'};
             color: white;
-            border-radius: 4px;
+            border-radius: 8px;
             z-index: 1000;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            font-size: 14px;
+            font-weight: 500;
+            min-width: 250px;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
         `;
         
         document.body.appendChild(messageDiv);
         
+        // Slide in animation
         setTimeout(() => {
-            messageDiv.remove();
+            messageDiv.style.transform = 'translateX(0)';
+        }, 100);
+        
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+            messageDiv.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.remove();
+                }
+            }, 300);
         }, 3000);
     }
 
@@ -66,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
                document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
     }
 
-    // API Functions
+    // API Functions with better error handling
     async function makeApiRequest(url, options = {}) {
         const defaultHeaders = {
             'Content-Type': 'application/json',
@@ -84,10 +119,16 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorText = await response.text();
+                throw new Error(`HTTP ${response.status}: ${errorText || response.statusText}`);
             }
 
-            return await response.json();
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                return await response.json();
+            } else {
+                return await response.text();
+            }
         } catch (error) {
             console.error('API Request failed:', error);
             throw error;
@@ -102,7 +143,10 @@ document.addEventListener('DOMContentLoaded', function() {
             renderCartItems(cartData);
             updateCartSummary(cartData);
         } catch (error) {
-            showError('Failed to load cart items. Please try again.');
+            const errorMessage = error.message.includes('Failed to fetch') 
+                ? 'Unable to connect to server. Please check your internet connection.'
+                : 'Failed to load cart items. Please try again.';
+            showError(errorMessage);
             console.error('Failed to load cart items:', error);
         }
     }
@@ -112,12 +156,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!cartData || cartData.length === 0) {
             cartItemsContainer.innerHTML = `
                 <div class="empty-cart">
+                    <i class="bi bi-cart-x" style="font-size: 48px; color: ${mainColor}; margin-bottom: 15px;"></i>
                     <h3>Cart is Empty</h3>
                     <p>No products in the shopping cart</p>
                     <a href="/shop" class="continue-shopping-btn">Continue Shopping</a>
                 </div>
             `;
             updateCartCount(0);
+            updateCartSummary([]);
             return;
         }
 
@@ -139,7 +185,9 @@ document.addEventListener('DOMContentLoaded', function() {
         return `
             <div class="cart-items" data-item-id="${item.id}">
                 <div class="cart-items-image">
-                    <img src="${imageUrl}" alt="${product.name}" onerror="this.src='/static/images/placeholder.jpg'">
+                    <img src="${imageUrl}" alt="${product.name}" 
+                         onerror="this.src='/static/images/placeholder.jpg'"
+                         loading="lazy">
                 </div>
                 <div class="cart-items-detailes">
                     <div class="cart-items-detailes-name">
@@ -161,7 +209,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     <div class="cart-items-detailes-buttons">
                         <div class="qontity-section">
-                            <button class="quantity-btn" data-action="decrease" data-item-id="${item.id}">-</button>
+                            <button class="quantity-btn" data-action="decrease" data-item-id="${item.id}" 
+                                    title="Decrease quantity" ${item.quantity <= 1 ? 'disabled' : ''}>-</button>
                             <div class="quantity-wrapper">
                                 <input type="number" value="${item.quantity}" class="no-arrows quantity-input" 
                                        min="1" data-item-id="${item.id}" readonly>
@@ -169,16 +218,17 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <div class="loader-spinner"></div>
                                 </div>
                             </div>
-                            <button class="quantity-btn" data-action="increase" data-item-id="${item.id}">+</button>
+                            <button class="quantity-btn" data-action="increase" data-item-id="${item.id}" 
+                                    title="Increase quantity">+</button>
                         </div>
                         <div class="delete-btn">
-                            <button class="remove-item-btn" data-item-id="${item.id}">
+                            <button class="remove-item-btn" data-item-id="${item.id}" title="Remove from cart">
                                 <span><i class="bi bi-trash"></i></span>
                                 <span>Remove</span>
                             </button>
                         </div>
                         <div class="save-btn">
-                            <button class="save-for-later-btn" data-item-id="${item.id}">
+                            <button class="save-for-later-btn" data-item-id="${item.id}" title="Save for later">
                                 <span><i class="bi bi-heart"></i></span>
                                 <span>Save for later</span>
                             </button>
@@ -198,10 +248,20 @@ document.addEventListener('DOMContentLoaded', function() {
         if (cartItemsCount) {
             cartItemsCount.textContent = count;
         }
+        
+        // Update page title with count
+        const baseTitle = document.title.split('(')[0].trim();
+        document.title = count > 0 ? `${baseTitle} (${count})` : baseTitle;
     }
 
     // Update Cart Summary
     function updateCartSummary(cartData) {
+        if (!Array.isArray(cartData) || cartData.length === 0) {
+            if (subtotalElement) subtotalElement.textContent = formatPrice(0);
+            if (totalElement) totalElement.textContent = formatPrice(0);
+            return;
+        }
+
         let subtotal = 0;
         cartData.forEach(item => {
             const itemTotal = parseFloat(item.total);
@@ -210,9 +270,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
+        // You can make these dynamic from server
         const discount = 60.00;
         const tax = 14.00;
-        const total = subtotal - discount + tax;
+        const total = Math.max(0, subtotal - discount + tax);
 
         if (subtotalElement) {
             subtotalElement.textContent = formatPrice(subtotal);
@@ -221,20 +282,32 @@ document.addEventListener('DOMContentLoaded', function() {
         if (totalElement) {
             totalElement.textContent = formatPrice(total);
         }
+
+        // Enable/disable checkout button based on cart contents
+        if (checkoutBtn) {
+            checkoutBtn.disabled = cartData.length === 0;
+            checkoutBtn.style.opacity = cartData.length === 0 ? '0.5' : '1';
+        }
     }
 
     // Update Item Quantity
     async function updateItemQuantity(itemId, quantityChange) {
         const itemElement = document.querySelector(`[data-item-id="${itemId}"]`);
+        if (!itemElement) return;
+
         const quantityInput = itemElement.querySelector('.quantity-input');
-        const quantityWrapper = itemElement.querySelector('.quantity-wrapper');
         const quantityLoader = itemElement.querySelector('.quantity-loader');
         const itemPriceElement = itemElement.querySelector('.item-total-price');
         const itemCountElement = itemElement.querySelector('.items-count');
+        const decreaseBtn = itemElement.querySelector('[data-action="decrease"]');
 
-        // Show loader in input
-        quantityInput.style.display = 'none';
+        // Show loader
+        quantityInput.style.visibility = 'hidden';
         quantityLoader.style.display = 'flex';
+
+        // Disable buttons during update
+        const quantityBtns = itemElement.querySelectorAll('.quantity-btn');
+        quantityBtns.forEach(btn => btn.disabled = true);
 
         try {
             const response = await makeApiRequest(`${CART_API_URL}${itemId}/`, {
@@ -242,21 +315,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify({ quantity_change: quantityChange }),
             });
 
-            // Log response for debugging
             console.log('Quantity Update Response:', response);
 
-            // Flexible validation to handle different response structures
+            // Handle different response structures
             const newQuantity = response.quantity || response.item?.quantity || parseInt(quantityInput.value) + quantityChange;
             const newTotal = response.total || response.item?.total || response.total_price || response.item?.total_price;
 
-            if (newQuantity === undefined) {
-                throw new Error('Invalid response: quantity missing');
+            if (newQuantity === undefined || newQuantity <= 0) {
+                throw new Error('Invalid quantity');
             }
 
             // Update DOM elements
             quantityInput.value = newQuantity;
             itemPriceElement.textContent = formatPrice(newTotal || 0);
             itemCountElement.textContent = newQuantity;
+            
+            // Enable/disable decrease button
+            decreaseBtn.disabled = newQuantity <= 1;
             
             // Update cart summary
             const cartData = await makeApiRequest(CART_API_URL);
@@ -268,22 +343,25 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Quantity update error:', error);
             showMessage('Failed to update quantity', 'error');
         } finally {
-            // Hide loader
-            quantityInput.style.display = 'block';
+            // Hide loader and re-enable buttons
+            quantityInput.style.visibility = 'visible';
             quantityLoader.style.display = 'none';
+            quantityBtns.forEach(btn => btn.disabled = false);
+            
+            // Re-check decrease button state
+            const currentQuantity = parseInt(quantityInput.value);
+            decreaseBtn.disabled = currentQuantity <= 1;
         }
     }
 
-    // Remove Item from Cart
+    // Remove Item from Cart with confirmation
     async function removeItem(itemId) {
-        // if (!confirm('Are you sure you want to remove this item from the cart?')) {
-        //     return;
-        // }
-
         const itemElement = document.querySelector(`[data-item-id="${itemId}"]`);
-        if (itemElement) {
-            itemElement.classList.add('cart-item-updating');
-        }
+        if (!itemElement) return;
+
+        // Add visual feedback
+        itemElement.style.opacity = '0.5';
+        itemElement.style.pointerEvents = 'none';
 
         try {
             const response = await makeApiRequest(`${CART_API_URL}${itemId}/`, {
@@ -292,22 +370,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
             showMessage(response.message || 'Item removed successfully');
             
-            // Reload cart to reflect changes
-            await loadCartItems();
+            // Smooth removal animation
+            itemElement.style.transition = 'all 0.3s ease';
+            itemElement.style.transform = 'translateX(-100%)';
+            itemElement.style.maxHeight = '0px';
+            itemElement.style.padding = '0px';
+            itemElement.style.margin = '0px';
+            
+            setTimeout(async () => {
+                await loadCartItems(); // Reload cart to reflect changes
+            }, 300);
             
         } catch (error) {
             showMessage('Failed to remove item', 'error');
             console.error('Failed to remove item:', error);
-        } finally {
-            if (itemElement) {
-                itemElement.classList.remove('cart-item-updating');
-            }
+            
+            // Restore visual state on error
+            itemElement.style.opacity = '1';
+            itemElement.style.pointerEvents = 'auto';
         }
     }
 
     // Save for Later (Add to Favorites)
     async function saveForLater(itemId) {
         try {
+            // Here you would make actual API call
+            // const response = await makeApiRequest(`/favorites/${itemId}/`, { method: 'POST' });
             showMessage('Item added to favorites');
         } catch (error) {
             showMessage('Failed to add item to favorites', 'error');
@@ -316,64 +404,68 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Attach Event Listeners
-// Attach Event Listeners
-function attachEventListeners() {
-    document.querySelectorAll('.quantity-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const itemId = this.dataset.itemId;
-            const action = this.dataset.action;
-            const quantityChange = action === 'increase' ? 1 : -1;
-
-            // الحصول على الكمية الحالية من الحقل المرتبط بالمنتج
-            const quantityInput = document.querySelector(
-                `.quantity-input[data-item-id="${itemId}"]`
-            );
-            const currentQuantity = parseInt(quantityInput.value) || 1;
-
-            // منع الإنقاص إذا الكمية 1
-            if (quantityChange < 0 && currentQuantity <= 1) {
-                // رسالة بسيطة للمستخدم
-                const msg = document.createElement('div');
-                msg.style.color = 'red';
-                msg.style.fontSize = '13px';
-                msg.style.marginTop = '5px';
+    function attachEventListeners() {
+        document.querySelectorAll('.quantity-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
                 
-                // إظهار الرسالة أسفل الحقل إذا لم تكن موجودة
-                if (!quantityInput.nextElementSibling || quantityInput.nextElementSibling.textContent !== msg.textContent) {
-                    quantityInput.parentNode.appendChild(msg);
-                    setTimeout(() => msg.remove(), 2000);
+                if (this.disabled) return;
+                
+                const itemId = this.dataset.itemId;
+                const action = this.dataset.action;
+                const quantityChange = action === 'increase' ? 1 : -1;
+                const quantityInput = document.querySelector(`.quantity-input[data-item-id="${itemId}"]`);
+                const currentQuantity = parseInt(quantityInput.value) || 1;
+
+                // Prevent decrease if quantity is 1
+                if (quantityChange < 0 && currentQuantity <= 1) {
+                    showMessage('Quantity must be greater than zero', 'error');
+                    return;
                 }
-                return;
-            }
 
-            updateItemQuantity(itemId, quantityChange);
+                updateItemQuantity(itemId, quantityChange);
+            });
         });
-    });
 
-    document.querySelectorAll('.remove-item-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const itemId = this.dataset.itemId;
-            removeItem(itemId);
+        document.querySelectorAll('.remove-item-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const itemId = this.dataset.itemId;
+                
+                // Simple confirmation
+                if (confirm('Are you sure you want to remove this item from the cart?')) {
+                    removeItem(itemId);
+                }
+            });
         });
-    });
 
-    document.querySelectorAll('.save-for-later-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const itemId = this.dataset.itemId;
-            saveForLater(itemId);
+        document.querySelectorAll('.save-for-later-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const itemId = this.dataset.itemId;
+                saveForLater(itemId);
+            });
         });
-    });
-}
-
+    }
 
     // Checkout functionality
     function handleCheckout() {
         if (checkoutBtn) {
-            checkoutBtn.addEventListener('click', function() {
-                window.location.href = '/checkout/';
+            checkoutBtn.addEventListener('click', function(e) {
+                if (this.disabled) {
+                    e.preventDefault();
+                    showMessage('Cart is empty', 'error');
+                    return;
+                }
+                
+                // Show loading state
+                const originalText = this.textContent;
+                this.textContent = 'Redirecting...';
+                this.disabled = true;
+                
+                setTimeout(() => {
+                    window.location.href = '/checkout/';
+                }, 500);
             });
         }
     }
@@ -383,23 +475,47 @@ function attachEventListeners() {
         loadCartItems();
         handleCheckout();
         
+        // Create refresh button with proper styling
         const refreshBtn = document.createElement('button');
-        refreshBtn.textContent = 'Refresh Cart';
+        refreshBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Refresh';
         refreshBtn.className = 'refresh-cart-btn';
-        refreshBtn.style.cssText = 'margin: 10px; padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;';
-        refreshBtn.addEventListener('click', loadCartItems);
+        refreshBtn.addEventListener('click', () => {
+            refreshBtn.disabled = true;
+            refreshBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Refreshing...';
+            
+            loadCartItems().finally(() => {
+                refreshBtn.disabled = false;
+                refreshBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Refresh';
+            });
+        });
         
         const cartTitle = document.querySelector('.cart-title');
         if (cartTitle) {
             cartTitle.appendChild(refreshBtn);
         }
+
+        // Auto-refresh every 5 minutes if page is visible
+        setInterval(() => {
+            if (!document.hidden) {
+                loadCartItems();
+            }
+        }, 300000); // 5 minutes
     }
 
+    // Expose functions globally for debugging/external use
     window.reloadCart = loadCartItems;
+    window.cartAPI = {
+        loadCartItems,
+        updateItemQuantity,
+        removeItem,
+        saveForLater
+    };
 
+    // Initialize the cart
     init();
 });
 
+// Module exports for testing
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         loadCartItems,

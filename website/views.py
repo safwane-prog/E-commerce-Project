@@ -1,4 +1,5 @@
 from django.shortcuts import render,get_object_or_404
+from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from .models import StoreHeroImage,StoreSettings
 from products.models import *
@@ -109,7 +110,7 @@ def Login(request):
     return render(request,'login.html',context)
 
 
-
+@login_required(login_url='login_page')
 def profile(request):
     user = request.user
 

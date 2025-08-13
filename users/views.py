@@ -1,7 +1,6 @@
 # Django
-from django.contrib.auth import get_user_model, login
+from django.contrib.auth import get_user_model, login, logout
 from django.contrib.auth.models import update_last_login
-
 # tables
 from orders.models import Order ,CartItem,wishlist,wishlistItem
 from website.models import Profile
@@ -128,10 +127,17 @@ class CustomRegisterView(UserViewSet):
 
 class LogoutView(APIView):
     def post(self, request):
+        logout(request)
+        # إنشاء response وإرسال رسالة
         res = Response({"message": "تم تسجيل الخروج بنجاح"})
+        
+        # حذف كوكيز التوكن (JWT)
         res.delete_cookie("access_token", path="/")
         res.delete_cookie("refresh_token", path="/")
+        
         return res
+    
+
 
 class RefreshTokenView(APIView):
     authentication_classes = []  # لا نتحقق من التوكن هنا
@@ -228,7 +234,8 @@ class UserProfileDetaile(APIView):
         return Response({"message": "Rating saved successfully"})
     def patch(self, request):
             user = request.user
-            profile = getattr(user, "profile", None)
+            profile, created = Profile.objects.get_or_create(user=user)
+
 
             # تحديث بيانات user
             profile_fields = ['phone_number', 'address', 'city', 'country', 'profile_img','first_name','last_name']  # لاحظ هنا عدلت avatar لـ profile_img حسب الحقل الجديد
@@ -240,8 +247,7 @@ class UserProfileDetaile(APIView):
                         value = request.data.getlist(field)[0]
                         setattr(profile, field, value)
             profile.save()
-            print(request.data)
-            # تحديث بيانات البروفايل
+
             if profile:
                 profile_fields = ['phone_number', 'address', 'city', 'country', 'profile_img']
                 for field in profile_fields:
