@@ -1,5 +1,5 @@
 // API endpoints
-const API_BASE = mainDomain + '/users/';
+const API_BASE = mainDomain + 'users/';
 const LOGIN_URL = API_BASE + 'auth/jwt/create/';
 const REGISTER_URL = API_BASE + 'auth/users/register/';
 const LOGOUT_URL = API_BASE + 'auth/users/logout/';

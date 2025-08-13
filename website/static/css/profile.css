@@ -178,11 +178,6 @@
         box-shadow: var(--shadow);
     }
 
-    .logout-btn:hover {
-        background: #dc2626;
-        transform: translateY(-2px) scale(1.02);
-        box-shadow: var(--shadow-hover);
-    }
 
     .logout-btn:focus {
         outline: none;

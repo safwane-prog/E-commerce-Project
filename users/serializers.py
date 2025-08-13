@@ -42,7 +42,9 @@ class ProductSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if not request or not request.user.is_authenticated:
             return False
-        return obj.ratings.filter(email=request.user.email).exists()
+        # الآن الفلترة على user الصحيح
+        return obj.ratings.filter(user=request.user).exists()
+
 
 
 class OrderSerializer(serializers.ModelSerializer):

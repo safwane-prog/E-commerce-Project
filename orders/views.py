@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework import permissions
 from .models import *
 from .serializers import *
+from users.serializers import *
 from rest_framework.permissions import AllowAny,IsAdminUser,IsAuthenticated
 from django.shortcuts import get_object_or_404
 
@@ -219,44 +220,15 @@ class CreateOrderNoAuthenticated(APIView):
 
         return Response({"message": "Order created successfully", "order_id": str(order.id)}, status=status.HTTP_201_CREATED)
 
-
-
 class CreateOrder(APIView):
     permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        user = request.user
-        if not user.is_authenticated:
-            return Response({"error": "User undefined"}, status=401)
-
-        # جلب العناصر التي لم تُشترى فقط
-        items = CartItem.objects.filter(cart__user=user)
-        
-        # حساب المبالغ
-        subtotal = 0
-        shipping = 10  # مثلا قيمة ثابتة أو يمكن تعديلها حسب النظام
-        discount = 0   # خصم ثابت أو من النظام
-        for item in items:
-            price = item.product.price  # تأكد من وجود حقل السعر في المنتج
-            subtotal += price * item.quantity
-        
-        total = subtotal + shipping - discount
-
-        serializer = CartItemSerializer(items, many=True)
-
-        return Response({
-            "items": serializer.data,
-            "subtotal": subtotal,
-            "shipping": shipping,
-            "discount": discount,
-            "total": total
-        })
 
     def post(self, request):
         user = request.user
         if not user.is_authenticated:
             return Response({"error": "User undefined"}, status=401)
 
+        # بيانات العميل
         customer_name = request.data.get("customer_name")
         customer_email = request.data.get("customer_email")
         customer_phone = request.data.get("customer_phone")
@@ -266,10 +238,12 @@ class CreateOrder(APIView):
         if not all([customer_name, customer_phone, customer_address, city]):
             return Response({"error": "Missing required customer information"}, status=400)
 
-        items = CartItem.objects.filter(cart__user=user)
+        # عناصر السلة
+        items = CartItem.objects.filter(cart__user=user, is_ordered=False)
         if not items.exists():
             return Response({"error": "Cart is empty"}, status=400)
 
+        # إنشاء الطلب
         order = Order.objects.create(
             state=Order.OrderState.PENDING,
             payment_method=Order.PaymentMethod.CASH_ON_DELIVERY,
@@ -281,12 +255,16 @@ class CreateOrder(APIView):
             user=user
         )
 
+        # ربط المنتجات بالطلب وتحديث عناصر السلة
         for item in items:
+            order.products.add(item.product)  # ManyToMany
             item.is_ordered = True
-            item.order = order
+            item.order = order  # لو عندك ForeignKey للطلب
             item.save()
-
 
         order.save()
 
-        return Response({"message": "Order created successfully", "order_id": order.id}, status=201)
+        return Response({
+            "message": "Order created successfully",
+            "order": OrderSerializer(order, context={"request": request}).data
+        }, status=201)

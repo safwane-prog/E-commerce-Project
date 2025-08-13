@@ -101,6 +101,7 @@ class CookieTokenObtainPairView(TokenObtainPairView):
 class CustomRegisterView(UserViewSet):
     permission_classes = [AllowAny]
     authentication_classes = [SessionAuthentication, BasicAuthentication]
+
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
 
@@ -110,9 +111,26 @@ class CustomRegisterView(UserViewSet):
             refresh = RefreshToken.for_user(user)
             access = str(refresh.access_token)
 
-            # تسجيل دخول المستخدم (لتفعيل @login_required مثلاً)
+            # تسجيل دخول المستخدم
             login(request, user)
             update_last_login(None, user)
+
+            # إنشاء كارت إذا لم يكن موجود
+            if not Cart.objects.filter(user=user).exists():
+                Cart.objects.create(user=user)
+
+            # إنشاء قائمة رغبات إذا لم تكن موجودة
+            wishlist.objects.get_or_create(user=user)
+
+            # إنشاء بروفايل إذا لم يكن موجود
+            Profile.objects.get_or_create(
+                user=user,
+                defaults={
+                    "phone_number": "",
+                    "address": "",
+                    "email": "",
+                }
+            )
 
             res = Response({
                 "access": access,
@@ -125,6 +143,7 @@ class CustomRegisterView(UserViewSet):
             res.set_cookie("refresh_token", str(refresh), httponly=True, samesite="Lax", path="/", secure=False)
 
             return res
+
         return response
 
 class LogoutView(APIView):
@@ -188,8 +207,8 @@ class UserProfileDetaile(APIView):
             sum(float(p.price) for p in order.products.all()) for order in orders
         )
 
-        wishlist_count = wishlist.objects.filter(user=user).count()
         user_wishlist, _ = wishlist.objects.get_or_create(user=user)
+        wishlist_count = wishlistItem.objects.filter(wishlist=user_wishlist).count()
         wishlist_user = wishlistItem.objects.filter(wishlist=user_wishlist)
 
         messages = Contact.objects.filter(user=user)
@@ -226,13 +245,15 @@ class UserProfileDetaile(APIView):
 
         Rating.objects.update_or_create(
             product=product,
-            email=request.user.email,
+            user=request.user,  # مهم جدًا
             defaults={
                 "name": request.user.get_full_name() or request.user.username,
+                "email": request.user.email,
                 "rating": rating_value,
                 "review": review_text
             }
         )
+
         return Response({"message": "Rating saved successfully"})
     def patch(self, request):
             user = request.user
