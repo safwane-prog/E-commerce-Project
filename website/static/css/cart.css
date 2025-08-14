@@ -91,6 +91,7 @@
 
 .cart-items-detailes-name {
     width: 100%;
+    max-width: 400px;
     font-size: 18px;
     font-weight: 500;
     color: #333;
@@ -99,7 +100,8 @@
 
 .cart-items-detailes-options {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: start;
     gap: 4px;
 }
 
@@ -202,21 +204,40 @@
     cursor: pointer;
 }
 
-.delete-btn button, .save-btn button {
+ .save-btn button {
     background: none;
     border: none;
-    color: var(--main-color2);
+    color: #cd33a4;
     font-size: 14px;
     display: flex;
     align-items: center;
     gap: 5px;
+    font-weight: 500;
     cursor: pointer;
     padding: 5px 8px;
-    border-radius: 4px;
+    border: 1px solid #cecece;
+    border-radius: 8px;
 }
 
-.delete-btn button:hover, .save-btn button:hover {
-    background-color: #f0f0f0;
+.delete-btn button{
+    border: 1px solid #cecece;
+    border-radius: 8px;
+    padding: 5px 8px;
+    cursor: pointer;
+    color: #e53e3e;
+    font-weight: 500;
+    background: none;
+
+}
+.delete-btn button:hover{
+    border: 1px solid #e53e3e;
+    background-color: #ff8a8a2b;
+    transition: all 0.1s linear;
+}
+.save-btn button:hover {
+    border: 1px solid #cb50aa59;
+    background-color: #f38aff3d;
+    transition: all 0.1s linear;
 }
 
 .cart-items-prices {

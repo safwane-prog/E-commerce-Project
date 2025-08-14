@@ -759,7 +759,10 @@
     }
 
     @media (max-width: 768px) {
-        .dashboard-grid,
+        .dashboard-grid{
+            grid-template-columns: 1fr;
+        }
+        
         .wishlist-grid {
             grid-template-columns: 1fr;
         }
