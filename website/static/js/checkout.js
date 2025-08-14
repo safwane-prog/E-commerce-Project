@@ -371,8 +371,6 @@ async function applyPromoCode() {
                 
                 if (result.error.includes("already used")) {
                     errorMsg = "You have already used this coupon";
-                    const promoSection = document.querySelector('.promo-code');
-                    if (promoSection) promoSection.style.display = 'none';
                 }
                 
                 showNotification(errorMsg, 'error');
