@@ -33,6 +33,11 @@
     background: white;
     transition: all 0.3s ease;
     max-width: 300px;
+    display: flex;
+    align-items: start;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
 }
 
 .product-box:hover {
@@ -177,58 +182,67 @@
     width: 100%;
 }
 
-/* Enhanced Cart Button with Active State */
-.shop-buttons button {
+.add-to-cart-btn {
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 10px;
+    padding: 3px 0;
     border: none;
-    height: 44px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
     cursor: pointer;
-    color: #14181F;
-    font-size: 16px;
-    font-weight: 500;
-    border-radius: 8px;
-    background-color: #f0f0f0;
+    color: #fff;
+    background-color: var(--main-color);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
 }
 
-.shop-buttons button:hover {
-    background-color: #3348FF;
-    color: white;
-    transform: translateY(-1px);
+/* Hover effect for active button */
+.add-to-cart-btn:hover:not(.in-cart) {
+    background-color: var(--main-color2);
+    transform: translateY(-2px);
 }
 
-/* Active Cart State */
-.shop-buttons button.cart-active {
-    background-color: #10b981;
-    color: white;
+/* Active/In-Cart state */
+.add-to-cart-btn.in-cart {
+    background-color: #10b981; /* لون أخضر جذاب */
+    color: #fff;
+    cursor: not-allowed;
     box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
-.shop-buttons button.cart-active:hover {
+.add-to-cart-btn.in-cart:hover {
+    transform: none;
     background-color: #059669;
 }
 
-.shop-buttons span {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+/* أيقونة الزر */
+.add-to-cart-btn span i {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease, color 0.3s ease;
 }
 
-.shop-buttons img {
-    width: 16px;
-    height: 16px;
-    filter: brightness(0) invert(1);
+/* عند hover على الزر غير الموجود مسبقًا */
+.add-to-cart-btn:hover:not(.in-cart) span i {
+    transform: scale(1.2);
+    color: #fff;
 }
 
-.shop-buttons button:not(.cart-active) img {
-    filter: none;
+/* عند وجود المنتج مسبقًا */
+.add-to-cart-btn.in-cart span i {
+    color: #fff;
+    transform: scale(1);
 }
+
+/* Optional: تأثير الضغط */
+.add-to-cart-btn:active {
+    transform: translateY(1px);
+}
+
 
 /* Filter Section */
 .filter-section {

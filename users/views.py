@@ -201,7 +201,7 @@ class UserProfileDetaile(APIView):
 
     def get(self, request):
         user = request.user
-
+        Profile.objects.get_or_create(user=user)
         orders = Order.objects.filter(user=user)
         total_spent = sum(
             sum(float(p.price) for p in order.products.all()) for order in orders

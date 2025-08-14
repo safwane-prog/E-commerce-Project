@@ -98,7 +98,7 @@
     .profile-picture img {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        border-radius: 50%;
     }
 
     .user-details {
@@ -454,11 +454,13 @@
         cursor: not-allowed;
     }
 
-    .wishlist-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 16px;
-    }
+.wishlist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    justify-content: center; /* Or space-evenly */
+    gap: 16px;
+}
+
 
     .wishlist-item {
         max-width: 300px;
@@ -466,6 +468,10 @@
         border-radius: 10px;
         overflow: hidden;
         transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-direction: column;
     }
 
     .wishlist-item:hover {
@@ -480,12 +486,19 @@
     }
 
     .wishlist-item .title {
-        padding: 12px;
-        font-size: 0.95rem;
-        font-weight: 500;
-    }
+    padding: 12px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    white-space: normal;  /* يسمح بالكسر إلى سطر جديد */
+    word-wrap: break-word; /* يكسر الكلمات الطويلة إذا لزم */
+    width: 100%;
+        text-align: start;
+}
+
 
     .wishlist-item .price {
+        width: 100%;
+        text-align: start;
         padding: 0 12px;
         color: var(--secondary);
         font-weight: 500;
@@ -494,6 +507,8 @@
     .wishlist-item .actions {
         padding: 12px;
         display: flex;
+        width: 100%;
+        justify-content: space-between;
         gap: 8px;
     }
 
@@ -520,8 +535,8 @@
     }
 
     .wishlist-item .remove {
-        background: #fef2f2;
-        color: var(--error);
+        background: var(--error);
+        color: white;
     }
 
     .wishlist-item .remove:hover {
@@ -763,10 +778,6 @@
             grid-template-columns: 1fr;
         }
         
-        .wishlist-grid {
-            grid-template-columns: 1fr;
-        }
-
         .section-title {
             font-size: 1.5rem;
         }
@@ -1029,7 +1040,7 @@ img[src*="user_Placeholder.png"] {
 
 .logout-modal-content {
     background-color: white;
-    margin: 15% auto;
+    margin: 25% auto 15% auto;
     padding: 0;
     border-radius: 8px;
     width: 90%;
@@ -1126,7 +1137,9 @@ img[src*="user_Placeholder.png"] {
     .empty-title {
         font-size: 1.1rem;
     }
-    
+    .logout-modal-content{
+        margin: 55% auto 15% auto;
+    }
     .empty-description {
         font-size: 0.85rem;
     }

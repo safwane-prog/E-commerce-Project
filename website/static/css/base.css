@@ -70,7 +70,43 @@ header{
 .categories_itms_smole:hover{
     background-color: #14181f16;
 }
+.no-categories {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 20px;
+    border-radius: 8px;
+    color: #6F7C8E;
+    font-size: 16px;
+    background-color: #f9f9f9;
+}
 
+.no-categories i {
+    font-size: 20px;
+    color: #6F7C8E;
+}
+
+
+.no-categories-phone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column !important;
+    
+    width: 100%;
+    padding: 20px;
+    border-radius: 8px;
+    color: #6F7C8E;
+    font-size: 16px;
+    background-color: #f9f9f9;
+    gap: 10px;
+}
+
+.no-categories-phone i {
+    font-size: 24px;
+    color: #6F7C8E;
+}
 .shop-more-all-categories{
    display: flex;
     align-items: start;
@@ -229,14 +265,25 @@ header{
     outline: none;
 }
 
+#select-header {
+    padding: 0px 10px 0px 5px; ;
+    background-color: #fff;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-left: 1px solid #DCE0E5;
+}
+
 
 .searsh-section select{
     height: 100%;
-    width: 15%;
     border: none;
     background: none;
     cursor: pointer;
-    margin: 0px 10px 0px 0px;
+    margin: 0px 0px 0px 0px;
 }
 
 .searsh-section select:focus{

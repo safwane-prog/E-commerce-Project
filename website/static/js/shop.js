@@ -551,10 +551,13 @@ createProductHTML(product) {
             </div>
             <div class="shop-buttons">
                 <button onclick="shopManager.addToCart('${product.id}')" 
-                        class="add-to-cart-btn ${isInCart ? 'cart-active' : ''}" 
-                        data-product-id="${product.id}">
-                    ${isInCart ? 'In Cart' : 'Add To Cart'}
-                    <span><img src="/static/imges/icon/Style=Stroke, Type=Rounded (2).svg" alt="cart"></span>
+                        class="add-to-cart-btn ${isInCart ? 'in-cart' : ''}" 
+                        data-product-id="${product.id}"
+                        ${isInCart ? 'disabled' : ''}>
+                    <span>${isInCart ? 'Already in Cart' : 'Add To Cart'}</span>
+                    <span>
+                        <i class="${isInCart ? 'bi bi-cart-check' : 'bi bi-cart-plus'}"></i>
+                    </span>
                 </button>
             </div>
         </div>
@@ -759,16 +762,30 @@ createProductHTML(product) {
         if (productBox) {
             const cartButton = productBox.querySelector('.add-to-cart-btn');
             if (cartButton) {
+                const icon = cartButton.querySelector('i');
+
                 if (isInCart) {
-                    cartButton.textContent = 'In Cart';
-                    cartButton.classList.add('cart-active');
+                    cartButton.classList.add('in-cart');
+                    cartButton.disabled = true; // الزر غير قابل للنقر
+                    cartButton.querySelector('span:first-child').textContent = 'Already in Cart';
+                    if (icon) {
+                        icon.classList.remove('bi-cart-plus');
+                        icon.classList.add('bi-cart-check');
+                    }
                 } else {
-                    cartButton.textContent = 'Add To Cart';
-                    cartButton.classList.remove('cart-active');
+                    cartButton.classList.remove('in-cart');
+                    cartButton.disabled = false;
+                    cartButton.querySelector('span:first-child').textContent = 'Add To Cart';
+                    if (icon) {
+                        icon.classList.remove('bi-cart-check');
+                        icon.classList.add('bi-cart-plus');
+                    }
                 }
             }
         }
     }
+
+
 
     updateWishlistIcon(productId, isInWishlist) {
         const productBox = document.querySelector(`[data-product-id="${productId}"]`);

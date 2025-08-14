@@ -11,5 +11,6 @@ urlpatterns = [
     path('items-list/cart/<int:id>/', CartItemsViewsBuyUser.as_view(), name='cart-items-list'),
     path('api/orders/create/<uuid:id>/', CreateOrderNoAuthenticated.as_view(), name='create-order-no-auth'),
     path('user/orders/create/', CreateOrder.as_view(), name='create-order'),
+    path('apply-promo/', ApplyCouponAPIView.as_view(), name='apply-coupon'),
 ]
 

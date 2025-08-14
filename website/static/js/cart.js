@@ -1,3 +1,7 @@
+function viewProductDetails(productId) {
+    window.location.href = `/product-details/${String(productId)}`;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Configuration
     const API_BASE_URL = mainDomain + '/orders';
@@ -25,6 +29,18 @@ document.addEventListener('DOMContentLoaded', function() {
             <p>Loading...</p>
         </div>
     `;
+
+    // Empty cart HTML
+    function getEmptyCartHTML() {
+        return `
+            <div class="empty-cart">
+                <i class="bi bi-cart-x" style="font-size: 48px; color: ${mainColor}; margin-bottom: 15px;"></i>
+                <h3>Cart is Empty</h3>
+                <p>No products in the shopping cart</p>
+                <a href="/shop" class="continue-shopping-btn">Continue Shopping</a>
+            </div>
+        `;
+    }
 
     // Utility Functions
     function showLoader() {
@@ -98,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Update cart count to 0
         updateCartCount(0);
-        updateCartSummary([]);
+        updateCartSummary(null);
     }
 
     function showMessage(message, type = 'success') {
@@ -110,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
         messageDiv.className = 'toast-message';
         messageDiv.innerHTML = `
             <div class="toast-content">
-                <i class="bi ${type === 'success' ? 'bi-check-circle' : 'bi-x-circle'}"></i>
+                <i class="${type === 'success' ? 'fa-solid fa-check-circle' : 'fa-solid fa-exclamation-triangle'}"></i>
                 <span>${message}</span>
             </div>
         `;
@@ -120,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
             top: 20px;
             right: 20px;
             padding: 12px 20px;
-            background: ${type === 'success' ? '#4CAF50' : '#f44336'};
+            background: ${type === 'success' ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #ef4444, #b91c1c);'};
             color: white;
             border-radius: 8px;
             z-index: 1000;
@@ -199,12 +215,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Load Cart Items with 401 handling
+    // Load Cart Items with 401 handling - UPDATED for new API structure
     async function loadCartItems() {
         try {
             showLoader();
             const cartData = await makeApiRequest(CART_API_URL);
-            renderCartItems(cartData);
+            console.log('Cart API Response:', cartData);
+            
+            // Handle the new API structure
+            const items = cartData.items || [];
+            renderCartItems(items);
             updateCartSummary(cartData);
         } catch (error) {
             if (error.message === 'AUTHENTICATION_REQUIRED') {
@@ -220,45 +240,38 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Render Cart Items
-    function renderCartItems(cartData) {
-        if (!cartData || cartData.length === 0) {
-            cartItemsContainer.innerHTML = `
-                <div class="empty-cart">
-                    <i class="bi bi-cart-x" style="font-size: 48px; color: ${mainColor}; margin-bottom: 15px;"></i>
-                    <h3>Cart is Empty</h3>
-                    <p>No products in the shopping cart</p>
-                    <a href="/shop" class="continue-shopping-btn">Continue Shopping</a>
-                </div>
-            `;
+    // Render Cart Items - UPDATED
+    function renderCartItems(items) {
+        if (!items || items.length === 0) {
+            cartItemsContainer.innerHTML = getEmptyCartHTML();
             updateCartCount(0);
-            updateCartSummary([]);
+            updateCartSummary(null);
             return;
         }
 
         let cartHTML = '';
-        cartData.forEach(item => {
+        items.forEach(item => {
             cartHTML += createCartItemHTML(item);
         });
 
         cartItemsContainer.innerHTML = cartHTML;
-        updateCartCount(cartData.length);
+        updateCartCount(items.length);
         attachEventListeners();
     }
 
-    function viewProductDetails(productId) {
-        window.location.href = `/product-details/${String(productId)}`;
-    }
-
-    // Create Cart Item HTML
+    // Create Cart Item HTML - UPDATED for new structure
     function createCartItemHTML(item) {
         const product = item.product;
         const imageUrl = product.image_1 || '/static/images/placeholder.jpg';
         
+        // Handle color and size arrays from new API
+        const color = Array.isArray(product.color) && product.color.length > 0 ? product.color[0] : null;
+        const size = Array.isArray(product.size) && product.size.length > 0 ? product.size[0] : null;
+        
         return `
             <div class="cart-items" data-item-id="${item.id}">
                 <div class="cart-items-image">
-                    <img  onclick="viewProductDetails('${product.id}')" src="${imageUrl}" alt="${product.name}" 
+                    <img onclick="viewProductDetails('${product.id}')" src="${imageUrl}" alt="${product.name}" 
                          onerror="this.src='/static/images/placeholder.jpg'"
                          loading="lazy">
                 </div>
@@ -267,16 +280,16 @@ document.addEventListener('DOMContentLoaded', function() {
                         ${product.name}
                     </div>
                     <div class="cart-items-detailes-options">
-                        ${product.size ? `
+                        ${size ? `
                             <div class="option-name">
                                 <span class="ferst-span">Size:</span>
-                                <span>${product.size}</span>
+                                <span>${size}</span>
                             </div>
                         ` : ''}
-                        ${product.color ? `
+                        ${color ? `
                             <div class="option-name">
                                 <span class="ferst-span">Color:</span>
-                                <span>${product.color}</span>
+                                <span>${color}</span>
                             </div>
                         ` : ''}
                     </div>
@@ -327,26 +340,17 @@ document.addEventListener('DOMContentLoaded', function() {
         document.title = count > 0 ? `${baseTitle} (${count})` : baseTitle;
     }
 
-    // Update Cart Summary
+    // Update Cart Summary - UPDATED for new API structure
     function updateCartSummary(cartData) {
-        if (!Array.isArray(cartData) || cartData.length === 0) {
+        if (!cartData || !cartData.items || cartData.items.length === 0) {
             if (subtotalElement) subtotalElement.textContent = formatPrice(0);
             if (totalElement) totalElement.textContent = formatPrice(0);
             return;
         }
 
-        let subtotal = 0;
-        cartData.forEach(item => {
-            const itemTotal = parseFloat(item.total);
-            if (!isNaN(itemTotal)) {
-                subtotal += itemTotal;
-            }
-        });
-
-        // You can make these dynamic from server
-        const discount = 60.00;
-        const tax = 14.00;
-        const total = Math.max(0, subtotal - discount + tax);
+        // Use the values directly from API response
+        const subtotal = cartData.subtotal || 0;
+        const total = cartData.total || 0;
 
         if (subtotalElement) {
             subtotalElement.textContent = formatPrice(subtotal);
@@ -358,80 +362,120 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Enable/disable checkout button based on cart contents
         if (checkoutBtn) {
-            checkoutBtn.disabled = cartData.length === 0;
-            checkoutBtn.style.opacity = cartData.length === 0 ? '0.5' : '1';
+            const hasItems = cartData.items && cartData.items.length > 0;
+            checkoutBtn.disabled = !hasItems;
+            checkoutBtn.style.opacity = hasItems ? '1' : '0.5';
         }
     }
 
     // Update Item Quantity with 401 handling
     async function updateItemQuantity(itemId, quantityChange) {
-        const itemElement = document.querySelector(`[data-item-id="${itemId}"]`);
-        if (!itemElement) return;
+    const itemElement = document.querySelector(`[data-item-id="${itemId}"]`);
+    if (!itemElement) return;
 
-        const quantityInput = itemElement.querySelector('.quantity-input');
-        const quantityLoader = itemElement.querySelector('.quantity-loader');
-        const itemPriceElement = itemElement.querySelector('.item-total-price');
-        const itemCountElement = itemElement.querySelector('.items-count');
-        const decreaseBtn = itemElement.querySelector('[data-action="decrease"]');
+    const quantityInput = itemElement.querySelector('.quantity-input');
+    const quantityLoader = itemElement.querySelector('.quantity-loader');
+    const itemPriceElement = itemElement.querySelector('.item-total-price');
+    const itemCountElement = itemElement.querySelector('.items-count');
+    const decreaseBtn = itemElement.querySelector('[data-action="decrease"]');
 
-        // Show loader
-        quantityInput.style.visibility = 'hidden';
-        quantityLoader.style.display = 'flex';
+    // عرض لودر
+    quantityInput.style.visibility = 'hidden';
+    quantityLoader.style.display = 'flex';
 
-        // Disable buttons during update
-        const quantityBtns = itemElement.querySelectorAll('.quantity-btn');
-        quantityBtns.forEach(btn => btn.disabled = true);
+    // تعطيل الأزرار
+    const quantityBtns = itemElement.querySelectorAll('.quantity-btn');
+    quantityBtns.forEach(btn => btn.disabled = true);
 
+    try {
+        const response = await makeApiRequest(`${CART_API_URL}${itemId}/`, {
+            method: 'PUT',
+            body: JSON.stringify({ quantity_change: quantityChange }),
+        });
+
+        console.log('Quantity Update Response:', response);
+
+        // قيم جديدة
+        let newQuantity, newTotal;
+
+        // إذا كانت الاستجابة كاملة ككل الكارت
+        if (response.items) {
+            const updatedItem = response.items.find(i => i.id === itemId);
+            if (updatedItem) {
+                newQuantity = updatedItem.quantity;
+                newTotal = updatedItem.total;
+            }
+        }
+        // إذا كانت الاستجابة تحتوي فقط على المنتج
+        else if (response.item) {
+            newQuantity = response.item.quantity;
+            newTotal = response.item.total;
+        }
+        // إذا كانت الاستجابة مباشرة بالقيم
+        else if (response.quantity !== undefined) {
+            newQuantity = response.quantity;
+            newTotal = response.total;
+        }
+
+        // إذا المجموع غير موجود أو صفر، نحسبه من السعر
+        if (!newTotal || newTotal === 0) {
+            const pricePerUnit = parseFloat(itemPriceElement.dataset.price) || parseFloat(itemElement.dataset.price) || 0;
+            newTotal = pricePerUnit * newQuantity;
+        }
+
+        if (newQuantity === undefined || newQuantity <= 0) {
+            throw new Error('Invalid quantity received from server');
+        }
+
+        // تحديث الـ DOM
+        quantityInput.value = newQuantity;
+        itemPriceElement.textContent = formatPrice(newTotal || 0);
+        itemCountElement.textContent = newQuantity;
+        decreaseBtn.disabled = newQuantity <= 1;
+
+        // تحديث الملخص
+        await updateCartSummaryFromServer();
+
+        showMessage('Quantity updated successfully');
+
+    } catch (error) {
+        if (error.message === 'AUTHENTICATION_REQUIRED') {
+            showAuthRequired();
+            return;
+        }
+        console.error('Quantity update error:', error);
+        showMessage('Failed to update quantity', 'error');
+
+        // إعادة تحميل الكارت عند الخطأ
+        setTimeout(() => {
+            loadCartItems();
+        }, 1000);
+    } finally {
+        // إرجاع الحالة الطبيعية
+        quantityInput.style.visibility = 'visible';
+        quantityLoader.style.display = 'none';
+        quantityBtns.forEach(btn => btn.disabled = false);
+
+        // تأكد من حالة زر الإنقاص
+        const currentQuantity = parseInt(quantityInput.value);
+        decreaseBtn.disabled = currentQuantity <= 1;
+    }
+}
+
+
+    // Update cart summary from server without full page reload - UPDATED
+    async function updateCartSummaryFromServer() {
         try {
-            const response = await makeApiRequest(`${CART_API_URL}${itemId}/`, {
-                method: 'PUT',
-                body: JSON.stringify({ quantity_change: quantityChange }),
-            });
-
-            console.log('Quantity Update Response:', response);
-
-            // Handle different response structures
-            const newQuantity = response.quantity || response.item?.quantity || parseInt(quantityInput.value) + quantityChange;
-            const newTotal = response.total || response.item?.total || response.total_price || response.item?.total_price;
-
-            if (newQuantity === undefined || newQuantity <= 0) {
-                throw new Error('Invalid quantity');
-            }
-
-            // Update DOM elements
-            quantityInput.value = newQuantity;
-            itemPriceElement.textContent = formatPrice(newTotal || 0);
-            itemCountElement.textContent = newQuantity;
-            
-            // Enable/disable decrease button
-            decreaseBtn.disabled = newQuantity <= 1;
-            
-            // Update cart summary
             const cartData = await makeApiRequest(CART_API_URL);
+            const items = cartData.items || [];
             updateCartSummary(cartData);
-            
-            showMessage('Quantity updated successfully');
-
+            updateCartCount(items.length);
         } catch (error) {
-            if (error.message === 'AUTHENTICATION_REQUIRED') {
-                showAuthRequired();
-                return;
-            }
-            console.error('Quantity update error:', error);
-            showMessage('Failed to update quantity', 'error');
-        } finally {
-            // Hide loader and re-enable buttons
-            quantityInput.style.visibility = 'visible';
-            quantityLoader.style.display = 'none';
-            quantityBtns.forEach(btn => btn.disabled = false);
-            
-            // Re-check decrease button state
-            const currentQuantity = parseInt(quantityInput.value);
-            decreaseBtn.disabled = currentQuantity <= 1;
+            console.error('Failed to update cart summary:', error);
         }
     }
 
-    // Remove Item from Cart with confirmation and 401 handling
+    // Remove Item from Cart - Enhanced version with direct removal
     async function removeItem(itemId) {
         const itemElement = document.querySelector(`[data-item-id="${itemId}"]`);
         if (!itemElement) return;
@@ -448,15 +492,30 @@ document.addEventListener('DOMContentLoaded', function() {
             showMessage(response.message || 'Item removed successfully');
             
             // Smooth removal animation
-            itemElement.style.transition = 'all 0.3s ease';
+            itemElement.style.transition = 'all 0.4s ease';
             itemElement.style.transform = 'translateX(-100%)';
             itemElement.style.maxHeight = '0px';
             itemElement.style.padding = '0px';
             itemElement.style.margin = '0px';
+            itemElement.style.overflow = 'hidden';
             
-            setTimeout(async () => {
-                await loadCartItems(); // Reload cart to reflect changes
-            }, 300);
+            setTimeout(() => {
+                // Remove the item from DOM
+                itemElement.remove();
+                
+                // Check if cart is now empty
+                const remainingItems = document.querySelectorAll('.cart-items[data-item-id]');
+                if (remainingItems.length === 0) {
+                    // Show empty cart message
+                    cartItemsContainer.innerHTML = getEmptyCartHTML();
+                    updateCartCount(0);
+                    updateCartSummary(null);
+                } else {
+                    // Update cart count and summary
+                    updateCartCount(remainingItems.length);
+                    updateCartSummaryFromServer();
+                }
+            }, 400);
             
         } catch (error) {
             if (error.message === 'AUTHENTICATION_REQUIRED') {

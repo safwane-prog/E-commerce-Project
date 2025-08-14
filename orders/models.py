@@ -22,6 +22,78 @@ class CartItem(models.Model):
     is_ordered = models.BooleanField(default=False)
 
 
+class Coupon(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    code = models.CharField(max_length=50, unique=True)
+    discount_percent = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    active = models.BooleanField(default=True)
+    usage_limit = models.PositiveIntegerField(default=1)  
+    used_count = models.PositiveIntegerField(default=0)  
+    start_date = models.DateTimeField(null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.code
+
+class CouponUsage(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    coupon = models.ForeignKey(Coupon, on_delete=models.CASCADE, related_name="usages")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="coupon_usages")
+    used_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('coupon', 'user')  
+    def __str__(self):
+        return f"{self.user.username} used {self.coupon.code}"
+
+
+
+class Discount(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=100)  # اسم للتعريف، مثل "خصم موسمي"
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # خصم ثابت
+    percent = models.DecimalField(max_digits=5, decimal_places=2, default=0)  # خصم نسبة مئوية
+    active = models.BooleanField(default=True)
+
+    def __str__(self):
+        if self.percent > 0:
+            return f"{self.name} - {self.percent}%"
+        return f"{self.name} - {self.amount} {settings.CURRENCY_SYMBOL}"  # استخدم رمز العملة من الإعدادات
+    
+
+class Tax(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=100)  # مثلاً VAT, TVA, ضريبة القيمة المضافة
+    rate = models.DecimalField(max_digits=5, decimal_places=2, help_text="Tax rate in percentage (e.g., 20 for 20%)")
+    active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.rate}%)"
+
+
+class ShippingFee(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    region = models.CharField(max_length=100)  # المنطقة أو المدينة
+    cost = models.DecimalField(max_digits=10, decimal_places=2)
+    estimated_days = models.PositiveIntegerField(default=3)  # مدة التوصيل المتوقعة بالأيام
+    active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.region} - {self.cost} درهم"
+
+
+class ServiceFee(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=100)  # مثلاً: تغليف هدية، الدفع عند الاستلام
+    cost = models.DecimalField(max_digits=10, decimal_places=2)
+    active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.name} - {self.cost} درهم"
+
+
+
 class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders', null=True, blank=True)
     order_number = models.PositiveIntegerField(unique=True, null=True, blank=True)
@@ -41,7 +113,12 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     is_completed = models.BooleanField(default=False)
 
+    coupon = models.ForeignKey(Coupon, on_delete=models.SET_NULL, null=True, blank=True)
+    discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     
+    is_use_coupon = models.BooleanField(default=False)
+
     options = models.CharField(max_length=100,null=True, blank=True)
     color = models.CharField( max_length=100,null=True, blank=True)
     size = models.CharField(max_length=100,null=True, blank=True)
@@ -49,7 +126,7 @@ class Order(models.Model):
     customer_name = models.CharField(max_length=200)
     customer_email = models.EmailField(null=True, blank=True)
     customer_phone = models.CharField(max_length=20)
-
+    
     customer_address = models.TextField()
     city = models.CharField(max_length=100, null=True, blank=True)
 

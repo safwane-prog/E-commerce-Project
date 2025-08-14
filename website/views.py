@@ -146,21 +146,42 @@ def profile(request):
 
 
 def cart(request):
-    base_context = Base(request)  # جلب logo
+    tax = Tax.objects.filter(active=True).last()
+    discount = Discount.objects.filter(active=True).last()
+    shippingFee = ShippingFee.objects.filter(active=True).last()
+    serviceFee = ServiceFee.objects.filter(active=True).last()
+    
+    base_context = Base(request)  # جلب logo وبيانات أساسية
+    
     context = {
-
+        "tax": tax,
+        "discount": discount,
+        "shippingFee": shippingFee,
+        "serviceFee": serviceFee,
     }
-    context.update(base_context) 
-    return render(request, 'cart.html',context)
+    
+    context.update(base_context)
+    return render(request, 'cart.html', context)
+
 
 
 
 def checkout(request):
-    base_context = Base(request)  # جلب logo
+    tax = Tax.objects.filter(active=True).last()
+    discount = Discount.objects.filter(active=True).last()
+    shippingFee = ShippingFee.objects.filter(active=True).last()
+    serviceFee = ServiceFee.objects.filter(active=True).last()
+    
+    base_context = Base(request)  # جلب logo وبيانات أساسية
+    
     context = {
-
+        "tax": tax,
+        "discount": discount,
+        "shippingFee": shippingFee,
+        "serviceFee": serviceFee,
     }
-    context.update(base_context) 
+    
+    context.update(base_context)
     return render(request,'checkout.html',context)
 
 

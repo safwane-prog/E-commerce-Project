@@ -31,7 +31,7 @@
                 <div class="searsh-section">
                     <input type="text" name="" id="searsh-head-inpur" placeholder="Find product">
                     <select  name="" id="select-header">
-                        <option value="">Choose a category</option>
+                        <option value="">All category</option>
                         {% for category in categories %}
                             <option value="{{category.id}}">{{category.name|slice:":20"}}</option>
                         {% endfor%}
@@ -81,27 +81,38 @@
                     <span>All category</span>
                 </div>
                 <div class="show_category_name">
-                    {% for i in categories_%}
-                        <div class="categories_itms_smole">
-                            <span>{{i.name}}</span>
-                            <span><i class="fa-solid fa-angle-right"></i></span>
-                        </div>
-                    {% endfor %}
-                    {% if not categories_.lingth >= 0 %}
+                        {% if categories_|length > 0 %}
+                            {% for i in categories_ %}
+                                <div class="categories_itms_smole">
+                                    <span>{{ i.name }}</span>
+                                    <span><i class="fa-solid fa-angle-right"></i></span>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="no-categories">
+                                <span><i class="fa-solid fa-folder-open"></i></span>
+                                <span>No categories found</span>
+                            </div>
+                        {% endif %}
+
+
+                    {% if more_all_categories|length > 0 %}
                     <div class="categories_itms_smole" id="Shwocategories_itms_smolemore">
-                        <span>Shwo more</span>
-                        <img src="\static\imges\icon\Style=Stroke, Type=Rounded (4).svg" alt="">
+                        <span>Show more</span>
+                        <img src="/static/imges/icon/Style=Stroke, Type=Rounded (4).svg" alt="">
                     </div>
                     {% endif %}
+
                     <div class="shop-more-all-categories">
-                        {% for more in more_all_categories%}
+                        {% for more in more_all_categories %}
                             <div class="categories_itms_smole">
-                                <span>{{more.name}}</span>
+                                <span>{{ more.name }}</span>
                                 <span><i class="fa-solid fa-angle-right"></i></span>
                             </div>
                         {% endfor %}
                     </div>
                 </div>
+
                 <div class="page-name"><a href="{% url 'home' %}">Home</a></div>
                 <div class="page-name"><a href="{% url 'Shop' %}">Shop Page</a></div>
                 <div class="page-name"><a href="{% url 'Contact' %}">Contact</a> </div>
@@ -169,16 +180,29 @@
             </a>
         </div>
 
-        <!-- Categories Section -->
-        <div class="phone-tap-section phone-tap-all-category-section">
-            {% for category in categories %}
-                <div class="phone-tap-section-pages-name phone-tap-section-pages-name-category">
-                    <span>{{category.name}}</span>
-                    <span><img src="{{category.image.url}}" alt=""></span>
-                </div>
-            {% endfor%}
-            
-        </div>
+            <!-- Categories Section -->
+            <div class="phone-tap-section phone-tap-all-category-section">
+                {% if categories|length > 0 %}
+                    {% for category in categories %}
+                        <div class="phone-tap-section-pages-name phone-tap-section-pages-name-category">
+                            <span>{{ category.name }}</span>
+                            <span>
+                                {% if category.image %}
+                                    <img src="{{ category.image.url }}" alt="{{ category.name }}">
+                                {% else %}
+                                    <img src="\static\imges\istockphoto-1147544807-612x612.jpg" alt="No image">
+                                {% endif %}
+                            </span>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="no-categories-phone">
+                        <span><i class="fa-solid fa-folder-open"></i></span>
+                        <span>No categories found</span>
+                    </div>
+                {% endif %}
+            </div>
+
     </div>
     
     {% block content %}
