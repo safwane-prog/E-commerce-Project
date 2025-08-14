@@ -11,7 +11,7 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    max-width: 1240px;
+    max-width: var(--main-width);
     margin: 20px auto;
     gap: 10px;
     font-size: 28px;
@@ -38,7 +38,7 @@
     display: flex;
     align-items: flex-start;
     justify-content: flex-start;
-    max-width: 1240px;
+    max-width: var(--main-width);
     margin: 0px auto;
     gap: 24px;
     position: relative;
@@ -325,7 +325,7 @@
 
 .delivery-info {
     width: 100%;
-    max-width: 1240px;
+    max-width: var(--main-width);
     margin: 20px auto;
     font-size: 14px;
     color: #666;

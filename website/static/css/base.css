@@ -9,6 +9,7 @@
 :root{
     --main-color:#3348FF;
     --main-color2:#7B93FF;
+    --main-width: 1240px;
 }
 
 
@@ -27,9 +28,10 @@ header{
     align-items: center;
     justify-content: space-between;
     height: 80px;
-    max-width: 1240px;
+    max-width: var(--main-width);
     margin: 0px auto;
 }
+
 
 .show_category_name{
     display: flex;
@@ -129,6 +131,63 @@ header{
     gap: 5px;
     text-decoration: none;
 }
+
+.auth-bottons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row-reverse;
+    gap: 8px;
+}
+
+.auth-bottons button {
+    height: 35px;
+    width: 80px;
+    padding-top: 2px;
+    border: none;
+    border-radius: 8px;
+    background-color: var(--main-color);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    flex-direction: row-reverse;
+    line-height: 1;
+    transition: background-color 0.3s ease;
+}
+
+.auth-bottons button:hover {
+    background-color: var(--main-color, --main-color);
+}
+
+.auth-bottons a {
+    text-decoration: none;
+}
+
+.phone-card-icone {
+    border: 1px solid #B6C1CA;
+    padding: 6px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.phone-card-icone:hover {
+    background-color: #f8f9fa;
+    border-color: var(--main-color);
+}
+
+.phone-card-icone img {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+}
+
+
 .order-icon-head i{
     font-size: 22px;
     line-height: 1;
@@ -207,7 +266,7 @@ header{
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    max-width: 1240px;
+    max-width: var(--main-width);
     margin: 0px auto;
 }
 
@@ -268,7 +327,7 @@ header{
 }
 
 .footer-content footer{
-    max-width: 1240px;
+    max-width: var(--main-width);
     margin: 0px auto;
     width: 100%;
     display: flex;

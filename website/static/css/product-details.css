@@ -3,7 +3,7 @@ html{
 }
 .container {
   width: 100%;
-  max-width: 1240px;
+  max-width: var(--main-width);
   margin: 20px auto;
   border: 1px solid #DCE0E5;
   display: flex;
@@ -448,7 +448,7 @@ input[type="radio"]:checked + .option-label {
 
 .product-description-and-review{
     width: 100%;
-    max-width: 1240px;
+    max-width: var(--main-width);
     margin: 20px auto;
     display: flex;
     align-items: start;
@@ -575,7 +575,7 @@ input[type="radio"]:checked + .option-label {
 
 .order-section {
     width: 100%;
-    max-width: 1240px;
+    max-width: var(--main-width);
     margin: 40px auto;
     display: flex;
     align-items: flex-start;
@@ -725,7 +725,7 @@ input[type="radio"]:checked + .option-label {
 
 .products-section-2{
     width: 100%;
-    max-width: 1240px;
+    max-width: var(--main-width);
     margin: 20px auto;
 }
 

@@ -1,6 +1,6 @@
 /* About Page Styles */
 .about-page-container {
-    max-width: 1240px;
+    max-width: var(--main-width);
     margin: 0 auto;
     padding: 20px;
 }

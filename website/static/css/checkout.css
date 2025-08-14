@@ -19,7 +19,7 @@
     }
 
     .checkout-container {
-        max-width: 1240px;
+        max-width: var(--main-width);
         margin: 30px auto;
         display: flex;
         gap: 30px;

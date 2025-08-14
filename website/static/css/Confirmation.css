@@ -18,7 +18,7 @@
         }
 
         .confirmation-container {
-            max-width: 1240px;
+            max-width: var(--main-width);
             margin: 40px auto;
         }
 

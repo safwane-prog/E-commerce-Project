@@ -1,7 +1,7 @@
 
 .heor-section{
     width: 100%;
-    max-width: 1240px;
+    max-width: var(--main-width);
     margin: 20px auto;
     background-color: white;
     border: 1px solid #DCE0E5;
@@ -171,7 +171,7 @@
 
 .Deals_and_offers{
     width: 100%;
-    max-width: 1240px;
+    max-width: var(--main-width);
     margin: 20px auto;
     background-color: white;
     border: 1px solid #DCE0E5;
@@ -273,7 +273,7 @@
 
 .products-section{
     width: 100%;
-    max-width: 1240px;
+    max-width: var(--main-width);
     margin: 20px auto;
     background-color: white;
     border-radius: 12px;
@@ -363,7 +363,7 @@
 
 .home-contact-section{
     width: 100%;
-    max-width: 1240px;
+    max-width: var(--main-width);
     margin: 20px auto;
     background-color: white;
     border: 1px solid #DCE0E5;
@@ -496,7 +496,7 @@
 
 .Catigory-section{
     width: 100%;
-    max-width: 1240px;
+    max-width: var(--main-width);
     margin: 20px auto;
     display: flex;
     align-items: start;

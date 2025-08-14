@@ -30,7 +30,7 @@
 
     .container {
         display: flex;
-        max-width: 1240px;
+        max-width: var(--main-width);
         margin: 24px auto;
         padding: 16px 0px;
         gap: 24px;
