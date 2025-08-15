@@ -653,7 +653,7 @@ async function confirmLogout() {
     toggleLoadingState(true);
     
     try {
-        const response = await fetch('http://127.0.0.1:8000/users/auth/users/logout/', {
+        const response = await fetch( mainDomain + 'users/auth/users/logout/', {
             method: 'POST',
             credentials: 'include',  // إرسال الكوكيز مع الطلب
             headers: {
