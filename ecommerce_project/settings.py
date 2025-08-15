@@ -9,13 +9,11 @@ SECRET_KEY = 'django-insecure-qv$$s-(lc)26m$mv&g!e*uk2h%i9_ls$!99$k21r%uy*kff1$)
 
 MINE_DOMINE = "https://safwane23.pythonanywhere.com/"
 # MINE_DOMINE = "http://127.0.0.1:8000/"
+# 
+# DEBUG = True
+DEBUG = False
 
-
-DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() in ("true", "1", "yes")
-if DEBUG:
-    ALLOWED_HOSTS = ["*"]
-else:
-    ALLOWED_HOSTS = ["safwane23.pythonanywhere.com"]
+ALLOWED_HOSTS = ["*"]
 
 
 

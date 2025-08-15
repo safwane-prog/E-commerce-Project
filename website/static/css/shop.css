@@ -696,6 +696,37 @@ input[type="range"]::-webkit-slider-thumb {
     transition: right 0.5s ease;
     z-index: 9999;
 }
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    color: #555;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-top: 4px solid #3498db; /* Blue top for animation */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 10px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-container p {
+    margin: 0;
+    font-weight: 500;
+}
 
 .auth-alert-warning {
     background-color: #ff9800;
@@ -720,7 +751,37 @@ input[type="range"]::-webkit-slider-thumb {
     display: flex;
     align-items: center;
     gap: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: start;
 }
+
+
+.notification-close {
+    background: transparent;
+    border: none;
+    color: hsl(0, 0%, 100%);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px;
+    line-height: 1;
+    transition: color 0.2s ease, transform 0.2s ease;
+    margin-left: auto;
+}
+
+.notification-close:hover {
+    color: #ff4d4d; /* Red hover effect */
+    transform: scale(1.1);
+}
+
+.notification-close:focus {
+    outline: none;
+}
+
+.notification-close i {
+    pointer-events: none; /* So clicks register on the button, not the icon */
+}
+
 
 .notification.success {
     background: linear-gradient(135deg, #10b981, #059669);
@@ -828,6 +889,7 @@ input[type="range"]::-webkit-slider-thumb {
         pointer-events: none;
         transition: opacity 0.3s ease-in-out;
         z-index: 1000;
+        backdrop-filter: blur(2px); /* تأثير ضبابي للخلفية */
    }
     .filter-section.active {
         transform: translateY(0); /* تطلع لفوق */
@@ -1259,3 +1321,4 @@ input[type="range"]::-webkit-slider-thumb {
     max-height: 500px;
     padding: 10px 0;
 }
+
