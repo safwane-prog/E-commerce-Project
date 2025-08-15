@@ -12,22 +12,32 @@ import jwt
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 from django.conf import settings
 
+
+import jwt
+from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.conf import settings
+
+def is_user_logged_in(request):
+    """
+    إرجاع True أو False إذا المستخدم مسجّل دخول (JWT صحيح + مستخدم موجود)
+    """
+    access_token = request.COOKIES.get("access_token")
+    if not access_token:
+        return False
+    
+    try:
+        # تحقق من صلاحية التوكن
+        jwt.decode(access_token, settings.SECRET_KEY, algorithms=["HS256"])
+        jwt_auth = JWTAuthentication()
+        validated_token = jwt_auth.get_validated_token(access_token)
+        user = jwt_auth.get_user(validated_token)
+        return user.is_authenticated
+    except (ExpiredSignatureError, InvalidTokenError, Exception):
+        return False
+
 def Base(request):
-    user = request.user
-    is_user_authenticated = user.is_authenticated
-    token_valid = False
-
-    access_token = request.COOKIES.get('access_token')
-
-    if is_user_authenticated and access_token:
-        try:
-            # فك التوكن للتأكد من صلاحيته
-            jwt.decode(access_token, settings.SECRET_KEY, algorithms=["HS256"])
-            token_valid = True
-        except (ExpiredSignatureError, InvalidTokenError):
-            token_valid = False
-    else:
-        token_valid = False
+    user_authenticated = is_user_logged_in(request)
 
     logo = StoreSettings.objects.first()
     categories = Category.objects.all()
@@ -41,9 +51,10 @@ def Base(request):
         'categories_': categories_show_5,
         'more_all_categories': more_all_categories,
         'currency': currency,
-        'user_authenticated': is_user_authenticated and token_valid,
+        'user_authenticated': user_authenticated,
     }
     return context
+
 
 
 # Home

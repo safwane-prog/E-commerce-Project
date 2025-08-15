@@ -38,7 +38,7 @@
                     <button onclick="saarchfunstion(document.getElementById('searsh-head-inpur').value,document.getElementById('select-header').value)">Search</button>
                 </div>
             </div>
-            {% if user.is_authenticated %}
+            {% if user_authenticated %}
                 <div class="play-icon-list">
                     <a href="{% url 'profile' %}" class="order-icon-head order-icon-head22">
                         <img src="{% static 'imges/icon/delivery-box-02.svg' %}" alt="">
