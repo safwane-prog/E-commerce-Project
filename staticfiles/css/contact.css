@@ -1,6 +1,6 @@
 /* Contact Page Styles */
 .contact-container {
-    max-width: 1240px;
+    max-width: var(--main-width);
     margin: 30px auto;
     padding: 0 20px;
     width: 100%;

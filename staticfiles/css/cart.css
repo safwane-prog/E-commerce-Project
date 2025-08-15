@@ -11,7 +11,7 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    max-width: 1240px;
+    max-width: var(--main-width);
     margin: 20px auto;
     gap: 10px;
     font-size: 28px;
@@ -38,7 +38,7 @@
     display: flex;
     align-items: flex-start;
     justify-content: flex-start;
-    max-width: 1240px;
+    max-width: var(--main-width);
     margin: 0px auto;
     gap: 24px;
     position: relative;
@@ -81,25 +81,42 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.cart-items-image img:hover {
+    transform: scale(1.02);
 }
 
 .cart-items-detailes {
     flex: 1;
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    height: 120px !important;
 }
 
 .cart-items-detailes-name {
     width: 100%;
+    max-width: 400px;
     font-size: 18px;
     font-weight: 500;
     color: #333;
     line-height: 1.4;
+    /* تحديد النص إلى سطرين فقط */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: calc(1.4em * 2); /* ارتفاع السطرين */
 }
 
 .cart-items-detailes-options {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: start;
     gap: 4px;
 }
 
@@ -189,9 +206,9 @@
 .qontity-section button {
     width: 28px;
     height: 28px;
-    background-color: var(--main-color);
+    background-color: #004ac027;
     border: none;
-    color: white;
+    color: #3348FF;
     font-size: 18px;
     line-height: 1;
     border-radius: 6px;
@@ -200,23 +217,52 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    transition: background-color 0.2s ease;
 }
 
-.delete-btn button, .save-btn button {
+.qontity-section button:hover:not(:disabled) {
+    background-color: #0020c00d;
+}
+.qontity-section button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+ .save-btn button {
     background: none;
     border: none;
-    color: var(--main-color2);
+    color: #cd33a4;
     font-size: 14px;
     display: flex;
     align-items: center;
     gap: 5px;
+    font-weight: 500;
     cursor: pointer;
     padding: 5px 8px;
-    border-radius: 4px;
+    border: 1px solid #cecece;
+    border-radius: 8px;
+    transition: all 0.2s ease;
 }
 
-.delete-btn button:hover, .save-btn button:hover {
-    background-color: #f0f0f0;
+.delete-btn button{
+    border: 1px solid #cecece;
+    border-radius: 8px;
+    padding: 5px 8px;
+    cursor: pointer;
+    color: #e53e3e;
+    font-weight: 500;
+    background: none;
+    transition: all 0.2s ease;
+}
+
+.delete-btn button:hover{
+    border: 1px solid #e53e3e;
+    background-color: #ff8a8a2b;
+}
+
+.save-btn button:hover {
+    border: 1px solid #cb50aa59;
+    background-color: #f38aff3d;
 }
 
 .cart-items-prices {
@@ -236,6 +282,11 @@
     font-size: 14px;
     color: #666;
     margin-top: 4px;
+    /* تحديد النص إلى سطر واحد */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
 }
 
 .cart-subtotal {
@@ -269,6 +320,10 @@
     color: #333;
 }
 
+.subtotal-title .discount{
+    color: #28c600dd;
+}
+
 .subtotal-total {
     width: 100%;
     display: flex;
@@ -300,11 +355,21 @@
     border: none;
     border-radius: 8px;
     cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.subtotal-button button:hover:not(:disabled) {
+    background-color: var(--main-color2);
+}
+
+.subtotal-button button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
 }
 
 .delivery-info {
     width: 100%;
-    max-width: 1240px;
+    max-width: var(--main-width);
     margin: 20px auto;
     font-size: 14px;
     color: #666;
@@ -349,6 +414,11 @@
     border: none;
     cursor: pointer;
     font-size: 16px;
+    transition: background-color 0.2s ease;
+}
+
+.continue-shopping-btn:hover {
+    background-color: var(--main-color2);
 }
 
 .loading-spinner {
@@ -403,6 +473,11 @@
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.retry-btn:hover {
+    background-color: var(--main-color2);
 }
 
 .refresh-cart-btn {
@@ -415,6 +490,11 @@
     cursor: pointer !important;
     font-size: 14px !important;
     margin: 10px !important;
+    transition: background-color 0.2s ease !important;
+}
+
+.refresh-cart-btn:hover {
+    background-color: var(--main-color) !important;
 }
 
 /* التصميم المتجاوب للهاتف المحسن */
@@ -469,7 +549,14 @@
         font-weight: 600;
         line-height: 1.3;
         color: #333;
-        margin-bottom: 2px;
+        margin-bottom: 4px;
+        /* تحديد النص إلى سطرين في الموبايل */
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-height: calc(1.3em * 2); /* ارتفاع السطرين */
     }
     
     .cart-items-detailes-options {
@@ -484,6 +571,11 @@
         background: #f8f9fa;
         padding: 2px 6px;
         border-radius: 4px;
+        /* تحديد النص إلى سطر واحد */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 80px;
     }
     
     .ferst-span {
@@ -511,6 +603,9 @@
     .quantity-wrapper {
         width: 32px;
         height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     
     .qontity-section input {
@@ -546,11 +641,13 @@
     .delete-btn button span:last-child {
         display: none;
     }
-    
+        .delete-btn button i{
+            line-height: 1;
+        }
     .delete-btn button {
-        padding: 4px;
+        padding: 0px 4px;
         min-width: 28px;
-        min-height: 28px;
+        min-height: 20px;
         border-radius: 6px;
         background: #fff5f5;
         border: 1px solid #fed7d7;
@@ -576,12 +673,22 @@
         font-weight: 700;
         color: var(--main-color);
         margin-bottom: 2px;
+        /* تحديد النص إلى سطر واحد */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 80px;
     }
     
     .cart-items-prices span:last-child {
         font-size: 11px;
         color: #999;
         line-height: 1.2;
+        /* تحديد النص إلى سطر واحد */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 80px;
     }
     
     .cart-subtotal {
@@ -625,11 +732,19 @@
     .cart-items-detailes-name {
         font-size: 13px;
         font-weight: 600;
+        /* تحديد النص إلى سطرين في الشاشات الصغيرة جداً */
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-height: calc(1.3em * 2);
     }
     
     .option-name {
         font-size: 11px;
         padding: 1px 4px;
+        max-width: 70px;
     }
     
     .qontity-section {
@@ -654,19 +769,43 @@
     .save-btn button, .delete-btn button {
         min-width: 24px;
         min-height: 24px;
+        max-height: 24px;
         padding: 3px;
+        line-height: 1.5;
     }
-    
+    .save-for-later-btn{
+                min-width: 24px;
+        min-height: 24px;
+        max-height: 24px;
+        padding: 3px;
+        line-height: 1.5;
+    }
+    .save-for-later-btn span{
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-left:1px;
+        padding-top: 1px;
+    }
+
+    .save-for-later-btn span .bi-heart{
+        line-height: 1;
+        margin-top: 2px !important;
+    }
+
     .cart-items-prices {
         min-width: 70px;
     }
     
     .cart-items-prices span:first-child {
         font-size: 14px;
+        max-width: 70px;
     }
     
     .cart-items-prices span:last-child {
         font-size: 10px;
+        max-width: 70px;
     }
     
     .empty-cart {

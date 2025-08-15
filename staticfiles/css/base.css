@@ -4,11 +4,13 @@
     box-sizing: border-box;
     font-family: "Changa", sans-serif;
     font-optical-sizing: auto;
+    font-style: normal;
 }
 
 :root{
     --main-color:#3348FF;
     --main-color2:#7B93FF;
+    --main-width: 1240px;
 }
 
 
@@ -27,9 +29,10 @@ header{
     align-items: center;
     justify-content: space-between;
     height: 80px;
-    max-width: 1240px;
+    max-width: var(--main-width);
     margin: 0px auto;
 }
+
 
 .show_category_name{
     display: flex;
@@ -57,6 +60,7 @@ header{
     justify-content: space-between;
     padding: 4px 7px;
     border-radius:6px;
+    gap:10px;
     position: relative;
 }
 
@@ -65,10 +69,56 @@ header{
     width: 16px;
 }
 
+.categories_itms_smole span{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.categories_itms_smole span I{
+    margin-top: 2px;
+}
+
 .categories_itms_smole:hover{
     background-color: #14181f16;
 }
+.no-categories {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 20px;
+    border-radius: 8px;
+    color: #6F7C8E;
+    font-size: 16px;
+    background-color: #f9f9f9;
+}
 
+.no-categories i {
+    font-size: 20px;
+    color: #6F7C8E;
+}
+
+
+.no-categories-phone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column !important;
+    
+    width: 100%;
+    padding: 20px;
+    border-radius: 8px;
+    color: #6F7C8E;
+    font-size: 16px;
+    background-color: #f9f9f9;
+    gap: 10px;
+}
+
+.no-categories-phone i {
+    font-size: 24px;
+    color: #6F7C8E;
+}
 .shop-more-all-categories{
    display: flex;
     align-items: start;
@@ -82,7 +132,7 @@ header{
     gap: 3px;
     border: 1px solid #B6C1CA;
     border-radius: 12px;
-    min-width: 200px;
+    min-width: 250px;
     z-index: 100;
     display: none;
 }
@@ -129,6 +179,63 @@ header{
     gap: 5px;
     text-decoration: none;
 }
+
+.auth-bottons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row-reverse;
+    gap: 8px;
+}
+
+.auth-bottons button {
+    height: 35px;
+    width: 80px;
+    padding-top: 2px;
+    border: none;
+    border-radius: 8px;
+    background-color: var(--main-color);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    flex-direction: row-reverse;
+    line-height: 1;
+    transition: background-color 0.3s ease;
+}
+
+.auth-bottons button:hover {
+    background-color: var(--main-color, --main-color);
+}
+
+.auth-bottons a {
+    text-decoration: none;
+}
+
+.phone-card-icone {
+    border: 1px solid #B6C1CA;
+    padding: 6px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.phone-card-icone:hover {
+    background-color: #f8f9fa;
+    border-color: var(--main-color);
+}
+
+.phone-card-icone img {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+}
+
+
 .order-icon-head i{
     font-size: 22px;
     line-height: 1;
@@ -170,14 +277,25 @@ header{
     outline: none;
 }
 
+#select-header {
+    padding: 0px 10px 0px 5px; ;
+    background-color: #fff;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-left: 1px solid #DCE0E5;
+}
+
 
 .searsh-section select{
     height: 100%;
-    width: 15%;
     border: none;
     background: none;
     cursor: pointer;
-    margin: 0px 10px 0px 0px;
+    margin: 0px 0px 0px 0px;
 }
 
 .searsh-section select:focus{
@@ -207,7 +325,7 @@ header{
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    max-width: 1240px;
+    max-width: var(--main-width);
     margin: 0px auto;
 }
 
@@ -268,7 +386,7 @@ header{
 }
 
 .footer-content footer{
-    max-width: 1240px;
+    max-width: var(--main-width);
     margin: 0px auto;
     width: 100%;
     display: flex;
@@ -586,6 +704,12 @@ header{
         justify-content: center;
         align-items: center;
     }
+
+    .opne-phone-modal img{
+        width: 35px;
+        height: 35px;
+    }
+
     .order-icon-head22{
         display: none;
     }
@@ -621,7 +745,7 @@ header{
     margin: 0px 10px;
     border: 2px solid var(--main-color);
     border-radius: 8px;
-    height: 40px;
+    height: 45px;
 }
 
 .phone-tap-serash-section input{

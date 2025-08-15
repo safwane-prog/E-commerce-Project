@@ -207,13 +207,21 @@ function populateOrders(orders) {
     });
 }
 
+function truncateText(text, maxLength = 50) {
+    if (!text) return '';
+    return text.length > maxLength ? text.substring(0, maxLength) + '…' : text;
+}
 
 function populateWishlist(wishlist) {
     const container = document.getElementById('wishlist-grid');
     if (!container) return;
     
     if (!wishlist || wishlist.length === 0) {
-        container.innerHTML = createEmptyState('wishlist', 'Your wishlist is empty', 'Add products you love to see them here');
+        container.innerHTML = createEmptyState(
+            'wishlist', 
+            'Your wishlist is empty', 
+            'Add products you love to see them here'
+        );
         return;
     }
     
@@ -221,6 +229,8 @@ function populateWishlist(wishlist) {
     wishlist.forEach(item => {
         if (!item.product) return; // Skip if product data is missing
         
+        const price = parseFloat(item.product.price) || 0;
+
         const wishlistItem = document.createElement('div');
         wishlistItem.className = 'wishlist-item';
         wishlistItem.innerHTML = `
@@ -229,8 +239,8 @@ function populateWishlist(wishlist) {
                  src="${item.product.image_1 || DEFAULT_PRODUCT_IMAGE}" 
                  alt="${item.product.name || 'Product'}"
                  onerror="this.src='${DEFAULT_PRODUCT_IMAGE}'">
-            <div class="title">${item.product.name || 'Product name not available'}</div>
-            <div class="price">$${parseFloat(item.product.price || 0).toFixed(2)}</div>
+            <div class="title">${truncateText(item.product.name, 50) || 'Product name not available'}</div>
+            <div class="price">${currencySymbol}${price.toFixed(2)}</div>
             <div class="actions">
                 <button class="add-to-cart" onclick="addToCart('${item.product.id}')">Add to Cart</button>
                 <button class="remove" onclick="removeFromWishlist('${item.product.id}',this)">Remove</button>
@@ -239,6 +249,7 @@ function populateWishlist(wishlist) {
         container.appendChild(wishlistItem);
     });
 }
+
 
 function populateMessages(messages) {
     const container = document.getElementById('messages-list');
@@ -653,7 +664,7 @@ async function confirmLogout() {
     toggleLoadingState(true);
     
     try {
-        const response = await fetch( mainDomain + 'users/auth/users/logout/', {
+        const response = await fetch(mainDomain + 'users/auth/users/logout/', {
             method: 'POST',
             credentials: 'include',  // إرسال الكوكيز مع الطلب
             headers: {
