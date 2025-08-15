@@ -76,10 +76,10 @@ class CookieTokenObtainPairView(TokenObtainPairView):
                 user = jwt_auth.get_user(validated_token)
 
                 # تسجيل دخول المستخدم لجعل @login_required يعمل
-                login(request, user)
+                # login(request, user)
 
                 # تحديث وقت آخر دخول
-                update_last_login(None, user)
+                # update_last_login(None, user)
 
                 res = Response({
                     'access': access,
@@ -112,8 +112,8 @@ class CustomRegisterView(UserViewSet):
             access = str(refresh.access_token)
 
             # تسجيل دخول المستخدم
-            login(request, user)
-            update_last_login(None, user)
+            # login(request, user)
+            # update_last_login(None, user)
 
             # إنشاء كارت إذا لم يكن موجود
             if not Cart.objects.filter(user=user).exists():

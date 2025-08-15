@@ -1,6 +1,6 @@
 /**
- * Product Details Management
- * Enhanced with better error handling, performance optimizations, and mobile responsiveness
+ * Enhanced Product Details Management
+ * Updated to handle the complete JSON response from the API
  */
 
 class ProductDetailsManager {
@@ -122,6 +122,7 @@ class ProductDetailsManager {
             this.productData = data;
             this.renderProductDetails(data);
             this.renderProductImages(data);
+            this.renderRatingInfo(data);
             
         } catch (error) {
             console.error('Error fetching product details:', error);
@@ -136,14 +137,19 @@ class ProductDetailsManager {
      */
     renderProductImages(data) {
         try {
-            // Filter existing images
-            const images = Object.keys(data)
-                .filter(key => key.startsWith("image_") && data[key])
-                .map(key => data[key]);
+            // Get all image fields from the API response
+            const images = [];
+            for (let i = 1; i <= 10; i++) {
+                const imageKey = `image_${i}`;
+                if (data[imageKey]) {
+                    images.push(data[imageKey]);
+                }
+            }
 
             if (images.length === 0) {
                 console.warn('No images found for product');
-                return;
+                // Use a default image if no images are available
+                images.push('/static/imges/istockphoto-1147544807-612x612.jpg');
             }
 
             const mainWrapper = document.getElementById('main-image-wrapper');
@@ -219,7 +225,6 @@ class ProductDetailsManager {
                 keyboard: {
                     enabled: true,
                 },
-                // Add touch gestures for mobile
                 touchRatio: 1,
                 touchAngle: 45,
                 grabCursor: true
@@ -231,26 +236,124 @@ class ProductDetailsManager {
     }
 
     /**
-     * Render product details
+     * Render product details with enhanced data handling
      */
     renderProductDetails(data) {
         try {
             // Basic product information
             this.setElementText('products-name-section', data.name);
-            this.setElementText('products-old-price', data.old_price);
-            this.setElementText('products-main-price', data.price);
-            this.setElementText('products-descounte-count', data.discount);
+            
+            // Format prices with currency
+            const currency = window.currencySymbol || '$';
+            this.setElementText('products-main-price', `${data.price}${currency}`);
+            
+            // Handle old price - only show if different from main price
+            if (data.old_price && parseFloat(data.old_price) > parseFloat(data.price)) {
+                this.setElementText('products-old-price', `${data.old_price}${currency}`);
+                
+                // Calculate and display discount percentage
+                const discountPercent = Math.round(((parseFloat(data.old_price) - parseFloat(data.price)) / parseFloat(data.old_price)) * 100);
+                this.setElementText('products-descounte-count', discountPercent.toString());
+            } else {
+                // Hide discount section if no valid old price
+                const discountSection = document.querySelector('.products-descounte');
+                if (discountSection) {
+                    discountSection.style.display = 'none';
+                }
+            }
+
+            // Descriptions
             this.setElementText('product-description-main', data.description_1);
             this.setElementText('desctiption_1', data.description_1);
             this.setElementText('desctiption_2', data.description_2);
             this.setElementText('desctiption_3', data.description_3);
 
-            // Render options
+            // Sales count in orders section
+            const ordersCount = document.querySelector('.orsers-count span:nth-child(2)');
+            if (ordersCount && data.sales_count) {
+                ordersCount.textContent = data.sales_count;
+            }
+
+            // Render product options
             this.renderProductOptions(data);
             
         } catch (error) {
             console.error('Error rendering product details:', error);
         }
+    }
+
+    /**
+     * Render rating and review information
+     */
+    renderRatingInfo(data) {
+        try {
+            // Update main rating display
+            const ratingElement = document.querySelector('.range-count');
+            if (ratingElement && data.average_rating !== undefined) {
+                ratingElement.textContent = data.average_rating.toFixed(1);
+            }
+
+            // Update "out of 5" rating
+            const outOfElement = document.querySelector('.out-of');
+            if (outOfElement && data.average_rating !== undefined) {
+                outOfElement.textContent = `${data.average_rating.toFixed(1)} out of 5`;
+            }
+
+            // Update total reviews count
+            const globalRatingElement = document.querySelector('.review-section-title-2');
+            if (globalRatingElement && data.total_reviews !== undefined) {
+                globalRatingElement.textContent = `${data.total_reviews} global ratings`;
+            }
+
+            // Update star ratings display
+            this.updateStarRating(data.average_rating);
+
+            // Update ratings breakdown bars
+            if (data.ratings_breakdown) {
+                this.updateRatingsBars(data.ratings_breakdown, data.total_reviews);
+            }
+
+        } catch (error) {
+            console.error('Error rendering rating info:', error);
+        }
+    }
+
+    /**
+     * Update star rating display
+     */
+    updateStarRating(rating) {
+        const starContainers = document.querySelectorAll('.range-stars, .review-section-title div');
+        
+        starContainers.forEach(container => {
+            const stars = container.querySelectorAll('i[class*="star"]');
+            stars.forEach((star, index) => {
+                if (index < Math.floor(rating)) {
+                    star.className = star.className.replace('bi-star-fill2', '').replace('bi bi-star-fill', 'bi bi-star-fill');
+                } else if (index < rating) {
+                    star.className = 'bi bi-star-half';
+                } else {
+                    star.className = 'bi bi-star-fill bi-star-fill2';
+                }
+            });
+        });
+    }
+
+    /**
+     * Update ratings breakdown bars
+     */
+    updateRatingsBars(breakdown, totalReviews) {
+        const ratingInfos = document.querySelectorAll('.review-info');
+        
+        ratingInfos.forEach((info, index) => {
+            const ratingNumber = 5 - index; // 5 stars, 4 stars, etc.
+            const count = breakdown[ratingNumber] || 0;
+            const percentage = totalReviews > 0 ? (count / totalReviews) * 100 : 0;
+            
+            const bar = info.querySelector('.review-info-dev-range');
+            if (bar) {
+                bar.style.width = `${percentage}%`;
+            }
+        });
     }
 
     /**
@@ -264,19 +367,19 @@ class ProductDetailsManager {
     }
 
     /**
-     * Render product options (colors, sizes, options)
+     * Render product options (colors, sizes, options) with enhanced data handling
      */
     renderProductOptions(data) {
         // Colors
-        this.renderColorOptions(data.color);
-        // Sizes
-        this.renderSizeOptions(data.size);
+        this.renderColorOptions(data.color || []);
+        // Sizes  
+        this.renderSizeOptions(data.size || []);
         // Other options
-        this.renderOtherOptions(data.options);
+        this.renderOtherOptions(data.options || []);
     }
 
     /**
-     * Render color options
+     * Render color options with enhanced handling
      */
     renderColorOptions(colors) {
         const colorSection = document.getElementById('product-color-section-sectopn');
@@ -287,13 +390,17 @@ class ProductDetailsManager {
             return;
         }
 
+        if (colorSection) colorSection.style.display = 'block';
+
         if (colorContainer) {
             colorContainer.innerHTML = '';
             colors.forEach((color, index) => {
-                const inputId = `color-${index}`;
+                const inputId = `color-${color.id}`;
+                const colorValue = color.name.startsWith('#') ? color.name : color.name.toLowerCase();
+                
                 const colorHtml = `
                     <input type="radio" id="${inputId}" name="color" value="${color.name}" class="option-input">
-                    <label for="${inputId}" class="color-label" style="background-color: ${color.name};" 
+                    <label for="${inputId}" class="color-label" style="background-color: ${colorValue};" 
                            title="${color.name}" aria-label="Color: ${color.name}"></label>
                 `;
                 colorContainer.innerHTML += colorHtml;
@@ -302,7 +409,7 @@ class ProductDetailsManager {
     }
 
     /**
-     * Render size options
+     * Render size options with enhanced handling
      */
     renderSizeOptions(sizes) {
         const sizeSection = document.getElementById('product-size-section-sectopn');
@@ -313,10 +420,12 @@ class ProductDetailsManager {
             return;
         }
 
+        if (sizeSection) sizeSection.style.display = 'block';
+
         if (sizeContainer) {
             sizeContainer.innerHTML = '';
             sizes.forEach((size, index) => {
-                const inputId = `size-${index}`;
+                const inputId = `size-${size.id}`;
                 const sizeHtml = `
                     <input type="radio" id="${inputId}" name="size" value="${size.name}" class="option-input">
                     <label for="${inputId}" class="size-label" aria-label="Size: ${size.name}">${size.name}</label>
@@ -327,7 +436,7 @@ class ProductDetailsManager {
     }
 
     /**
-     * Render other options
+     * Render other options with enhanced handling
      */
     renderOtherOptions(options) {
         const optionSection = document.getElementById('product-option-section-sectopn');
@@ -338,10 +447,12 @@ class ProductDetailsManager {
             return;
         }
 
+        if (optionSection) optionSection.style.display = 'block';
+
         if (optionContainer) {
             optionContainer.innerHTML = '';
             options.forEach((option, index) => {
-                const inputId = `option-${index}`;
+                const inputId = `option-${option.id}`;
                 const optionHtml = `
                     <input type="radio" id="${inputId}" name="option" value="${option.name}" class="option-input">
                     <label for="${inputId}" class="option-label" aria-label="Option: ${option.name}">${option.name}</label>
@@ -352,7 +463,7 @@ class ProductDetailsManager {
     }
 
     /**
-     * Validate required options
+     * Enhanced validation with better error handling
      */
     validateOptions() {
         const optionSections = [
@@ -413,7 +524,7 @@ class ProductDetailsManager {
     }
 
     /**
-     * Handle add to cart action
+     * Handle add to cart action with enhanced data
      */
     async handleAddToCart() {
         try {
@@ -427,7 +538,7 @@ class ProductDetailsManager {
             const selectedOptions = this.getSelectedOptions();
 
             const payload = {
-                product_id: this.productId,
+                product_id: this.productData.id || this.productId,
                 quantity: quantity,
                 ...selectedOptions
             };
@@ -445,7 +556,8 @@ class ProductDetailsManager {
      */
     async handleAddToWishlist() {
         try {
-            await this.addToWishlist(this.productId);
+            const productId = this.productData.id || this.productId;
+            await this.addToWishlist(productId);
         } catch (error) {
             console.error('Error in handleAddToWishlist:', error);
             this.showNotification('Failed to add product to wishlist', 'error');
@@ -453,7 +565,7 @@ class ProductDetailsManager {
     }
 
     /**
-     * Get selected product options
+     * Get selected product options with IDs
      */
     getSelectedOptions() {
         const selectedColor = document.querySelector('input[name="color"]:checked');
@@ -537,7 +649,6 @@ class ProductDetailsManager {
      * Update cart counter in UI
      */
     updateCartCounter() {
-        // Implementation depends on your cart counter element
         const cartCounter = document.querySelector('.cart-counter');
         if (cartCounter) {
             const currentCount = parseInt(cartCounter.textContent) || 0;
@@ -552,12 +663,11 @@ class ProductDetailsManager {
         const wishlistBtn = document.querySelector('.add-Saved-btn');
         if (wishlistBtn) {
             wishlistBtn.classList.add('added-to-wishlist');
-            // You can add visual feedback here
         }
     }
 
     /**
-     * Handle order confirmation
+     * Handle order confirmation with product data
      */
     async handleConfirmOrder() {
         try {
@@ -566,7 +676,8 @@ class ProductDetailsManager {
             }
 
             const orderData = this.getOrderFormData();
-            await this.createOrder(orderData);
+            const productId = this.productData.id || this.productId;
+            await this.createOrder(orderData, productId);
             
         } catch (error) {
             console.error('Error in handleConfirmOrder:', error);
@@ -636,7 +747,7 @@ class ProductDetailsManager {
     }
 
     /**
-     * Get order form data
+     * Get order form data with selected options
      */
     getOrderFormData() {
         const firstName = document.getElementById('firstName').value.trim();
@@ -646,25 +757,28 @@ class ProductDetailsManager {
         const quantityEl = document.getElementById('quantity');
         const quantity = quantityEl ? parseInt(quantityEl.value.trim()) || 1 : 1;
 
+        const selectedOptions = this.getSelectedOptions();
+
         return {
             customer_name: `${firstName} ${lastName}`,
             customer_email: "",
             customer_phone: phone,
             customer_address: address,
             city: "",
-            quantity: quantity
+            quantity: quantity,
+            ...selectedOptions
         };
     }
 
     /**
-     * Create order
+     * Create order with enhanced data
      */
-    async createOrder(orderData) {
+    async createOrder(orderData, productId) {
         try {
             this.toggleOrderLoader(true);
             this.toggleFormInputs(false);
 
-            const response = await fetch(`${mainDomain}orders/api/orders/create/${this.productId}/`, {
+            const response = await fetch(`${mainDomain}orders/api/orders/create/${productId}/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -682,7 +796,6 @@ class ProductDetailsManager {
 
             if (result.order_id) {
                 this.showNotification('Order created successfully!', 'success');
-                // Redirect after short delay for user feedback
                 setTimeout(() => {
                     window.location.href = `/confirmation/${result.order_id}`;
                 }, 1000);
@@ -748,36 +861,65 @@ class ProductDetailsManager {
     }
 
     /**
-     * Show notification
+     * Show notification with enhanced styling
      */
     showNotification(message, type = 'info', duration = 3000) {
         let notification = document.getElementById('notification');
         if (!notification) {
             notification = document.createElement('div');
             notification.id = 'notification';
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 500;
+                z-index: 10000;
+                display: none;
+                min-width: 300px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                transition: all 0.3s ease;
+            `;
             document.body.appendChild(notification);
         }
 
+        // Set colors based on type
+        const colors = {
+            success: '#10b981',
+            error: '#ef4444', 
+            warning: '#f59e0b',
+            info: '#3b82f6'
+        };
+
+        notification.style.backgroundColor = colors[type] || colors.info;
         notification.className = `notification ${type}`;
         
         const icon = type === 'success' ? 'fa-check-circle' : 
-                    type === 'error' ? 'fa-exclamation-triangle' : 'fa-info-circle';
+                    type === 'error' ? 'fa-exclamation-triangle' : 
+                    type === 'warning' ? 'fa-exclamation-circle' : 'fa-info-circle';
         
         notification.innerHTML = `
-            <i class="fa-solid ${icon}"></i>
+            <i class="fa-solid ${icon}" style="margin-right: 8px;"></i>
             <span>${message}</span>
         `;
 
         notification.style.display = 'block';
+        notification.style.transform = 'translateX(100%)';
+        
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 50);
 
         // Auto hide
         setTimeout(() => {
-            notification.classList.add('fade-out');
+            notification.style.transform = 'translateX(100%)';
             setTimeout(() => {
                 if (notification.parentNode) {
                     notification.remove();
                 }
-            }, 500);
+            }, 300);
         }, duration);
     }
 
@@ -787,6 +929,20 @@ class ProductDetailsManager {
     showAuthMessage() {
         const authAlert = document.createElement("div");
         authAlert.className = "auth-alert auth-alert-warning";
+        authAlert.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 20px;
+            background-color: #f59e0b;
+            color: white;
+            border-radius: 8px;
+            font-weight: 500;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+        `;
         authAlert.innerHTML = `
             <i class="fa-solid fa-exclamation-triangle" style="margin-right:8px;"></i>
             Please log in to perform this action.
@@ -795,16 +951,18 @@ class ProductDetailsManager {
         document.body.appendChild(authAlert);
 
         setTimeout(() => {
-            authAlert.classList.add("auth-alert-show");
+            authAlert.style.opacity = '1';
+            authAlert.style.transform = 'translateX(-50%) translateY(0)';
         }, 50);
 
         setTimeout(() => {
-            authAlert.classList.remove("auth-alert-show");
+            authAlert.style.opacity = '0';
+            authAlert.style.transform = 'translateX(-50%) translateY(-20px)';
             setTimeout(() => {
                 if (authAlert.parentNode) {
                     authAlert.remove();
                 }
-            }, 500);
+            }, 300);
         }, 4000);
     }
 
@@ -821,6 +979,184 @@ class ProductDetailsManager {
         }
         return null;
     }
+
+    /**
+     * Utility method to format currency
+     */
+    formatPrice(price, currency = null) {
+        const currencySymbol = currency || window.currencySymbol || '$';
+        const numPrice = parseFloat(price);
+        return `${numPrice.toFixed(2)}${currencySymbol}`;
+    }
+
+    /**
+     * Utility method to check if product is active
+     */
+    isProductActive() {
+        return this.productData && this.productData.is_active;
+    }
+
+    /**
+     * Get product categories for breadcrumb or navigation
+     */
+    getProductCategories() {
+        return this.productData ? this.productData.categories || [] : [];
+    }
+
+    /**
+     * Handle product availability display
+     */
+    updateProductAvailability() {
+        if (!this.productData) return;
+
+        const availabilityEl = document.querySelector('.product-availability');
+        if (availabilityEl) {
+            if (this.productData.is_active) {
+                availabilityEl.innerHTML = `
+                    <i class="fa-solid fa-check-circle" style="color: #10b981; margin-right: 5px;"></i>
+                    <span style="color: #10b981;">In Stock</span>
+                `;
+            } else {
+                availabilityEl.innerHTML = `
+                    <i class="fa-solid fa-times-circle" style="color: #ef4444; margin-right: 5px;"></i>
+                    <span style="color: #ef4444;">Out of Stock</span>
+                `;
+                
+                // Disable add to cart if out of stock
+                const addToCartBtn = document.querySelector('.add-to-cart-btn');
+                if (addToCartBtn) {
+                    addToCartBtn.disabled = true;
+                    addToCartBtn.style.opacity = '0.6';
+                    addToCartBtn.style.cursor = 'not-allowed';
+                }
+            }
+        }
+    }
+
+    /**
+     * Enhanced error handling for API responses
+     */
+    handleApiError(error, context = '') {
+        console.error(`Error in ${context}:`, error);
+        
+        let message = 'An unexpected error occurred';
+        
+        if (error.message.includes('Failed to fetch')) {
+            message = 'Network error. Please check your connection.';
+        } else if (error.message.includes('404')) {
+            message = 'Product not found.';
+        } else if (error.message.includes('500')) {
+            message = 'Server error. Please try again later.';
+        }
+        
+        this.showNotification(message, 'error');
+    }
+
+    /**
+     * Debounce utility for performance optimization
+     */
+    debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    /**
+     * Initialize product sharing functionality
+     */
+    initializeSharing() {
+        const shareBtn = document.querySelector('.share-product-btn');
+        if (shareBtn && navigator.share) {
+            shareBtn.addEventListener('click', () => {
+                navigator.share({
+                    title: this.productData.name,
+                    text: this.productData.description_1,
+                    url: window.location.href
+                });
+            });
+        }
+    }
+
+    /**
+     * Handle keyboard navigation for better accessibility
+     */
+    initializeKeyboardNavigation() {
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                // Close any open modals or notifications
+                const notification = document.getElementById('notification');
+                if (notification) {
+                    notification.remove();
+                }
+            }
+            
+            if (e.key === 'Enter') {
+                const focusedElement = document.activeElement;
+                if (focusedElement && focusedElement.classList.contains('option-label')) {
+                    focusedElement.click();
+                }
+            }
+        });
+    }
+
+    /**
+     * Performance monitoring
+     */
+    trackPerformance(action, startTime) {
+        const endTime = performance.now();
+        const duration = endTime - startTime;
+        console.log(`${action} took ${duration.toFixed(2)} milliseconds`);
+        
+        // Log slow operations (> 1000ms)
+        if (duration > 1000) {
+            console.warn(`Slow operation detected: ${action} took ${duration.toFixed(2)}ms`);
+        }
+    }
+
+    /**
+     * Initialize all additional features
+     */
+    initializeEnhancements() {
+        this.initializeSharing();
+        this.initializeKeyboardNavigation();
+        this.updateProductAvailability();
+    }
+
+    /**
+     * Cleanup method for proper resource management
+     */
+    destroy() {
+        if (this.mainSwiper) {
+            this.mainSwiper.destroy(true, true);
+            this.mainSwiper = null;
+        }
+        
+        if (this.thumbsSwiper) {
+            this.thumbsSwiper.destroy(true, true);
+            this.thumbsSwiper = null;
+        }
+        
+        // Remove event listeners
+        const elements = [
+            '.add-to-cart-btn',
+            '.add-Saved-btn', 
+            '.qty-btn',
+            '.submit-button'
+        ];
+        
+        elements.forEach(selector => {
+            const el = document.querySelector(selector);
+            if (el) {
+                el.replaceWith(el.cloneNode(true));
+            }
+        });
+    }
 }
 
 /**
@@ -830,5 +1166,39 @@ function viewProductdetailes(product_Id) {
     window.location.href = `/product-details/${String(product_Id)}`;
 }
 
+// Backwards compatibility functions
+function incrementQuantity() {
+    if (window.productManager) {
+        window.productManager.incrementQuantity();
+    }
+}
+
+function decrementQuantity() {
+    if (window.productManager) {
+        window.productManager.decrementQuantity();
+    }
+}
+
+function ConfirmOrder() {
+    if (window.productManager) {
+        window.productManager.handleConfirmOrder();
+    }
+}
+
 // Initialize the product details manager
-const productManager = new ProductDetailsManager();
+document.addEventListener('DOMContentLoaded', () => {
+    window.productManager = new ProductDetailsManager();
+    
+    // Initialize enhancements after product data is loaded
+    if (window.productManager.productData) {
+        window.productManager.initializeEnhancements();
+    } else {
+        // Wait for product data to load
+        const checkData = setInterval(() => {
+            if (window.productManager.productData) {
+                window.productManager.initializeEnhancements();
+                clearInterval(checkData);
+            }
+        }, 100);
+    }
+});

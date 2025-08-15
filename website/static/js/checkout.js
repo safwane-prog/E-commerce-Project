@@ -402,7 +402,7 @@ async function applyPromoCode() {
 }
 function formatPrice(amount) {
     const numAmount = parseFloat(amount) || 0;
-    return currencySymbol + numAmount.toFixed(2);
+    return  numAmount.toFixed(2) + " " + currencySymbol ;
 }
 
 function escapeHtml(text) {

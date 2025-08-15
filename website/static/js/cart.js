@@ -282,21 +282,24 @@ document.addEventListener('DOMContentLoaded', function() {
                         ${product.name}
                     </div>
                     <div class="cart-items-detailes-options">
-                        ${item.size ? `
+                        ${ `
                             <div class="option-name">
                                 <span class="ferst-span">${option_1}:</span>
-                                <span>${item.size}</span>
+                                <span>${item.size ?item.size : "---"}</span>
                             </div>
-                        ` : ''}
-                        ${item.color ? `
+                        `}
+                        <span class="options-space"></span>
+                        ${ `
                             <div class="option-name">
                                 <span class="ferst-span">${option_2}:</span>
-                                <span>${item.color}</span>
+                                <span>${ item.color ? item.color : "---"}</span>
                             </div>
-                        ` : ''}
+                        `}
+                        <span class="options-space"></span>
                         ${item.options ? `
                             <div class="option-name">
                                 <span class="ferst-span">${option_3}:</span>
+                                
                                 <span>${item.options}</span>
                             </div>
                         ` : ''}

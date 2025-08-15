@@ -39,13 +39,30 @@ class BestsellerProductListAPIView(generics.ListAPIView):
     def get_queryset(self):
         return Product.objects.annotate(avg_rating=Avg('ratings__rating')).all()
 
+
 class ProductDetail(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, pk):
         product = get_object_or_404(Product, id=pk)
-        serializer = ProductDetileserializers(product)  # بدون many=True
-        return Response(serializer.data)
+        serializer = ProductDetileserializers(product)
+
+        # إحصائيات التقييم
+        ratings_stats = product.ratings.values('rating').annotate(count=Count('rating'))
+        ratings_dict = {i: 0 for i in range(1, 6)}  # تهيئة الأرقام من 1 إلى 5
+        for stat in ratings_stats:
+            ratings_dict[stat['rating']] = stat['count']
+
+        total_reviews = sum(ratings_dict.values())
+        avg_rating = product.ratings.aggregate(avg=Avg('rating'))['avg'] or 0
+
+        # إضافة النتائج للـ serializer data
+        data = serializer.data
+        data['ratings_breakdown'] = ratings_dict
+        data['total_reviews'] = total_reviews
+        data['average_rating'] = round(avg_rating, 2)
+
+        return Response(data)
 
 
 class ProductRatingStatsAndDescription(APIView):
