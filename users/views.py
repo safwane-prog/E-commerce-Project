@@ -203,9 +203,7 @@ class UserProfileDetaile(APIView):
         user = request.user
         Profile.objects.get_or_create(user=user)
         orders = Order.objects.filter(user=user)
-        total_spent = sum(
-            sum(float(p.price) for p in order.products.all()) for order in orders
-        )
+        total_spent = sum(float(order.total) for order in orders)
 
         user_wishlist, _ = wishlist.objects.get_or_create(user=user)
         wishlist_count = wishlistItem.objects.filter(wishlist=user_wishlist).count()

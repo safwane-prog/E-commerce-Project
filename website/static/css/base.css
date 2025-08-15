@@ -4,6 +4,7 @@
     box-sizing: border-box;
     font-family: "Changa", sans-serif;
     font-optical-sizing: auto;
+    font-style: normal;
 }
 
 :root{
@@ -59,12 +60,23 @@ header{
     justify-content: space-between;
     padding: 4px 7px;
     border-radius:6px;
+    gap:10px;
     position: relative;
 }
 
 .categories_itms_smole img{
     line-height: 1;
     width: 16px;
+}
+
+.categories_itms_smole span{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.categories_itms_smole span I{
+    margin-top: 2px;
 }
 
 .categories_itms_smole:hover{
@@ -120,7 +132,7 @@ header{
     gap: 3px;
     border: 1px solid #B6C1CA;
     border-radius: 12px;
-    min-width: 200px;
+    min-width: 250px;
     z-index: 100;
     display: none;
 }
@@ -692,6 +704,12 @@ header{
         justify-content: center;
         align-items: center;
     }
+
+    .opne-phone-modal img{
+        width: 35px;
+        height: 35px;
+    }
+
     .order-icon-head22{
         display: none;
     }
@@ -727,7 +745,7 @@ header{
     margin: 0px 10px;
     border: 2px solid var(--main-color);
     border-radius: 8px;
-    height: 40px;
+    height: 45px;
 }
 
 .phone-tap-serash-section input{

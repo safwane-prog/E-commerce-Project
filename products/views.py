@@ -25,6 +25,9 @@ class ProductShop(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_class = ProductFilter
 
+    def get_queryset(self):
+        return Product.objects.annotate(avg_rating=Avg('ratings__rating')).all()
+
 class BestsellerProductListAPIView(generics.ListAPIView):
     queryset = Product.objects.all().order_by('-sales_count')
     serializer_class = ProductShopSerializer
@@ -32,7 +35,9 @@ class BestsellerProductListAPIView(generics.ListAPIView):
     pagination_class = ProductPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = ProductFilter
-
+    
+    def get_queryset(self):
+        return Product.objects.annotate(avg_rating=Avg('ratings__rating')).all()
 
 class ProductDetail(APIView):
     permission_classes = [AllowAny]

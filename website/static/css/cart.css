@@ -93,6 +93,8 @@
     flex: 1;
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    height: 120px !important;
 }
 
 .cart-items-detailes-name {
@@ -204,9 +206,9 @@
 .qontity-section button {
     width: 28px;
     height: 28px;
-    background-color: var(--main-color);
+    background-color: #004ac027;
     border: none;
-    color: white;
+    color: #3348FF;
     font-size: 18px;
     line-height: 1;
     border-radius: 6px;
@@ -219,9 +221,8 @@
 }
 
 .qontity-section button:hover:not(:disabled) {
-    background-color: var(--main-color2);
+    background-color: #0020c00d;
 }
-
 .qontity-section button:disabled {
     background-color: #ccc;
     cursor: not-allowed;
@@ -317,6 +318,10 @@
     padding: 5px 0px;
     font-size: 15px;
     color: #333;
+}
+
+.subtotal-title .discount{
+    color: #28c600dd;
 }
 
 .subtotal-total {

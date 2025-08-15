@@ -267,6 +267,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Handle color and size arrays from new API
         const color = Array.isArray(product.color) && product.color.length > 0 ? product.color[0] : null;
         const size = Array.isArray(product.size) && product.size.length > 0 ? product.size[0] : null;
+        const option = Array.isArray(product.option) && product.option.length > 0 ? product.option[0] : null;
+        console.log(item);
         
         return `
             <div class="cart-items" data-item-id="${item.id}">
@@ -290,6 +292,12 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="option-name">
                                 <span class="ferst-span">Color:</span>
                                 <span>${color}</span>
+                            </div>
+                        ` : ''}
+                        ${option ? `
+                            <div class="option-name">
+                                <span class="ferst-span">Color:</span>
+                                <span>${option}</span>
                             </div>
                         ` : ''}
                     </div>

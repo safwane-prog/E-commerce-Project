@@ -3,7 +3,15 @@ import os
 from datetime import timedelta
 
 CURRENCY_SYMBOL = "MAD \n"  # أو "$"
-MINE_DOMINE = "http://127.0.0.1:8000/"
+import socket
+
+hostname = socket.gethostname()
+local_ip = socket.gethostbyname(hostname)
+
+MINE_DOMINE = f"http://{local_ip}:8000/"
+
+# MINE_DOMINE = "https://safwane23.pythonanywhere.com/"
+
 MINE_COUNTRIES = "Morocco"
 
 OPTION1 = "Color"
@@ -24,7 +32,7 @@ SECRET_KEY = 'django-insecure-qv$$s-(lc)26m$mv&g!e*uk2h%i9_ls$!99$k21r%uy*kff1$)
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 # DEBUG = False
 

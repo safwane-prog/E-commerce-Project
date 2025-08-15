@@ -5,11 +5,6 @@
 <link rel="stylesheet" href="{% static 'css/shop.css' %}">
 <div class="product-container">
     <div class="filter-section">
-        <div class="filter-title">
-            <div>Filter</div>
-            <div><img src="{% static 'imges/Frame.svg' %}" alt="Filter icon"></div>
-        </div>
-        
         <!-- Category Filter -->
         {% if category %}
         <div class="filter-group">
@@ -19,7 +14,7 @@
                     <path fill-rule="evenodd" d="M1.646 10.854a.5.5 0 0 0 .708 0L8 5.207l5.646 5.647a.5.5 0 0 0 .708-.708l-6-6a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 0 .708z"/>
                 </svg>
             </div>
-            <div class="filter-body">
+            <div class="filter-body active">
                 {% for category in category %}
                     <div class="filter-item">
                         <input type="checkbox" 
@@ -34,37 +29,51 @@
         </div>
         {% endif %}
         
-        <!-- Price Filter -->
-        <div class="price-filter">
+<div class="price-filter">
+    <h3 class="price-title">Price Range</h3>
+    <div class="slider-container">
+        <div class="slider-track"></div>
+        <input type="range" min="0" max="10000" value="0" id="range-min">
+        <input type="range" min="0" max="10000" value="10000" id="range-max">
+    </div>
+    <div class="price-values">
+        <div class="price-values-input">
+            <span>Min</span>
+            <input type="number" id="min-price" value="0" min="0" max="10000">
+        </div>
+        <div class="price-values-input">
+            <span>Max</span>
+            <input type="number" id="max-price" value="10000" min="0" max="10000">
+        </div>
+    </div>
+</div>
+
+
+        {% if colors %}
+        <div class="filter-group">
             <div class="filter-header">
-                <span>Price Range</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                    class="bi bi-chevron-up" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd"
-                        d="M1.646 10.854a.5.5 0 0 0 .708 0L8 5.207l5.646 5.647a.5.5 0 0 0 .708-.708l-6-6a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 0 .708z" />
+                <span>{{option_3}}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-up" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M1.646 10.854a.5.5 0 0 0 .708 0L8 5.207l5.646 5.647a.5.5 0 0 0 .708-.708l-6-6a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 0 .708z"/>
                 </svg>
             </div>
-            <div class="filter-body">
-                <div class="price-range-container">
-                    <input type="range" min="0" max="10000" value="10000" class="price-slider" id="price-slider">
-                    <div class="price-slider-track">
-                        <div class="price-slider-range" id="price-slider-range"></div>
+            <div class="filter-body" style="display:none;">
+                {% for color in colors %}
+                    <div class="filter-item filter-item-color">
+                        <input type="checkbox" 
+                            id="color_{{ color.id }}" 
+                            name="color" 
+                            value="{{ color.id }}"
+                            class="color-checkbox">
+                        <label for="color_{{ color.id }}">
+                            <span style="display:inline-block; width:15px; height:15px; background-color: {{ color.name|default:'#000' }}; margin-right:5px; vertical-align:middle; border:1px solid #ccc;"></span>
+                            {{ color.name|slice:":10" }}
+                        </label>
                     </div>
-                </div>
-                <div class="price-values">
-                    <div class="price-values-input">
-                        <span>From</span>
-                        <input type="number" id="min-price" value="0" min="0" max="10000" readonly>
-                    </div>
-                    <div class="price-values-input">
-                        <span>To</span>
-                        <input type="number" id="max-price" value="10000" min="0" max="10000">
-                    </div>
-                </div>
+                {% endfor %}
             </div>
         </div>
-
-
+        {% endif %}
         <!-- Options Filter -->
         {% if options %}
         <div class="filter-group">
@@ -89,36 +98,12 @@
         </div>
         {% endif %}
         
-        {% if colors %}
-        <div class="filter-group">
-            <div class="filter-header">
-                <span>{{option_2}}</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-up" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M1.646 10.854a.5.5 0 0 0 .708 0L8 5.207l5.646 5.647a.5.5 0 0 0 .708-.708l-6-6a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 0 .708z"/>
-                </svg>
-            </div>
-            <div class="filter-body" style="display:none;">
-                {% for color in colors %}
-                    <div class="filter-item">
-                        <input type="checkbox" 
-                            id="color_{{ color.id }}" 
-                            name="color" 
-                            value="{{ color.id }}"
-                            class="color-checkbox">
-                        <label for="color_{{ color.id }}">
-                            <span style="display:inline-block; width:15px; height:15px; background-color: {{ color.name|default:'#000' }}; margin-right:5px; vertical-align:middle; border:1px solid #ccc;"></span>
-                            {{ color.name|slice:":10" }}
-                        </label>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
+
         
         {% if sizes %}
         <div class="filter-group">
             <div class="filter-header">
-                <span>{{option_3}}</span>
+                <span>{{option_2}}</span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-up" viewBox="0 0 16 16">
                     <path fill-rule="evenodd" d="M1.646 10.854a.5.5 0 0 0 .708 0L8 5.207l5.646 5.647a.5.5 0 0 0 .708-.708l-6-6a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 0 .708z"/>
                 </svg>
@@ -137,6 +122,59 @@
             </div>
         </div>
         {% endif %}
+
+        <div class="filter-group">
+            <div class="filter-header">
+                <span>Ratings</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-up" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M1.646 10.854a.5.5 0 0 0 .708 0L8 5.207l5.646 5.647a.5.5 0 0 0 .708-.708l-6-6a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 0 .708z"/>
+                </svg>
+            </div>
+            <div class="filter-body">
+                <div class="rating-filter">
+                    <div class="rating-filter-box">
+                        <input type="radio" id="rating_1" name="rating" value="1">
+                        <label for="rating_1">
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                        </label>
+                    </div>
+                    <div class="rating-filter-box">
+                        <input type="radio" id="rating_2" name="rating" value="2">
+                        <label for="rating_2">
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill bi-star-fill-no"></i>
+                        </label>        
+                    </div>
+                    <div class="rating-filter-box">
+                        <input type="radio" id="rating_3" name="rating" value="3">
+                        <label for="rating_3">
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill bi-star-fill-no"></i>
+                            <i class="bi bi-star-fill bi-star-fill-no"></i>
+                        </label>
+                    </div>
+                    <div class="rating-filter-box">
+                        <input type="radio" id="rating_4" name="rating" value="4">
+                        <label for="rating_4">
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill bi-star-fill-no"></i>
+                            <i class="bi bi-star-fill bi-star-fill-no"></i>
+                            <i class="bi bi-star-fill bi-star-fill-no"></i>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
         
         <!-- Filter Buttons -->
         <div class="filter-buttons">
@@ -151,6 +189,9 @@
             <div class="product-count">
                 <span id="total-products">0</span> products found
             </div>
+            <button id="toggle-filters" class="filter-toggle-btn">
+                <i class="bi bi-funnel-fill"></i> Filters
+            </button>
             <div class="sort-options">
                 <label for="sort-by">Sort by:</label>
                 <select id="sort-by">
@@ -162,7 +203,6 @@
                 </select>
             </div>
         </div>
-        
         <!-- Loading Indicator -->
         <div id="loading-indicator" class="loading-indicator" style="display: none;">
             <div class="spinner"></div>
@@ -194,7 +234,9 @@
         </div>
     </div>
 </div>
+<div id="filter-gry-section">
 
+</div>
 <!-- Product Modal (optional) -->
 <div id="product-modal" class="modal" style="display: none;">
     <div class="modal-content">

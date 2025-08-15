@@ -120,7 +120,7 @@ class ShopManager {
 
         // Filter buttons
         if (this.elements.applyFilterBtn) {
-            this.elements.applyFilterBtn.addEventListener('click', () => this.applyFilters());
+            this.elements.applyFilterBtn.addEventListener('click', () => this.applyFilters(),hidefilterforphonesection() || null);
         }
 
         if (this.elements.resetFilterBtn) {
@@ -488,9 +488,7 @@ class ShopManager {
             products = [];
         }
         if (products.length === 0) {
-            productSection.style.display = 'flex';
-            productSection.style.alignItems = 'center';
-            productSection.style.justifyContent = 'center';
+            productSection.classList.add('empty');
             productSection.innerHTML = `
                 <div class="empty-state empty-state--no-products">
                     <i class="fas fa-search empty-state__icon"></i>
@@ -501,7 +499,11 @@ class ShopManager {
                 </div>
             `;
             return;
+        } else {
+            productSection.classList.remove('empty');
         }
+
+
 
         products.forEach(product => {
             if (product && typeof product === 'object') {
@@ -852,6 +854,7 @@ createProductHTML(product) {
     showError(message) {
         const productSection = this.elements.productSection;
         if (productSection) {
+            productSection.classList.add('empty');
             productSection.innerHTML = `
                 <div class="empty-state empty-state--error">
                     <i class="fas fa-exclamation-triangle empty-state__icon"></i>
@@ -951,3 +954,142 @@ function viewProductdetailes(productId) {
 function getCookie(name) {
     return shopManager.getCookie(name);
 }
+
+// Price Range Slider Functionality
+const rangeMin = document.getElementById("range-min");
+const rangeMax = document.getElementById("range-max");
+const minPrice = document.getElementById("min-price");
+const maxPrice = document.getElementById("max-price");
+const sliderTrack = document.querySelector(".slider-track");
+const applyFilterBtn = document.getElementById("apply-filter-btn");
+
+// Minimum gap between min and max values
+const minGap = 0; // يمكنك تعديل هذه القيمة حسب احتياجاتك
+
+// Update slider track color
+function updateSliderTrack() {
+    const percent1 = (rangeMin.value / rangeMax.max) * 100;
+    const percent2 = (rangeMax.value / rangeMax.max) * 100;
+    sliderTrack.style.background = `linear-gradient(to right, 
+        #d7dcdf ${percent1}%, 
+        #3348FF ${percent1}%, 
+        #3348FF ${percent2}%, 
+        #d7dcdf ${percent2}%)`;
+}
+
+// Initialize slider values
+function initPriceSlider() {
+    minPrice.value = rangeMin.value;
+    maxPrice.value = rangeMax.value;
+    updateSliderTrack();
+}
+
+// Event listeners for range sliders
+rangeMin.addEventListener("input", function() {
+    if (parseInt(rangeMax.value) - parseInt(rangeMin.value) <= minGap) {
+        rangeMin.value = parseInt(rangeMax.value) - minGap;
+    }
+    minPrice.value = rangeMin.value;
+    updateSliderTrack();
+});
+
+rangeMax.addEventListener("input", function() {
+    if (parseInt(rangeMax.value) - parseInt(rangeMin.value) <= minGap) {
+        rangeMax.value = parseInt(rangeMin.value) + minGap;
+    }
+    maxPrice.value = rangeMax.value;
+    updateSliderTrack();
+});
+
+// Event listeners for price inputs
+minPrice.addEventListener("input", function() {
+    let value = parseInt(this.value);
+    
+    // Validate input
+    if (isNaN(value)) value = 0;
+    if (value < parseInt(rangeMin.min)) value = parseInt(rangeMin.min);
+    if (value > parseInt(rangeMin.max)) value = parseInt(rangeMin.max);
+    if (value > parseInt(maxPrice.value) - minGap) {
+        value = parseInt(maxPrice.value) - minGap;
+    }
+    
+    this.value = value;
+    rangeMin.value = value;
+    updateSliderTrack();
+});
+
+maxPrice.addEventListener("input", function() {
+    let value = parseInt(this.value);
+    
+    // Validate input
+    if (isNaN(value)) value = 10000;
+    if (value < parseInt(rangeMax.min)) value = parseInt(rangeMax.min);
+    if (value > parseInt(rangeMax.max)) value = parseInt(rangeMax.max);
+    if (value < parseInt(minPrice.value) + minGap) {
+        value = parseInt(minPrice.value) + minGap;
+    }
+    
+    this.value = value;
+    rangeMax.value = value;
+    updateSliderTrack();
+});
+
+// Prevent form submission on Enter key
+[minPrice, maxPrice].forEach(input => {
+    input.addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+        }
+    });
+});
+
+// Integration with ShopManager
+if (typeof shopManager !== 'undefined') {
+    // Update ShopManager's price filters when Apply button is clicked
+    applyFilterBtn.addEventListener('click', function() {
+        shopManager.currentFilters.priceMin = minPrice.value;
+        shopManager.currentFilters.priceMax = maxPrice.value;
+        shopManager.applyFilters();
+    });
+    
+    // Initialize with ShopManager's current values if they exist
+    document.addEventListener('DOMContentLoaded', function() {
+        if (shopManager.currentFilters.priceMin) {
+            minPrice.value = shopManager.currentFilters.priceMin;
+            rangeMin.value = shopManager.currentFilters.priceMin;
+        }
+        if (shopManager.currentFilters.priceMax) {
+            maxPrice.value = shopManager.currentFilters.priceMax;
+            rangeMax.value = shopManager.currentFilters.priceMax;
+        }
+        updateSliderTrack();
+    });
+}
+
+// Initialize the slider
+initPriceSlider();
+
+if (window.innerWidth <= 1224) {
+    // Hide filter section for mobile devices
+    function hidefilterforphonesection() {
+        const filterSection = document.querySelector('.filter-section');
+        const filterGrySection = document.getElementById('filter-gry-section');
+        filterSection.classList.remove('active');
+        filterGrySection.classList.remove('active');
+        document.body.style.overflow = ''; // استرجاع التمرير
+    }
+}
+
+
+document.getElementById('toggle-filters').addEventListener('click', function() {
+    document.body.style.overflow = 'hidden';
+    const filterSection = document.querySelector('.filter-section');
+    const filterGrySection = document.getElementById('filter-gry-section');
+
+    filterGrySection.classList.toggle('active');
+    filterSection.classList.toggle('active');
+
+    filterGrySection.onclick = function() {
+        hidefilterforphonesection();
+    }
+});

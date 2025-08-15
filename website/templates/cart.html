@@ -20,9 +20,9 @@
         </div>
 
             {% if discount %}
-            <div class="subtotal-title discount">
+            <div class="subtotal-title ">
                 <span>Discount:</span>
-                <span>- {{ currency }}{{ discount.percent }}</span>
+                <span class="discount">- {{ currency }}{{ discount.percent }}</span>
             </div>
             {% endif %}
 
@@ -69,6 +69,10 @@
 <script>
     const mainDomain = "{{ main_domin|escapejs }}";
     const currencySymbol = "{{ currency|escapejs }}";
+    const option_1 = "{{ option_1}}";
+    const option_2 = "{{ option_2 }}";
+    const option_3 = "{{ option_3 }}";
+
 </script>
 
 <script src="\static\js\cart.js"></script>
