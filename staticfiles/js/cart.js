@@ -267,7 +267,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Handle color and size arrays from new API
         const color = Array.isArray(product.color) && product.color.length > 0 ? product.color[0] : null;
         const size = Array.isArray(product.size) && product.size.length > 0 ? product.size[0] : null;
-        const option = Array.isArray(product.option) && product.option.length > 0 ? product.option[0] : null;
+        const option = Array.isArray(product.options) && product.options.length > 0 ? product.options[0] : null;
         console.log(item);
         
         return `
@@ -282,25 +282,29 @@ document.addEventListener('DOMContentLoaded', function() {
                         ${product.name}
                     </div>
                     <div class="cart-items-detailes-options">
-                        ${size ? `
+                        ${ `
                             <div class="option-name">
-                                <span class="ferst-span">Size:</span>
-                                <span>${size}</span>
+                                <span class="ferst-span">${option_1}:</span>
+                                <span>${item.size ?item.size : "---"}</span>
                             </div>
-                        ` : ''}
-                        ${color ? `
+                        `}
+                        <span class="options-space"></span>
+                        ${ `
                             <div class="option-name">
-                                <span class="ferst-span">Color:</span>
-                                <span>${color}</span>
+                                <span class="ferst-span">${option_2}:</span>
+                                <span>${ item.color ? item.color : "---"}</span>
                             </div>
-                        ` : ''}
-                        ${option ? `
+                        `}
+                        <span class="options-space"></span>
+                        ${item.options ? `
                             <div class="option-name">
-                                <span class="ferst-span">Color:</span>
-                                <span>${option}</span>
+                                <span class="ferst-span">${option_3}:</span>
+                                
+                                <span>${item.options}</span>
                             </div>
                         ` : ''}
                     </div>
+
                     <div class="cart-items-detailes-buttons">
                         <div class="qontity-section">
                             <button class="quantity-btn" data-action="decrease" data-item-id="${item.id}" 
@@ -500,12 +504,14 @@ document.addEventListener('DOMContentLoaded', function() {
             showMessage(response.message || 'Item removed successfully');
             
             // Smooth removal animation
-            itemElement.style.transition = 'all 0.4s ease';
+            itemElement.style.display = 'none';
+            itemElement.style.transition = 'all 0s ease';
             itemElement.style.transform = 'translateX(-100%)';
             itemElement.style.maxHeight = '0px';
             itemElement.style.padding = '0px';
             itemElement.style.margin = '0px';
             itemElement.style.overflow = 'hidden';
+            itemElement.style.padding = '0px';
             
             setTimeout(() => {
                 // Remove the item from DOM

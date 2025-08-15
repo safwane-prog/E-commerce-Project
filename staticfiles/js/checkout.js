@@ -8,9 +8,8 @@ let appliedCouponId = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
     await loadOrderSummary();
-    // setupFormValidation();
+    setupFormValidation();
     setupPaymentMethods();
-    loadDraft();
     
     const form = document.getElementById("checkout-form");
     if (form) {
@@ -18,14 +17,30 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 });
 
-// function setupFormValidation() {
-//     const requiredFields = document.querySelectorAll('.form-group.required input, .form-group.required select');
+function resetFormInputs() {
+    // Select all input fields inside your form container
+    const inputs = document.querySelectorAll(
+        '#checkout-form input[type="text"], ' +
+        '#checkout-form input[type="email"], ' +
+        '#checkout-form input[type="tel"]'
+    );
+
+    // Clear the values
+    inputs.forEach(input => input.value = '');
+
+    // Uncheck all checkboxes
+    const checkboxes = document.querySelectorAll('#yourFormId input[type="checkbox"]');
+    checkboxes.forEach(checkbox => checkbox.checked = false);
+}
+
+function setupFormValidation() {
+    const requiredFields = document.querySelectorAll('.form-group.required input, .form-group.required select');
     
-//     requiredFields.forEach(field => {
-//         field.addEventListener('blur', validateField);
-//         field.addEventListener('input', clearError);
-//     });
-// }
+    requiredFields.forEach(field => {
+        field.addEventListener('blur', validateField);
+        field.addEventListener('input', clearError);
+    });
+}
 
 function setupPaymentMethods() {
     const paymentMethods = document.querySelectorAll('.payment-method');
@@ -149,6 +164,7 @@ async function handleFormSubmit(e) {
         const result = await response.json();
         
         if (response.ok) {
+            resetFormInputs()
             showNotification(result.message, 'success');
             localStorage.removeItem('checkoutDraft');
             appliedCouponId = null;
@@ -385,9 +401,8 @@ async function applyPromoCode() {
     }
 }
 function formatPrice(amount) {
-    const currencySymbol = "SAR ";
     const numAmount = parseFloat(amount) || 0;
-    return currencySymbol + numAmount.toFixed(2);
+    return  numAmount.toFixed(2) + " " + currencySymbol ;
 }
 
 function escapeHtml(text) {
@@ -505,25 +520,3 @@ function loadDraft() {
 // Auto-save every 30 seconds
 setInterval(saveDraft, 30000);
 
-// Handle beforeunload event
-window.addEventListener('beforeunload', (e) => {
-    saveDraft();
-    
-    const form = document.getElementById('checkout-form');
-    if (form && !isSubmitting) {
-        const formData = new FormData(form);
-        let hasData = false;
-        
-        for (let [key, value] of formData.entries()) {
-            if (value.trim()) {
-                hasData = true;
-                break;
-            }
-        }
-        
-        if (hasData) {
-            e.preventDefault();
-            e.returnValue = '';
-        }
-    }
-});

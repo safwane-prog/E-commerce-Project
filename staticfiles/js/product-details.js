@@ -1,555 +1,1204 @@
-const url = window.location.href;
-const parts = url.split('/');
-const productId = parts[parts.length - 1];
+/**
+ * Enhanced Product Details Management
+ * Updated to handle the complete JSON response from the API
+ */
 
-function showloader(){
-    const loader = document.querySelector('.spinre');
-    loader.style.display = 'flex';
-}
-
-function hideloader(){
-    const loader = document.querySelector('.spinre');
-    loader.style.display = 'none';
-}
-
-async function fetchProductDetails() {
-    showloader()
-    const response = await fetch(`${mainDomain}products/details/${productId}/`,{
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        }
-    });
-    const data = await response.json();
-    console.log(data);
-    renderProductDetails(data);
-    renderproductimgae(data);
-}
-
-function renderproductimgae(data) {
-    // تصفية الصور الموجودة
-    const images = Object.keys(data)
-        .filter(key => key.startsWith("image_") && data[key])
-        .map(key => data[key]);
-
-    // عناصر الـ DOM
-    const mainWrapper = document.getElementById('main-image-wrapper');
-    const thumbsWrapper = document.getElementById('thumbs-wrapper');
-    mainWrapper.innerHTML = '';
-    thumbsWrapper.innerHTML = '';
-
-    // إضافة الصور للسلايد الرئيسي
-    images.forEach(src => {
-        const slide = document.createElement('div');
-        slide.className = 'swiper-slide';
-        slide.innerHTML = `<img src="${src}" alt="">`;
-        mainWrapper.appendChild(slide);
-    });
-
-    // إضافة الصور لسلايد الثمبنيل
-    images.forEach(src => {
-        const slide = document.createElement('div');
-        slide.className = 'swiper-slide';
-        slide.innerHTML = `<img src="${src}" alt="">`;
-        thumbsWrapper.appendChild(slide);
-    });
-
-    // تهيئة Swiper
-    const thumbsSwiper = new Swiper('.thumbs-swiper', {
-        spaceBetween: 10,
-        slidesPerView: 5,
-        freeMode: true,
-        watchSlidesProgress: true,
-    });
-
-    const mainSwiper = new Swiper('.main-swiper', {
-        spaceBetween: 10,
-        thumbs: { swiper: thumbsSwiper }
-    });
-
-    hideloader();
-}
-
-// دالة لجلب بيانات المنتج
-async function fetchProductDetails() {
-    const response = await fetch(`${mainDomain}products/details/${productId}/`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        }
-    });
-    const data = await response.json();
-    console.log(data);
-    renderProductDetails(data);
-    renderproductimgae(data);
-}
-
-
-function renderProductDetails(data) {
-    const productNameSection = document.getElementById('products-name-section');
-    const products_old_price = document.getElementById('products-old-price');
-    const products_main_price = document.getElementById('products-main-price');
-    const products_descounte_count = document.getElementById('products-descounte-count');
-    const product_description_main = document.getElementById('product-description-main');
-    const desctiption_1 = document.getElementById('desctiption_1');
-    const desctiption_2 = document.getElementById('desctiption_2');
-    const desctiption_3 = document.getElementById('desctiption_3');
-
-    // تعيين النصوص
-    desctiption_1.textContent = data.description_1;
-    desctiption_2.textContent = data.description_2;
-    desctiption_3.textContent = data.description_3;
-    productNameSection.textContent = data.name;
-    products_old_price.textContent = data.old_price;
-    products_main_price.textContent = data.price;
-    products_descounte_count.textContent = data.discount;
-    product_description_main.textContent = data.description_1;
-
-    // الألوان
-   // الألوان
-if (!data.color || data.color.length === 0) {
-    document.getElementById('product-color-section-sectopn').style.display = 'none';
-} else {
-    const colorOption = document.getElementById('main-color-section-box');
-    colorOption.innerHTML = '';
-    data.color.forEach((color, index) => {
-        const inputId = `color-${index}`;
-        colorOption.innerHTML += `
-            <input type="radio" id="${inputId}" name="color" value="${color.name}">
-            <label for="${inputId}" class="color-label" style="background-color: ${color.name};"></label>
-        `;
-    });
-}
-
-// الأحجام
-if (!data.size || data.size.length === 0) {
-    document.getElementById('product-size-section-sectopn').style.display = 'none';
-} else {
-    const sizeOption = document.getElementById('main-size-section-box');
-    sizeOption.innerHTML = '';
-    data.size.forEach((size, index) => {
-        const inputId = `size-${index}`;
-        sizeOption.innerHTML += `
-            <input type="radio" id="${inputId}" name="size" value="${size.name}">
-            <label for="${inputId}" class="size-label">${size.name}</label>
-        `;
-    });
-}
-
-// الخيارات
-if (!data.options || data.options.length === 0) {
-    document.getElementById('product-option-section-sectopn').style.display = 'none';
-} else {
-    const optionBox = document.getElementById('main-option-section-box');
-    optionBox.innerHTML = '';
-    data.options.forEach((opt, index) => {
-        const inputId = `option-${index}`;
-        optionBox.innerHTML += `
-            <input type="radio" id="${inputId}" name="option" value="${opt.name}">
-            <label for="${inputId}" class="option-label">${opt.name}</label>
-        `;
-    });
-    }
-}
-
-document.querySelector('.add-to-cart-btn').addEventListener('click', () => {
-    let hasError = false;
-    let firstErrorElement = null;
-
-    // أقسام الخيارات اللي نتحقق منها
-    const optionSections = [
-        { id: 'product-color-section-sectopn', name: 'color', errorId: 'error-color' },
-        { id: 'product-size-section-sectopn', name: 'size', errorId: 'error-size' },
-        { id: 'product-option-section-sectopn', name: 'option', errorId: 'error-option' }
-    ];
-
-    // مسح أي رسائل خطأ قديمة
-    optionSections.forEach(section => {
-        const oldError = document.getElementById(section.errorId);
-        if (oldError) oldError.remove();
-    });
-
-    // التحقق من كل قسم إذا كان ظاهر ومطلوب
-    optionSections.forEach(section => {
-        const sectionEl = document.getElementById(section.id);
-        if (sectionEl && sectionEl.style.display !== 'none') {
-            const inputs = sectionEl.querySelectorAll(`input[name="${section.name}"]`);
-            if (inputs.length > 0) {
-                const checked = sectionEl.querySelector(`input[name="${section.name}"]:checked`);
-                if (!checked) {
-                    // إنشاء رسالة خطأ تحت القسم
-                    let errorEl = document.getElementById(section.errorId);
-                    if (!errorEl) {
-                        errorEl = document.createElement('div');
-                        errorEl.id = section.errorId;
-                        errorEl.style.color = 'red';
-                        errorEl.style.marginTop = '5px';
-                        sectionEl.appendChild(errorEl);
-                    }
-                    errorEl.textContent = `Please select a ${section.name}`;
-                    hasError = true;
-                    if (!firstErrorElement) firstErrorElement = sectionEl;
-                }
-            }
-        }
-    });
-
-    // إذا فيه خطأ، نسكرول لأول خطأ ونوقف
-    if (hasError) {
-        firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        return;
-    }
-
-    // إذا مافيه خطأ، نضيف للعربة
-    addToCart(productId);
-});
-
-
-document.querySelector('.add-Saved-btn').addEventListener('click', () => {
-    addToWishlist(productId);
-});
-
-function viewProductdetailes(product_Id){
-    window.location.href = `/product-details/${String(product_Id)}`;
-}
-
-function fetchConfirmOrder(data, productId) {
-    showOrderloader();
-    disableInputs();
-
-    return fetch(`${mainDomain}orders/api/orders/create/${productId}/`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify(data)
-    })
-    .then(response => {
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        return response.json();
-    })
-    .then(result => {
-        console.log('Order created successfully:', result);
-
-        if (result.order_id) {
-            // عرض رسالة نجاح سريعة
-            showNotification('Order created successfully!', 'success');
-            // إعادة التوجيه لصفحة التأكيد
-            window.location.href = `/confirmation/${result.order_id}`;
+class ProductDetailsManager {
+    constructor() {
+        this.productId = this.getProductIdFromUrl();
+        this.mainSwiper = null;
+        this.thumbsSwiper = null;
+        this.isLoading = false;
+        this.productData = null;
+        
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.init());
         } else {
-            throw new Error('Order ID not returned from server');
+            this.init();
         }
-    })
-    .catch(error => {
-        console.error('Error creating order:', error);
-        showNotification('Failed to create order', 'error');
-    })
-    .finally(() => {
-        hideOrderloader();
-        enableInputs();
-    });
-}
-
-
-
-function showOrderloader() {
-    const Orderloader = document.getElementById('Orderloader');
-    const submit_button = document.querySelector('.submit-button');
-    Orderloader.style.display = 'inline-block';
-    submit_button.style.backgroundColor = 'var(--main-color2)';
-}
-
-function hideOrderloader() {
-    document.getElementById('Orderloader').style.display = 'none';
-    const submit_button = document.querySelector('.submit-button');
-    submit_button.style.backgroundColor = 'var(--main-color)';
-}
-
-function clearErrors() {
-    const errorFields = ['firstName', 'lastName', 'address', 'phone', 'color', 'size', 'option'];
-    errorFields.forEach(field => {
-        const el = document.getElementById('error-' + field);
-        if (el) el.textContent = '';
-    });
-}
-
-
-function disableInputs() {
-  const inputs = document.querySelectorAll('.form-group input');
-  inputs.forEach(input => {
-    input.disabled = true;
-  });
-}
-
-function enableInputs() {
-  const inputs = document.querySelectorAll('.form-group input');
-  inputs.forEach(input => {
-    input.disabled = false;
-  });
-}
-
-function ConfirmOrder() {
-    clearErrors();
-
-    const firstName = document.getElementById('firstName');
-    const lastName = document.getElementById('lastName');
-    const address = document.getElementById('address');
-    const phone = document.getElementById('phone');
-    const quantity = document.getElementById('quantity'); // لو عندك
-
-    let hasError = false;
-    let firstErrorElement = null;
-
-    // ===== تحقق من الحقول الأساسية =====
-    if (!firstName.value.trim()) {
-        document.getElementById('error-firstName').textContent = 'First name is required';
-        hasError = true;
-        if (!firstErrorElement) firstErrorElement = firstName;
-    }
-    if (!lastName.value.trim()) {
-        document.getElementById('error-lastName').textContent = 'Last name is required';
-        hasError = true;
-        if (!firstErrorElement) firstErrorElement = lastName;
-    }
-    if (!address.value.trim()) {
-        document.getElementById('error-address').textContent = 'Address is required';
-        hasError = true;
-        if (!firstErrorElement) firstErrorElement = address;
-    }
-    if (!phone.value.trim()) {
-        document.getElementById('error-phone').textContent = 'Phone number is required';
-        hasError = true;
-        if (!firstErrorElement) firstErrorElement = phone;
     }
 
-    // ===== تحقق من الخيارات =====
-    const optionSections = [
-        { id: 'product-color-section-sectopn', name: 'color', errorId: 'error-color' },
-        { id: 'product-size-section-sectopn', name: 'size', errorId: 'error-size' },
-        { id: 'product-option-section-sectopn', name: 'option', errorId: 'error-option' }
-    ];
+    /**
+     * Extract product ID from URL
+     */
+    getProductIdFromUrl() {
+        const url = window.location.href;
+        const parts = url.split('/');
+        return parts[parts.length - 1];
+    }
 
-    optionSections.forEach(section => {
-        const sectionEl = document.getElementById(section.id);
-        if (sectionEl && sectionEl.style.display !== 'none') {
-            const inputs = sectionEl.querySelectorAll(`input[name="${section.name}"]`);
-            if (inputs.length > 0) {
-                const checked = sectionEl.querySelector(`input[name="${section.name}"]:checked`);
-                if (!checked) {
-                    // إضافة رسالة الخطأ (لو ما عندك عنصر خطأ جاهز ممكن تضيفه ديناميكي)
-                    let errorEl = document.getElementById(section.errorId);
-                    if (!errorEl) {
-                        errorEl = document.createElement('div');
-                        errorEl.id = section.errorId;
-                        errorEl.style.color = 'red';
-                        errorEl.style.marginTop = '5px';
-                        sectionEl.appendChild(errorEl);
-                    }
-                    errorEl.textContent = `Please select a ${section.name}`;
-                    hasError = true;
-                    if (!firstErrorElement) firstErrorElement = sectionEl;
+    /**
+     * Initialize the product details page
+     */
+    async init() {
+        try {
+            this.bindEvents();
+            await this.fetchProductDetails();
+        } catch (error) {
+            console.error('Failed to initialize product details:', error);
+            this.showNotification('Failed to load product details', 'error');
+        }
+    }
+
+    /**
+     * Bind all event listeners
+     */
+    bindEvents() {
+        // Add to cart button
+        const addToCartBtn = document.querySelector('.add-to-cart-btn');
+        if (addToCartBtn) {
+            addToCartBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.handleAddToCart();
+            });
+        }
+
+        // Add to wishlist button
+        const addToWishlistBtn = document.querySelector('.add-Saved-btn');
+        if (addToWishlistBtn) {
+            addToWishlistBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.handleAddToWishlist();
+            });
+        }
+
+        // Quantity controls
+        const incrementBtn = document.querySelector('.qty-btn[onclick*="increment"]');
+        const decrementBtn = document.querySelector('.qty-btn[onclick*="decrement"]');
+        
+        if (incrementBtn) {
+            incrementBtn.addEventListener('click', () => this.incrementQuantity());
+        }
+        if (decrementBtn) {
+            decrementBtn.addEventListener('click', () => this.decrementQuantity());
+        }
+
+        // Order form submission
+        const submitBtn = document.querySelector('.submit-button');
+        if (submitBtn) {
+            submitBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.handleConfirmOrder();
+            });
+        }
+    }
+
+    /**
+     * Show/hide loading spinner
+     */
+    toggleLoader(show = true) {
+        const loader = document.querySelector('.spinre');
+        if (loader) {
+            loader.style.display = show ? 'flex' : 'none';
+        }
+        this.isLoading = show;
+    }
+
+    /**
+     * Fetch product details from API
+     */
+    async fetchProductDetails() {
+        if (this.isLoading) return;
+        
+        try {
+            this.toggleLoader(true);
+            
+            const response = await fetch(`${mainDomain}products/details/${this.productId}/`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': this.getCookie('csrftoken')
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('Product data:', data);
+            
+            this.productData = data;
+            this.renderProductDetails(data);
+            this.renderProductImages(data);
+            this.renderRatingInfo(data);
+            
+        } catch (error) {
+            console.error('Error fetching product details:', error);
+            this.showNotification('Failed to load product details', 'error');
+        } finally {
+            this.toggleLoader(false);
+        }
+    }
+
+    /**
+     * Render product images and initialize Swiper
+     */
+    renderProductImages(data) {
+        try {
+            // Get all image fields from the API response
+            const images = [];
+            for (let i = 1; i <= 10; i++) {
+                const imageKey = `image_${i}`;
+                if (data[imageKey]) {
+                    images.push(data[imageKey]);
                 }
             }
-        }
-    });
 
-    // ===== إذا فيه خطأ، رفع السكرول لأول خطأ =====
-    if (hasError) {
-        if (firstErrorElement) {
-            firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-        return;
-    }
+            if (images.length === 0) {
+                console.warn('No images found for product');
+                // Use a default image if no images are available
+                images.push('/static/imges/istockphoto-1147544807-612x612.jpg');
+            }
 
-    // ===== لو ما فيه أخطاء =====
-    const fullName = `${firstName.value.trim()} ${lastName.value.trim()}`;
-    const data = {
-        customer_name: fullName,
-        customer_email: "",  // عيّنها لو متوفرة
-        customer_phone: phone.value.trim(),
-        customer_address: address.value.trim(),
-        city: "",            // عيّنها لو متوفرة
-        quantity: quantity ? quantity.value.trim() : 1
-    };
+            const mainWrapper = document.getElementById('main-image-wrapper');
+            const thumbsWrapper = document.getElementById('thumbs-wrapper');
 
-    // loader كما في السابق
-    const btn = document.querySelector('.submit-button');
-    const loader = document.getElementById('Orderloader');
-    btn.disabled = true;
-    loader.innerHTML = `<span class="loader"></span>`;
+            if (!mainWrapper || !thumbsWrapper) {
+                console.warn('Image wrapper elements not found');
+                return;
+            }
 
-    fetchConfirmOrder(data, productId)
-    .finally(() => {
-        btn.disabled = false;
-        loader.innerHTML = '';
-    });
-}
+            // Clear existing content
+            mainWrapper.innerHTML = '';
+            thumbsWrapper.innerHTML = '';
 
-function getCookie(name) {
-    const cookies = document.cookie.split(';');
-    for (let cookie of cookies) {
-        cookie = cookie.trim();
-        if (cookie.startsWith(name + '=')) {
-            return decodeURIComponent(cookie.substring(name.length + 1));
+            // Add images to main slider
+            images.forEach((src, index) => {
+                const mainSlide = document.createElement('div');
+                mainSlide.className = 'swiper-slide';
+                mainSlide.innerHTML = `<img src="${src}" alt="Product image ${index + 1}" loading="${index === 0 ? 'eager' : 'lazy'}">`;
+                mainWrapper.appendChild(mainSlide);
+
+                const thumbSlide = document.createElement('div');
+                thumbSlide.className = 'swiper-slide';
+                thumbSlide.innerHTML = `<img src="${src}" alt="Product thumbnail ${index + 1}" loading="lazy">`;
+                thumbsWrapper.appendChild(thumbSlide);
+            });
+
+            // Initialize Swiper with responsive settings
+            this.initializeSwiper();
+
+        } catch (error) {
+            console.error('Error rendering product images:', error);
         }
     }
-    return null;
-}
 
-function showNotification(message, type = 'info') {
-    let notification = document.getElementById('notification');
-    if (!notification) {
-        notification = document.createElement('div');
-        notification.id = 'notification';
-        document.body.appendChild(notification);
+    /**
+     * Initialize Swiper with responsive configuration
+     */
+    initializeSwiper() {
+        try {
+            // Destroy existing swipers
+            if (this.thumbsSwiper) this.thumbsSwiper.destroy(true, true);
+            if (this.mainSwiper) this.mainSwiper.destroy(true, true);
+
+            // Initialize thumbnails swiper
+            this.thumbsSwiper = new Swiper('.thumbs-swiper', {
+                spaceBetween: 10,
+                slidesPerView: 'auto',
+                freeMode: true,
+                watchSlidesProgress: true,
+                breakpoints: {
+                    320: {
+                        slidesPerView: 3,
+                        spaceBetween: 8
+                    },
+                    768: {
+                        slidesPerView: 5,
+                        spaceBetween: 10
+                    }
+                }
+            });
+
+            // Initialize main swiper
+            this.mainSwiper = new Swiper('.main-swiper', {
+                spaceBetween: 10,
+                thumbs: { 
+                    swiper: this.thumbsSwiper 
+                },
+                navigation: {
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev',
+                },
+                keyboard: {
+                    enabled: true,
+                },
+                touchRatio: 1,
+                touchAngle: 45,
+                grabCursor: true
+            });
+
+        } catch (error) {
+            console.error('Error initializing Swiper:', error);
+        }
     }
 
-    notification.className = `notification ${type}`;
+    /**
+     * Render product details with enhanced data handling
+     */
+    renderProductDetails(data) {
+        try {
+            // Basic product information
+            this.setElementText('products-name-section', data.name);
+            
+            // Format prices with currency
+            const currency = window.currencySymbol || '$';
+            this.setElementText('products-main-price', `${data.price}${currency}`);
+            
+            // Handle old price - only show if different from main price
+            if (data.old_price && parseFloat(data.old_price) > parseFloat(data.price)) {
+                this.setElementText('products-old-price', `${data.old_price}${currency}`);
+                
+                // Calculate and display discount percentage
+                const discountPercent = Math.round(((parseFloat(data.old_price) - parseFloat(data.price)) / parseFloat(data.old_price)) * 100);
+                this.setElementText('products-descounte-count', discountPercent.toString());
+            } else {
+                // Hide discount section if no valid old price
+                const discountSection = document.querySelector('.products-descounte');
+                if (discountSection) {
+                    discountSection.style.display = 'none';
+                }
+            }
 
-    // استخدام innerHTML لإضافة رسالة مع أيقونة
-    notification.innerHTML = `
-        <i class="fa-solid ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i>
-        <span>${message}</span>
-    `;
+            // Descriptions
+            this.setElementText('product-description-main', data.description_1);
+            this.setElementText('desctiption_1', data.description_1);
+            this.setElementText('desctiption_2', data.description_2);
+            this.setElementText('desctiption_3', data.description_3);
 
-    notification.style.display = 'block';
+            // Sales count in orders section
+            const ordersCount = document.querySelector('.orsers-count span:nth-child(2)');
+            if (ordersCount && data.sales_count) {
+                ordersCount.textContent = data.sales_count;
+            }
 
-    setTimeout(() => {
-        notification.classList.add('fade-out');
-        setTimeout(() => notification.remove(), 500);
-    }, 3000);
-}
+            // Render product options
+            this.renderProductOptions(data);
+            
+        } catch (error) {
+            console.error('Error rendering product details:', error);
+        }
+    }
 
+    /**
+     * Render rating and review information
+     */
+    renderRatingInfo(data) {
+        try {
+            // Update main rating display
+            const ratingElement = document.querySelector('.range-count');
+            if (ratingElement && data.average_rating !== undefined) {
+                ratingElement.textContent = data.average_rating.toFixed(1);
+            }
 
-  function  showAuthMessage() {
-        // إنشاء عنصر الإشعار
+            // Update "out of 5" rating
+            const outOfElement = document.querySelector('.out-of');
+            if (outOfElement && data.average_rating !== undefined) {
+                outOfElement.textContent = `${data.average_rating.toFixed(1)} out of 5`;
+            }
+
+            // Update total reviews count
+            const globalRatingElement = document.querySelector('.review-section-title-2');
+            if (globalRatingElement && data.total_reviews !== undefined) {
+                globalRatingElement.textContent = `${data.total_reviews} global ratings`;
+            }
+
+            // Update star ratings display
+            this.updateStarRating(data.average_rating);
+
+            // Update ratings breakdown bars
+            if (data.ratings_breakdown) {
+                this.updateRatingsBars(data.ratings_breakdown, data.total_reviews);
+            }
+
+        } catch (error) {
+            console.error('Error rendering rating info:', error);
+        }
+    }
+
+    /**
+     * Update star rating display
+     */
+    updateStarRating(rating) {
+        const starContainers = document.querySelectorAll('.range-stars, .review-section-title div');
+        
+        starContainers.forEach(container => {
+            const stars = container.querySelectorAll('i[class*="star"]');
+            stars.forEach((star, index) => {
+                if (index < Math.floor(rating)) {
+                    star.className = star.className.replace('bi-star-fill2', '').replace('bi bi-star-fill', 'bi bi-star-fill');
+                } else if (index < rating) {
+                    star.className = 'bi bi-star-half';
+                } else {
+                    star.className = 'bi bi-star-fill bi-star-fill2';
+                }
+            });
+        });
+    }
+
+    /**
+     * Update ratings breakdown bars
+     */
+    updateRatingsBars(breakdown, totalReviews) {
+        const ratingInfos = document.querySelectorAll('.review-info');
+        
+        ratingInfos.forEach((info, index) => {
+            const ratingNumber = 5 - index; // 5 stars, 4 stars, etc.
+            const count = breakdown[ratingNumber] || 0;
+            const percentage = totalReviews > 0 ? (count / totalReviews) * 100 : 0;
+            
+            const bar = info.querySelector('.review-info-dev-range');
+            if (bar) {
+                bar.style.width = `${percentage}%`;
+            }
+        });
+    }
+
+    /**
+     * Safely set element text content
+     */
+    setElementText(elementId, text) {
+        const element = document.getElementById(elementId);
+        if (element && text) {
+            element.textContent = text;
+        }
+    }
+
+    /**
+     * Render product options (colors, sizes, options) with enhanced data handling
+     */
+    renderProductOptions(data) {
+        // Colors
+        this.renderColorOptions(data.color || []);
+        // Sizes  
+        this.renderSizeOptions(data.size || []);
+        // Other options
+        this.renderOtherOptions(data.options || []);
+    }
+
+    /**
+     * Render color options with enhanced handling
+     */
+    renderColorOptions(colors) {
+        const colorSection = document.getElementById('product-color-section-sectopn');
+        const colorContainer = document.getElementById('main-color-section-box');
+        
+        if (!colors || colors.length === 0) {
+            if (colorSection) colorSection.style.display = 'none';
+            return;
+        }
+
+        if (colorSection) colorSection.style.display = 'block';
+
+        if (colorContainer) {
+            colorContainer.innerHTML = '';
+            colors.forEach((color, index) => {
+                const inputId = `color-${color.id}`;
+                const colorValue = color.name.startsWith('#') ? color.name : color.name.toLowerCase();
+                
+                const colorHtml = `
+                    <input type="radio" id="${inputId}" name="color" value="${color.name}" class="option-input">
+                    <label for="${inputId}" class="color-label" style="background-color: ${colorValue};" 
+                           title="${color.name}" aria-label="Color: ${color.name}"></label>
+                `;
+                colorContainer.innerHTML += colorHtml;
+            });
+        }
+    }
+
+    /**
+     * Render size options with enhanced handling
+     */
+    renderSizeOptions(sizes) {
+        const sizeSection = document.getElementById('product-size-section-sectopn');
+        const sizeContainer = document.getElementById('main-size-section-box');
+        
+        if (!sizes || sizes.length === 0) {
+            if (sizeSection) sizeSection.style.display = 'none';
+            return;
+        }
+
+        if (sizeSection) sizeSection.style.display = 'block';
+
+        if (sizeContainer) {
+            sizeContainer.innerHTML = '';
+            sizes.forEach((size, index) => {
+                const inputId = `size-${size.id}`;
+                const sizeHtml = `
+                    <input type="radio" id="${inputId}" name="size" value="${size.name}" class="option-input">
+                    <label for="${inputId}" class="size-label" aria-label="Size: ${size.name}">${size.name}</label>
+                `;
+                sizeContainer.innerHTML += sizeHtml;
+            });
+        }
+    }
+
+    /**
+     * Render other options with enhanced handling
+     */
+    renderOtherOptions(options) {
+        const optionSection = document.getElementById('product-option-section-sectopn');
+        const optionContainer = document.getElementById('main-option-section-box');
+        
+        if (!options || options.length === 0) {
+            if (optionSection) optionSection.style.display = 'none';
+            return;
+        }
+
+        if (optionSection) optionSection.style.display = 'block';
+
+        if (optionContainer) {
+            optionContainer.innerHTML = '';
+            options.forEach((option, index) => {
+                const inputId = `option-${option.id}`;
+                const optionHtml = `
+                    <input type="radio" id="${inputId}" name="option" value="${option.name}" class="option-input">
+                    <label for="${inputId}" class="option-label" aria-label="Option: ${option.name}">${option.name}</label>
+                `;
+                optionContainer.innerHTML += optionHtml;
+            });
+        }
+    }
+
+    /**
+     * Enhanced validation with better error handling
+     */
+    validateOptions() {
+        const optionSections = [
+            { id: 'product-color-section-sectopn', name: 'color', displayName: 'Color' },
+            { id: 'product-size-section-sectopn', name: 'size', displayName: 'Size' },
+            { id: 'product-option-section-sectopn', name: 'option', displayName: 'Option' }
+        ];
+
+        let hasError = false;
+        let firstErrorElement = null;
+
+        // Clear previous errors
+        this.clearOptionErrors();
+
+        optionSections.forEach(section => {
+            const sectionEl = document.getElementById(section.id);
+            if (sectionEl && sectionEl.style.display !== 'none') {
+                const inputs = sectionEl.querySelectorAll(`input[name="${section.name}"]`);
+                if (inputs.length > 0) {
+                    const checked = sectionEl.querySelector(`input[name="${section.name}"]:checked`);
+                    if (!checked) {
+                        this.showOptionError(sectionEl, `Please select a ${section.displayName.toLowerCase()}`);
+                        hasError = true;
+                        if (!firstErrorElement) firstErrorElement = sectionEl;
+                    }
+                }
+            }
+        });
+
+        if (hasError && firstErrorElement) {
+            firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        return !hasError;
+    }
+
+    /**
+     * Clear option validation errors
+     */
+    clearOptionErrors() {
+        const errorElements = document.querySelectorAll('.option-error');
+        errorElements.forEach(error => error.remove());
+    }
+
+    /**
+     * Show option validation error
+     */
+    showOptionError(sectionElement, message) {
+        const errorId = `error-${Date.now()}`;
+        const errorEl = document.createElement('div');
+        errorEl.id = errorId;
+        errorEl.className = 'option-error error-message';
+        errorEl.textContent = message;
+        errorEl.style.color = '#ef4444';
+        errorEl.style.fontSize = '0.875rem';
+        errorEl.style.marginTop = '5px';
+        sectionElement.appendChild(errorEl);
+    }
+
+    /**
+     * Handle add to cart action with enhanced data
+     */
+    async handleAddToCart() {
+        try {
+            if (!this.validateOptions()) {
+                return;
+            }
+
+            const quantityEl = document.getElementById('quantity');
+            const quantity = quantityEl ? parseInt(quantityEl.value.trim()) || 1 : 1;
+
+            const selectedOptions = this.getSelectedOptions();
+
+            const payload = {
+                product_id: this.productData.id || this.productId,
+                quantity: quantity,
+                ...selectedOptions
+            };
+
+            await this.addToCart(payload);
+            
+        } catch (error) {
+            console.error('Error in handleAddToCart:', error);
+            this.showNotification('Failed to add product to cart', 'error');
+        }
+    }
+
+    /**
+     * Handle add to wishlist action
+     */
+    async handleAddToWishlist() {
+        try {
+            const productId = this.productData.id || this.productId;
+            await this.addToWishlist(productId);
+        } catch (error) {
+            console.error('Error in handleAddToWishlist:', error);
+            this.showNotification('Failed to add product to wishlist', 'error');
+        }
+    }
+
+    /**
+     * Get selected product options with IDs
+     */
+    getSelectedOptions() {
+        const selectedColor = document.querySelector('input[name="color"]:checked');
+        const selectedSize = document.querySelector('input[name="size"]:checked');
+        const selectedOption = document.querySelector('input[name="option"]:checked');
+
+        return {
+            color: selectedColor ? selectedColor.value : null,
+            size: selectedSize ? selectedSize.value : null,
+            options: selectedOption ? selectedOption.value : null
+        };
+    }
+
+    /**
+     * Add product to cart
+     */
+    async addToCart(payload) {
+        try {
+            const response = await fetch('/orders/add-to-cart/', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': this.getCookie('csrftoken')
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+            
+            if (response.ok) {
+                this.showNotification(data.message || 'Added to cart successfully', 'success');
+                this.updateCartCounter();
+            } else {
+                if (response.status === 401) {
+                    this.showAuthMessage();
+                } else {
+                    this.showNotification(data.message || 'Error adding to cart', 'error');
+                }
+            }
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+            this.showNotification('Failed to add product to cart', 'error');
+        }
+    }
+
+    /**
+     * Add product to wishlist
+     */
+    async addToWishlist(productId) {
+        try {
+            const response = await fetch('/orders/add-to-wishlist/', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': this.getCookie('csrftoken')
+                },
+                body: JSON.stringify({ product_id: productId })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                this.showNotification(data.message, 'success');
+                this.updateWishlistUI();
+            } else {
+                if (response.status === 401) {
+                    this.showAuthMessage();
+                } else {
+                    this.showNotification(data.message || 'Failed to add to wishlist', 'error');
+                }
+            }
+        } catch (error) {
+            console.error('Error adding to wishlist:', error);
+            this.showNotification('Failed to add product to wishlist', 'error');
+        }
+    }
+
+    /**
+     * Update cart counter in UI
+     */
+    updateCartCounter() {
+        const cartCounter = document.querySelector('.cart-counter');
+        if (cartCounter) {
+            const currentCount = parseInt(cartCounter.textContent) || 0;
+            cartCounter.textContent = currentCount + 1;
+        }
+    }
+
+    /**
+     * Update wishlist UI state
+     */
+    updateWishlistUI() {
+        const wishlistBtn = document.querySelector('.add-Saved-btn');
+        if (wishlistBtn) {
+            wishlistBtn.classList.add('added-to-wishlist');
+        }
+    }
+
+    /**
+     * Handle order confirmation with product data
+     */
+    async handleConfirmOrder() {
+        try {
+            if (!this.validateOrderForm()) {
+                return;
+            }
+
+            const orderData = this.getOrderFormData();
+            const productId = this.productData.id || this.productId;
+            await this.createOrder(orderData, productId);
+            
+        } catch (error) {
+            console.error('Error in handleConfirmOrder:', error);
+            this.showNotification('Failed to create order', 'error');
+        }
+    }
+
+    /**
+     * Validate order form
+     */
+    validateOrderForm() {
+        const requiredFields = [
+            { id: 'firstName', name: 'First name' },
+            { id: 'lastName', name: 'Last name' },
+            { id: 'address', name: 'Address' },
+            { id: 'phone', name: 'Phone number' }
+        ];
+
+        let hasError = false;
+        let firstErrorElement = null;
+
+        // Clear previous errors
+        this.clearFormErrors();
+
+        // Validate required fields
+        requiredFields.forEach(field => {
+            const element = document.getElementById(field.id);
+            if (!element || !element.value.trim()) {
+                this.showFormError(field.id, `${field.name} is required`);
+                hasError = true;
+                if (!firstErrorElement) firstErrorElement = element;
+            }
+        });
+
+        // Validate options
+        if (!this.validateOptions()) {
+            hasError = true;
+        }
+
+        if (hasError && firstErrorElement) {
+            firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        return !hasError;
+    }
+
+    /**
+     * Clear form validation errors
+     */
+    clearFormErrors() {
+        const errorFields = ['firstName', 'lastName', 'address', 'phone'];
+        errorFields.forEach(field => {
+            const errorEl = document.getElementById(`error-${field}`);
+            if (errorEl) errorEl.textContent = '';
+        });
+        this.clearOptionErrors();
+    }
+
+    /**
+     * Show form validation error
+     */
+    showFormError(fieldId, message) {
+        const errorEl = document.getElementById(`error-${fieldId}`);
+        if (errorEl) {
+            errorEl.textContent = message;
+        }
+    }
+
+    /**
+     * Get order form data with selected options
+     */
+    getOrderFormData() {
+        const firstName = document.getElementById('firstName').value.trim();
+        const lastName = document.getElementById('lastName').value.trim();
+        const address = document.getElementById('address').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const quantityEl = document.getElementById('quantity');
+        const quantity = quantityEl ? parseInt(quantityEl.value.trim()) || 1 : 1;
+
+        const selectedOptions = this.getSelectedOptions();
+
+        return {
+            customer_name: `${firstName} ${lastName}`,
+            customer_email: "",
+            customer_phone: phone,
+            customer_address: address,
+            city: "",
+            quantity: quantity,
+            ...selectedOptions
+        };
+    }
+
+    /**
+     * Create order with enhanced data
+     */
+    async createOrder(orderData, productId) {
+        try {
+            this.toggleOrderLoader(true);
+            this.toggleFormInputs(false);
+
+            const response = await fetch(`${mainDomain}orders/api/orders/create/${productId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': this.getCookie('csrftoken')
+                },
+                body: JSON.stringify(orderData)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('Order created successfully:', result);
+
+            if (result.order_id) {
+                this.showNotification('Order created successfully!', 'success');
+                setTimeout(() => {
+                    window.location.href = `/confirmation/${result.order_id}`;
+                }, 1000);
+            } else {
+                throw new Error('Order ID not returned from server');
+            }
+
+        } catch (error) {
+            console.error('Error creating order:', error);
+            this.showNotification('Failed to create order', 'error');
+        } finally {
+            this.toggleOrderLoader(false);
+            this.toggleFormInputs(true);
+        }
+    }
+
+    /**
+     * Toggle order loading state
+     */
+    toggleOrderLoader(show = true) {
+        const loader = document.getElementById('Orderloader');
+        const submitBtn = document.querySelector('.submit-button');
+        
+        if (loader) {
+            loader.style.display = show ? 'inline-block' : 'none';
+        }
+        
+        if (submitBtn) {
+            submitBtn.disabled = show;
+            submitBtn.style.backgroundColor = show ? 'var(--main-color2)' : 'var(--main-color)';
+        }
+    }
+
+    /**
+     * Toggle form inputs
+     */
+    toggleFormInputs(enabled = true) {
+        const inputs = document.querySelectorAll('.form-group input');
+        inputs.forEach(input => {
+            input.disabled = !enabled;
+        });
+    }
+
+    /**
+     * Quantity controls
+     */
+    incrementQuantity() {
+        const qtyInput = document.getElementById('quantity');
+        if (qtyInput) {
+            const currentValue = parseInt(qtyInput.value) || 1;
+            qtyInput.value = currentValue + 1;
+        }
+    }
+
+    decrementQuantity() {
+        const qtyInput = document.getElementById('quantity');
+        if (qtyInput) {
+            const currentValue = parseInt(qtyInput.value) || 1;
+            if (currentValue > 1) {
+                qtyInput.value = currentValue - 1;
+            }
+        }
+    }
+
+    /**
+     * Show notification with enhanced styling
+     */
+    showNotification(message, type = 'info', duration = 3000) {
+        let notification = document.getElementById('notification');
+        if (!notification) {
+            notification = document.createElement('div');
+            notification.id = 'notification';
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 500;
+                z-index: 10000;
+                display: none;
+                min-width: 300px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                transition: all 0.3s ease;
+            `;
+            document.body.appendChild(notification);
+        }
+
+        // Set colors based on type
+        const colors = {
+            success: '#10b981',
+            error: '#ef4444', 
+            warning: '#f59e0b',
+            info: '#3b82f6'
+        };
+
+        notification.style.backgroundColor = colors[type] || colors.info;
+        notification.className = `notification ${type}`;
+        
+        const icon = type === 'success' ? 'fa-check-circle' : 
+                    type === 'error' ? 'fa-exclamation-triangle' : 
+                    type === 'warning' ? 'fa-exclamation-circle' : 'fa-info-circle';
+        
+        notification.innerHTML = `
+            <i class="fa-solid ${icon}" style="margin-right: 8px;"></i>
+            <span>${message}</span>
+        `;
+
+        notification.style.display = 'block';
+        notification.style.transform = 'translateX(100%)';
+        
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 50);
+
+        // Auto hide
+        setTimeout(() => {
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 300);
+        }, duration);
+    }
+
+    /**
+     * Show authentication message
+     */
+    showAuthMessage() {
         const authAlert = document.createElement("div");
         authAlert.className = "auth-alert auth-alert-warning";
-
-        // إضافة أيقونة مع النص
+        authAlert.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 20px;
+            background-color: #f59e0b;
+            color: white;
+            border-radius: 8px;
+            font-weight: 500;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+        `;
         authAlert.innerHTML = `
             <i class="fa-solid fa-exclamation-triangle" style="margin-right:8px;"></i>
             Please log in to perform this action.
         `;
 
-        // إضافته للصفحة
         document.body.appendChild(authAlert);
 
-        // إظهار الإشعار بتأثير الإزاحة بعد قليل
         setTimeout(() => {
-            authAlert.classList.add("auth-alert-show");
+            authAlert.style.opacity = '1';
+            authAlert.style.transform = 'translateX(-50%) translateY(0)';
         }, 50);
 
-        // إخفاؤه بعد 4 ثوانٍ
         setTimeout(() => {
-            authAlert.classList.remove("auth-alert-show");
-            // إزالة العنصر بعد انتهاء التأثير
+            authAlert.style.opacity = '0';
+            authAlert.style.transform = 'translateX(-50%) translateY(-20px)';
             setTimeout(() => {
-                authAlert.remove();
-            }, 500);
+                if (authAlert.parentNode) {
+                    authAlert.remove();
+                }
+            }, 300);
         }, 4000);
     }
 
-async function addToCart(product_Id) {
-    try {
-        // قراءة الكمية
-        const quantityEl = document.getElementById('quantity');
-        const quantity = quantityEl ? parseInt(quantityEl.value.trim()) || 1 : 1;
+    /**
+     * Get cookie value
+     */
+    getCookie(name) {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name + '=')) {
+                return decodeURIComponent(cookie.substring(name.length + 1));
+            }
+        }
+        return null;
+    }
 
-        // قراءة اللون إذا متوفر
-        const selectedColor = document.querySelector('input[name="color"]:checked');
-        const colorValue = selectedColor ? selectedColor.value : null;
+    /**
+     * Utility method to format currency
+     */
+    formatPrice(price, currency = null) {
+        const currencySymbol = currency || window.currencySymbol || '$';
+        const numPrice = parseFloat(price);
+        return `${numPrice.toFixed(2)}${currencySymbol}`;
+    }
 
-        // قراءة الحجم إذا متوفر
-        const selectedSize = document.querySelector('input[name="size"]:checked');
-        const sizeValue = selectedSize ? selectedSize.value : null;
+    /**
+     * Utility method to check if product is active
+     */
+    isProductActive() {
+        return this.productData && this.productData.is_active;
+    }
 
-        // قراءة الخيار إذا متوفر
-        const selectedOption = document.querySelector('input[name="option"]:checked');
-        const optionValue = selectedOption ? selectedOption.value : null;
+    /**
+     * Get product categories for breadcrumb or navigation
+     */
+    getProductCategories() {
+        return this.productData ? this.productData.categories || [] : [];
+    }
 
-        const payload = {
-            product_id: product_Id,
-            quantity: quantity,
-            color: colorValue,
-            size: sizeValue,
-            options: optionValue
+    /**
+     * Handle product availability display
+     */
+    updateProductAvailability() {
+        if (!this.productData) return;
+
+        const availabilityEl = document.querySelector('.product-availability');
+        if (availabilityEl) {
+            if (this.productData.is_active) {
+                availabilityEl.innerHTML = `
+                    <i class="fa-solid fa-check-circle" style="color: #10b981; margin-right: 5px;"></i>
+                    <span style="color: #10b981;">In Stock</span>
+                `;
+            } else {
+                availabilityEl.innerHTML = `
+                    <i class="fa-solid fa-times-circle" style="color: #ef4444; margin-right: 5px;"></i>
+                    <span style="color: #ef4444;">Out of Stock</span>
+                `;
+                
+                // Disable add to cart if out of stock
+                const addToCartBtn = document.querySelector('.add-to-cart-btn');
+                if (addToCartBtn) {
+                    addToCartBtn.disabled = true;
+                    addToCartBtn.style.opacity = '0.6';
+                    addToCartBtn.style.cursor = 'not-allowed';
+                }
+            }
+        }
+    }
+
+    /**
+     * Enhanced error handling for API responses
+     */
+    handleApiError(error, context = '') {
+        console.error(`Error in ${context}:`, error);
+        
+        let message = 'An unexpected error occurred';
+        
+        if (error.message.includes('Failed to fetch')) {
+            message = 'Network error. Please check your connection.';
+        } else if (error.message.includes('404')) {
+            message = 'Product not found.';
+        } else if (error.message.includes('500')) {
+            message = 'Server error. Please try again later.';
+        }
+        
+        this.showNotification(message, 'error');
+    }
+
+    /**
+     * Debounce utility for performance optimization
+     */
+    debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
         };
+    }
 
-        const response = await fetch('/orders/add-to-cart/', {
-            method: 'POST',
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify(payload)
-        });
-
-        const data = await response.json();
-        if (response.ok) {
-            showNotification(data.message || 'Added to cart successfully', 'success');
-        } else {
-            if (response.status === 401) {
-                showAuthMessage();
-            } else {
-                showNotification(data.message || 'Error adding to cart', 'error');
-            }
+    /**
+     * Initialize product sharing functionality
+     */
+    initializeSharing() {
+        const shareBtn = document.querySelector('.share-product-btn');
+        if (shareBtn && navigator.share) {
+            shareBtn.addEventListener('click', () => {
+                navigator.share({
+                    title: this.productData.name,
+                    text: this.productData.description_1,
+                    url: window.location.href
+                });
+            });
         }
-    } catch (error) {
-        console.error('Error adding to cart:', error);
-        showNotification('Failed to add product to cart', 'error');
+    }
+
+    /**
+     * Handle keyboard navigation for better accessibility
+     */
+    initializeKeyboardNavigation() {
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                // Close any open modals or notifications
+                const notification = document.getElementById('notification');
+                if (notification) {
+                    notification.remove();
+                }
+            }
+            
+            if (e.key === 'Enter') {
+                const focusedElement = document.activeElement;
+                if (focusedElement && focusedElement.classList.contains('option-label')) {
+                    focusedElement.click();
+                }
+            }
+        });
+    }
+
+    /**
+     * Performance monitoring
+     */
+    trackPerformance(action, startTime) {
+        const endTime = performance.now();
+        const duration = endTime - startTime;
+        console.log(`${action} took ${duration.toFixed(2)} milliseconds`);
+        
+        // Log slow operations (> 1000ms)
+        if (duration > 1000) {
+            console.warn(`Slow operation detected: ${action} took ${duration.toFixed(2)}ms`);
+        }
+    }
+
+    /**
+     * Initialize all additional features
+     */
+    initializeEnhancements() {
+        this.initializeSharing();
+        this.initializeKeyboardNavigation();
+        this.updateProductAvailability();
+    }
+
+    /**
+     * Cleanup method for proper resource management
+     */
+    destroy() {
+        if (this.mainSwiper) {
+            this.mainSwiper.destroy(true, true);
+            this.mainSwiper = null;
+        }
+        
+        if (this.thumbsSwiper) {
+            this.thumbsSwiper.destroy(true, true);
+            this.thumbsSwiper = null;
+        }
+        
+        // Remove event listeners
+        const elements = [
+            '.add-to-cart-btn',
+            '.add-Saved-btn', 
+            '.qty-btn',
+            '.submit-button'
+        ];
+        
+        elements.forEach(selector => {
+            const el = document.querySelector(selector);
+            if (el) {
+                el.replaceWith(el.cloneNode(true));
+            }
+        });
     }
 }
 
-
-async function addToWishlist(product_Id) {
-    try {
-        const response = await fetch('/orders/add-to-wishlist/', {
-            method: 'POST',
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({ product_id: product_Id })
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-            showNotification(data.message, 'success');
-        } else {
-            if (response.status === 401) {
-                showAuthMessage();
-            } else {
-                showNotification(data.message || 'Failed to add product to wishlist', 'error');
-            }
-        }
-    } catch (error) {
-        console.error('Error adding to wishlist:', error);
-        showNotification('Failed to add product to wishlist', 'error');
-    }
+/**
+ * Global utility functions for backwards compatibility
+ */
+function viewProductdetailes(product_Id) {
+    window.location.href = `/product-details/${String(product_Id)}`;
 }
 
+// Backwards compatibility functions
 function incrementQuantity() {
-  const qtyInput = document.getElementById('quantity');
-  let currentValue = parseInt(qtyInput.value) || 1;
-  qtyInput.value = currentValue + 1;
+    if (window.productManager) {
+        window.productManager.incrementQuantity();
+    }
 }
 
 function decrementQuantity() {
-  const qtyInput = document.getElementById('quantity');
-  let currentValue = parseInt(qtyInput.value) || 1;
-  if (currentValue > 1) {
-    qtyInput.value = currentValue - 1;
-  }
+    if (window.productManager) {
+        window.productManager.decrementQuantity();
+    }
 }
 
+function ConfirmOrder() {
+    if (window.productManager) {
+        window.productManager.handleConfirmOrder();
+    }
+}
 
+// Initialize the product details manager
 document.addEventListener('DOMContentLoaded', () => {
-    fetchProductDetails();
+    window.productManager = new ProductDetailsManager();
+    
+    // Initialize enhancements after product data is loaded
+    if (window.productManager.productData) {
+        window.productManager.initializeEnhancements();
+    } else {
+        // Wait for product data to load
+        const checkData = setInterval(() => {
+            if (window.productManager.productData) {
+                window.productManager.initializeEnhancements();
+                clearInterval(checkData);
+            }
+        }, 100);
+    }
 });
