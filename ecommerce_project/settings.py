@@ -1,46 +1,36 @@
 from pathlib import Path
 import os
 from datetime import timedelta
-
-CURRENCY_SYMBOL = "MAD \n"  # أو "$"
 import socket
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+SECRET_KEY = 'django-insecure-qv$$s-(lc)26m$mv&g!e*uk2h%i9_ls$!99$k21r%uy*kff1$)'
 
 hostname = socket.gethostname()
 local_ip = socket.gethostbyname(hostname)
 
 MINE_DOMINE = f"http://{local_ip}:8000/"
 
-# MINE_DOMINE = "https://safwane23.pythonanywhere.com/"
+if os.getenv("DJANGO_PRODUCTION", "False").lower() in ("true", "1", "yes"):
+    MINE_DOMINE = "https://safwane23.pythonanywhere.com/"
 
+
+DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() in ("true", "1", "yes")
+ALLOWED_HOSTS = ["*"]
+
+
+
+# Currency settings
 MINE_COUNTRIES = "Morocco"
-
+CURRENCY_SYMBOL = "MAD \n"
 OPTION1 = "Color"
 OPTION2 = "size"
 OPTION3 = "memory"
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-qv$$s-(lc)26m$mv&g!e*uk2h%i9_ls$!99$k21r%uy*kff1$)'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-
-DEBUG = True
-
-ALLOWED_HOSTS = ["*"]
-
-# DEBUG = False
-
-# ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
