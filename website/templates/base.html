@@ -184,7 +184,7 @@
                 {% if categories|length > 0 %}
                     {% for category in categories %}
                         <div class="phone-tap-section-pages-name phone-tap-section-pages-name-category">
-                            <span>{{ category.name }}</span>
+                            <span>{{ category.name|truncatechars:20  }}</span>
                             <span>
                                 {% if category.image %}
                                     <img src="{{ category.image.url }}" alt="{{ category.name }}">

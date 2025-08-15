@@ -73,10 +73,6 @@ class StoreHeroImage(models.Model):
 
 
 
-from django.db import models
-from django.contrib.auth import get_user_model
-import uuid
-
 
 def profile_img_upload_path(instance, filename):
     return f'profiles/user_{instance.user.id}/{filename}'
@@ -94,22 +90,32 @@ class Profile(models.Model):
     
     first_name = models.CharField(max_length=150, blank=True, null=True)
     last_name = models.CharField(max_length=150, blank=True, null=True)
-    
     email = models.EmailField(blank=True, null=True)
-    
     country = models.CharField(max_length=100, blank=True, null=True)
-    
     phone_number = models.CharField(max_length=20, blank=True, null=True)
-    
     address = models.CharField(max_length=255, blank=True, null=True)
-    
     city = models.CharField(max_length=100, blank=True, null=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if self.profile_img:
+            img_path = self.profile_img.path
+            img = Image.open(img_path)
+
+            # تغيير حجم الصورة إذا كانت كبيرة (مثلاً عرض 400px كحد أقصى)
+            max_size = (400, 400)
+            img.thumbnail(max_size, Image.LANCZOS)
+
+            # ضغط الصورة وحفظها بجودة أقل لتقليل الحجم
+            img.save(img_path, format='JPEG', quality=70)
+
     def __str__(self):
         return self.user.username
+
 
 
 

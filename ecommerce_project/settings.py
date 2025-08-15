@@ -7,11 +7,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-qv$$s-(lc)26m$mv&g!e*uk2h%i9_ls$!99$k21r%uy*kff1$)'
 
 
-MINE_DOMINE = "https://safwane23.pythonanywhere.com/"
-# MINE_DOMINE = "http://127.0.0.1:8000/"
-# 
-# DEBUG = True
-DEBUG = False
+# MINE_DOMINE = "https://safwane23.pythonanywhere.com/"
+MINE_DOMINE = "http://127.0.0.1:8000/"
+# MINE_DOMINE = "http://10.104.217.117:8000/"
+
+DEBUG = True
+# DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
@@ -49,6 +50,10 @@ INSTALLED_APPS = [
     'products',
     'orders',
     'users',
+
+    # dashboard
+
+    'dashboard',
 ]
 
 AUTH_USER_MODEL = 'users.CustomUser'

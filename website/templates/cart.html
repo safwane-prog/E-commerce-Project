@@ -10,7 +10,7 @@
 <div class="container">
     <div class="cart-section">
         
-    </div>
+    </div>  
 
 <div class="cart-subtotal">
     <div class="cart-subtotal-card">
@@ -27,9 +27,9 @@
             {% endif %}
 
             {% if tax %}
-            <div class="subtotal-title tax">
+            <div class="subtotal-title ">
                 <span>Tax:</span>
-                <span>+ {{ currency }}{{ tax.rate }}</span>
+                <span class="tax">+ {{ currency }}{{ tax.rate }}</span>
             </div>
             {% endif %}
 
@@ -60,7 +60,6 @@
 </div>
 
 </div>
-
 <div class="delivery-info">
     Delivered by<br>
     Fri, May 20, 2024

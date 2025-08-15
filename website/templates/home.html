@@ -7,7 +7,21 @@
 <section class="heor-section">
     <div class="swiper mySwiper">
         <div class="swiper-wrapper">
-
+            {% if not hero_images %}
+                <div class="swiper-slide">
+                    <div class="hero-image">
+                        <img src="\static\imges\icon\Banner-board-800x420 2.svg" alt="">
+                        <div class="hero-image-gryd">
+                            <h2>Latest trending</h2>
+                            <p>Electronic items</p>
+                            <button>
+                                <span>Get Deals Now</span>
+                                <span><img src="{% static 'imges/icon/icon (1).svg' %}" alt=""></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
             {% for images in hero_images %}
                 <div class="swiper-slide">
                     <div class="hero-image">
@@ -23,6 +37,7 @@
                     </div>
                 </div>
             {% endfor %}
+
         </div>
 
         <!-- أزرار التنقل -->
