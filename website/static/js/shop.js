@@ -1,3 +1,39 @@
+// دالة عامة لعمل fetch مع نظام التجديد
+async function fetchWithAuth(url, options = {}) {
+    try {
+        let response = await fetch(url, {
+            ...options,
+            credentials: "include" // مهم لإرسال الكوكيز (access, refresh)
+        });
+
+        if (response.status === 401) {
+            // حاول تجديد التوكن
+            const refreshResponse = await fetch(
+                mainDomain + "users/auth/jwt/refresh/", 
+                {
+                    method: "POST",
+                    credentials: "include"
+                }
+            );
+
+            if (refreshResponse.ok) {
+                // إذا نجح التجديد → أعد إرسال الطلب الأصلي
+                response = await fetch(url, {
+                    ...options,
+                    credentials: "include"
+                });
+            } else {
+                throw new Error("Session expired, please log in again.");
+            }
+        }
+
+        return response;
+    } catch (error) {
+        console.error("API request failed:", error);
+        throw error;
+    }
+}
+
 class ShopManager {
     constructor() {
         this.config = {
@@ -15,6 +51,7 @@ class ShopManager {
             sizes: [],
             priceMin: null,
             priceMax: null,
+            rating: null, // إضافة فلتر التقييم
             search: '',
             sort: 'default',
             page: 1
@@ -39,6 +76,7 @@ class ShopManager {
             optionCheckboxes: '.option-checkbox',
             colorCheckboxes: '.color-checkbox',
             sizeCheckboxes: '.size-checkbox',
+            ratingRadios: 'input[name="rating"]', // إضافة عناصر التقييم
             minPrice: '#min-price',
             maxPrice: '#max-price',
             priceSliderMin: '#price-slider-min',
@@ -69,6 +107,9 @@ class ShopManager {
             const selector = elementSelectors[key];
             if (selector.startsWith('.') && !['priceSliderRange', 'sliderTrack', 'filterSection'].includes(key)) {
                 this.elements[key] = document.querySelectorAll(selector);
+            } else if (key === 'ratingRadios') {
+                // للـ radio buttons نستخدم querySelectorAll
+                this.elements[key] = document.querySelectorAll(selector);
             } else {
                 this.elements[key] = document.querySelector(selector);
             }
@@ -90,6 +131,7 @@ class ShopManager {
         this.bindPaginationEvents();
         this.bindCategoryEvents();
         this.bindMobileFilterEvents();
+        this.bindRatingEvents(); // إضافة أحداث التقييم
     }
 
     bindFilterEvents() {
@@ -116,6 +158,15 @@ class ShopManager {
                 });
             }
         });
+    }
+
+    // إضافة دالة جديدة للتعامل مع أحداث التقييم
+    bindRatingEvents() {
+        if (this.elements.ratingRadios) {
+            this.elements.ratingRadios.forEach(radio => {
+                radio.addEventListener('change', () => this.handleFilterChange());
+            });
+        }
     }
 
     bindPriceEvents() {
@@ -241,25 +292,27 @@ class ShopManager {
 
         if (!rangeMin || !rangeMax || !minPrice || !maxPrice) return;
 
+        let minVal = parseInt(rangeMin.value);
+        let maxVal = parseInt(rangeMax.value);
+
         if (type === 'min') {
-            const minVal = parseInt(rangeMin.value);
-            const maxVal = parseInt(rangeMax.value);
-            
             if (maxVal - minVal <= this.config.MIN_GAP) {
-                rangeMin.value = maxVal - this.config.MIN_GAP;
+                minVal = maxVal - this.config.MIN_GAP;
+                rangeMin.value = minVal;
             }
-            minPrice.value = rangeMin.value;
-        } else {
-            const minVal = parseInt(rangeMin.value);
-            const maxVal = parseInt(rangeMax.value);
-            
+            minPrice.value = minVal;
+            this.currentFilters.priceMin = minVal;
+        } else if (type === 'max') {
             if (maxVal - minVal <= this.config.MIN_GAP) {
-                rangeMax.value = minVal + this.config.MIN_GAP;
+                maxVal = minVal + this.config.MIN_GAP;
+                rangeMax.value = maxVal;
             }
-            maxPrice.value = rangeMax.value;
+            maxPrice.value = maxVal;
+            this.currentFilters.priceMax = maxVal;
         }
-        
+
         this.updateSliderTrack();
+        this.debounceFilterChange(); // حتى تحدث المنتجات تلقائياً
     }
 
     handlePriceInputChange(type) {
@@ -387,6 +440,16 @@ class ShopManager {
             }
         }
 
+        // إضافة تحميل parameter التقييم
+        const rating = params.get('rating');
+        if (rating) {
+            this.currentFilters.rating = rating;
+            const ratingRadio = document.getElementById(`rating_${rating}`);
+            if (ratingRadio) {
+                ratingRadio.checked = true;
+            }
+        }
+
         // Load sort parameter
         this.currentFilters.sort = params.get('sort') || 'default';
         if (this.elements.sortSelect) {
@@ -442,6 +505,9 @@ class ShopManager {
         // Update sizes
         this.currentFilters.sizes = this.getCheckedValues(this.elements.sizeCheckboxes);
 
+        // تحديث التقييم
+        this.currentFilters.rating = this.getSelectedRating();
+
         // Update price range
         this.currentFilters.priceMin = this.elements.minPrice?.value || null;
         this.currentFilters.priceMax = this.elements.maxPrice?.value || null;
@@ -461,6 +527,14 @@ class ShopManager {
             .map(cb => cb.value);
     }
 
+    // دالة جديدة للحصول على التقييم المختار
+    getSelectedRating() {
+        if (!this.elements.ratingRadios) return null;
+        
+        const selectedRadio = Array.from(this.elements.ratingRadios).find(radio => radio.checked);
+        return selectedRadio ? selectedRadio.value : null;
+    }
+
     applyFilters() {
         this.updateCurrentFilters();
         this.loadProducts();
@@ -475,6 +549,11 @@ class ShopManager {
                 this.elements[type].forEach(cb => cb.checked = false);
             }
         });
+
+        // مسح التقييم المختار
+        if (this.elements.ratingRadios) {
+            this.elements.ratingRadios.forEach(radio => radio.checked = false);
+        }
 
         // Reset price inputs
         if (this.elements.minPrice) this.elements.minPrice.value = this.config.PRICE_MIN_DEFAULT;
@@ -505,6 +584,7 @@ class ShopManager {
             sizes: [],
             priceMin: null,
             priceMax: null,
+            rating: null, // إعادة تعيين التقييم
             search: '',
             sort: 'default',
             page: 1
@@ -604,6 +684,11 @@ class ShopManager {
             }
         });
         
+        // إضافة parameter التقييم
+        if (this.currentFilters.rating) {
+            params.append('rating', this.currentFilters.rating);
+        }
+        
         // Add price parameters
         if (this.currentFilters.priceMin) {
             params.append('price_min', this.currentFilters.priceMin);
@@ -659,7 +744,8 @@ class ShopManager {
             headers['X-CSRFToken'] = csrfToken;
         }
 
-        const response = await fetch(url, {
+        // استخدام fetchWithAuth بدلاً من fetch العادي
+        const response = await fetchWithAuth(url, {
             method: 'GET',
             headers
         });
@@ -909,9 +995,8 @@ class ShopManager {
         if (!productId) return;
 
         try {
-            const response = await fetch('/orders/add-to-cart/', {
+            const response = await fetchWithAuth('/orders/add-to-cart/', {
                 method: 'POST',
-                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': this.getCookie('csrftoken')
@@ -934,7 +1019,11 @@ class ShopManager {
             }
         } catch (error) {
             console.error('Error adding to cart:', error);
-            this.showNotification('Failed to add product to cart', 'error');
+            if (error.message.includes('Session expired')) {
+                this.showAuthMessage();
+            } else {
+                this.showNotification('Failed to add product to cart', 'error');
+            }
         }
     }
 
@@ -942,9 +1031,8 @@ class ShopManager {
         if (!productId) return;
 
         try {
-            const response = await fetch('/orders/add-to-wishlist/', {
+            const response = await fetchWithAuth('/orders/add-to-wishlist/', {
                 method: 'POST',
-                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': this.getCookie('csrftoken')
@@ -967,7 +1055,11 @@ class ShopManager {
             }
         } catch (error) {
             console.error('Error adding to wishlist:', error);
-            this.showNotification('Failed to add product to wishlist', 'error');
+            if (error.message.includes('Session expired')) {
+                this.showAuthMessage();
+            } else {
+                this.showNotification('Failed to add product to wishlist', 'error');
+            }
         }
     }
 
@@ -1166,6 +1258,11 @@ class ShopManager {
             params.append('size', this.currentFilters.sizes.join(','));
         }
         
+        // إضافة parameter التقييم إلى URL
+        if (this.currentFilters.rating) {
+            params.append('rating', this.currentFilters.rating);
+        }
+        
         if (this.currentFilters.priceMin) {
             params.append('price_min', this.currentFilters.priceMin);
         }
@@ -1351,4 +1448,15 @@ function hidefilterforphonesection() {
     if (shopManager) {
         shopManager.hideMobileFilter();
     }
+
 }
+document.querySelectorAll('.color-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+        const container = this.closest('.filter-item-color');
+        if(this.checked){
+            container.style.border = '2px solid var(--main-color)';
+        } else {
+            container.style.border = '1px solid #ccc';
+        }
+    });
+});

@@ -48,6 +48,7 @@ class Option(models.Model):
         return self.name
 
 class Color(models.Model):
+    code = models.CharField(max_length=10)  # مثال: #FF5733
     name = models.CharField(max_length=200)
     
     def __str__(self):

@@ -8,6 +8,42 @@ const PASSWORD_RESET_REQUEST = API_BASE + 'password-reset/request/';
 const PASSWORD_RESET_VERIFY = API_BASE + 'password-reset/verify/';
 const PASSWORD_RESET_RESET = API_BASE + 'password-reset/reset/';
 
+// دالة عامة لعمل fetch مع نظام التجديد
+async function fetchWithAuth(url, options = {}) {
+    try {
+        let response = await fetch(url, {
+            ...options,
+            credentials: "include" // مهم لإرسال الكوكيز (access, refresh)
+        });
+
+        if (response.status === 401) {
+            // حاول تجديد التوكن
+            const refreshResponse = await fetch(
+                mainDomain + "users/auth/jwt/refresh/", 
+                {
+                    method: "POST",
+                    credentials: "include"
+                }
+            );
+
+            if (refreshResponse.ok) {
+                // إذا نجح التجديد → أعد إرسال الطلب الأصلي
+                response = await fetch(url, {
+                    ...options,
+                    credentials: "include"
+                });
+            } else {
+                throw new Error("Session expired, please log in again.");
+            }
+        }
+
+        return response;
+    } catch (error) {
+        console.error("API request failed:", error);
+        throw error;
+    }
+}
+
 // Password generator configuration
 const PASSWORD_CHARS = {
     lowercase: 'abcdefghijklmnopqrstuvwxyz',
@@ -188,7 +224,7 @@ document.getElementById('loginForm')?.addEventListener('submit', async function(
     console.log(LOGIN_URL);
     
     try {
-        const response = await fetch(LOGIN_URL, {
+        const response = await fetchWithAuth(LOGIN_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -208,7 +244,12 @@ document.getElementById('loginForm')?.addEventListener('submit', async function(
             showMessage('login-message', errorMessage, 'error');
         }
     } catch (error) {
-        showMessage('login-message', 'An error occurred during login. Please try again.', 'error');
+        // Handle session expired error
+        if (error.message === "Session expired, please log in again.") {
+            showMessage('login-message', 'Session expired, please log in again.', 'error');
+        } else {
+            showMessage('login-message', 'An error occurred during login. Please try again.', 'error');
+        }
     } finally {
         setButtonLoading('login-btn', false);
     }
@@ -248,19 +289,18 @@ document.getElementById('registerForm')?.addEventListener('submit', async functi
     hideMessage('register-message');
     
     try {
-        const response = await fetch(REGISTER_URL, {
+        const response = await fetchWithAuth(REGISTER_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': '{{ csrf_token }}'
             },
-
-       body: JSON.stringify({
-    username: email, // أو أي username تريده
-    email: email,
-    password: password,
-    re_password: password
-})
+            body: JSON.stringify({
+                username: email, // أو أي username تريده
+                email: email,
+                password: password,
+                re_password: password
+            })
         });
         
         const data = await response.json();
@@ -276,7 +316,12 @@ document.getElementById('registerForm')?.addEventListener('submit', async functi
             showMessage('register-message', errorMessage, 'error');
         }
     } catch (error) {
-        showMessage('register-message', 'An error occurred during registration. Please try again.', 'error');
+        // Handle session expired error
+        if (error.message === "Session expired, please log in again.") {
+            showMessage('register-message', 'Session expired, please log in again.', 'error');
+        } else {
+            showMessage('register-message', 'An error occurred during registration. Please try again.', 'error');
+        }
     } finally {
         setButtonLoading('register-btn', false);
     }
@@ -311,7 +356,7 @@ async function sendResetCode() {
     setButtonLoading('reset-send-btn', true);
     
     try {
-        const response = await fetch(PASSWORD_RESET_REQUEST, {
+        const response = await fetchWithAuth(PASSWORD_RESET_REQUEST, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -329,7 +374,12 @@ async function sendResetCode() {
             showMessage('reset-message', data.error || 'Failed to send reset code', 'error');
         }
     } catch (error) {
-        showMessage('reset-message', 'Network error. Please try again.', 'error');
+        // Handle session expired error
+        if (error.message === "Session expired, please log in again.") {
+            showMessage('reset-message', 'Session expired, please log in again.', 'error');
+        } else {
+            showMessage('reset-message', 'Network error. Please try again.', 'error');
+        }
     } finally {
         setButtonLoading('reset-send-btn', false);
     }
@@ -347,7 +397,7 @@ async function verifyResetCode() {
     setButtonLoading('reset-verify-btn', true);
     
     try {
-        const response = await fetch(PASSWORD_RESET_VERIFY, {
+        const response = await fetchWithAuth(PASSWORD_RESET_VERIFY, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -365,7 +415,12 @@ async function verifyResetCode() {
             showMessage('reset-message', data.error || 'Invalid verification code', 'error');
         }
     } catch (error) {
-        showMessage('reset-message', 'Network error. Please try again.', 'error');
+        // Handle session expired error
+        if (error.message === "Session expired, please log in again.") {
+            showMessage('reset-message', 'Session expired, please log in again.', 'error');
+        } else {
+            showMessage('reset-message', 'Network error. Please try again.', 'error');
+        }
     } finally {
         setButtonLoading('reset-verify-btn', false);
     }
@@ -389,7 +444,7 @@ async function submitNewPassword() {
     setButtonLoading('reset-submit-btn', true);
     
     try {
-        const response = await fetch(PASSWORD_RESET_RESET, {
+        const response = await fetchWithAuth(PASSWORD_RESET_RESET, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -409,7 +464,12 @@ async function submitNewPassword() {
             showMessage('reset-message', data.error || 'Failed to update password', 'error');
         }
     } catch (error) {
-        showMessage('reset-message', 'Network error. Please try again.', 'error');
+        // Handle session expired error
+        if (error.message === "Session expired, please log in again.") {
+            showMessage('reset-message', 'Session expired, please log in again.', 'error');
+        } else {
+            showMessage('reset-message', 'Network error. Please try again.', 'error');
+        }
     } finally {
         setButtonLoading('reset-submit-btn', false);
     }

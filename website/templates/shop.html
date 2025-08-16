@@ -4,7 +4,8 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/shop.css' %}">
 <div class="product-container">
-    <div class="filter-section">
+    <div id="filter-section-main" class="filter-section">
+        
         <!-- Category Filter -->
         {% if category %}
         <div class="filter-group">
@@ -49,36 +50,34 @@
 </div>
 
 
-        {% if colors %}
-        <div class="filter-group">
-            <div class="filter-header">
-                <span>{{option_3}}</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-up" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M1.646 10.854a.5.5 0 0 0 .708 0L8 5.207l5.646 5.647a.5.5 0 0 0 .708-.708l-6-6a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 0 .708z"/>
-                </svg>
-            </div>
-            <div class="filter-body" style="display:none;">
-                {% for color in colors %}
-                    <div class="filter-item filter-item-color">
-                        <input type="checkbox" 
-                            id="color_{{ color.id }}" 
-                            name="color" 
-                            value="{{ color.id }}"
-                            class="color-checkbox">
-                        <label for="color_{{ color.id }}">
-                            <span style="display:inline-block; width:15px; height:15px; background-color: {{ color.name|default:'#000' }}; margin-right:5px; vertical-align:middle; border:1px solid #ccc;"></span>
-                            {{ color.name|slice:":10" }}
-                        </label>
-                    </div>
-                {% endfor %}
-            </div>
+{% if colors %}
+<div class="filter-group">
+    <div class="filter-header">
+        <span>{{ option_1 }}</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-up" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M1.646 10.854a.5.5 0 0 0 .708 0L8 5.207l5.646 5.647a.5.5 0 0 0 .708-.708l-6-6a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 0 .708z"/>
+        </svg>
+    </div>
+
+    <div class=" filter-body-item-color">
+        {% for color in colors %}
+        <div class="filter-item filter-item-color">
+            <input type="checkbox" id="color_{{ color.id }}" name="color" value="{{ color.id }}" class="color-checkbox">
+            <label for="color_{{ color.id }}">
+                <span style="background-color: {{ color.code|default:'#000' }}"></span>
+                {{ color.name|slice:":10" }}
+            </label>
         </div>
-        {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
         <!-- Options Filter -->
         {% if options %}
         <div class="filter-group">
             <div class="filter-header">
-                <span>{{option_1}}</span>
+                <span>{{option_3}}</span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-up" viewBox="0 0 16 16">
                     <path fill-rule="evenodd" d="M1.646 10.854a.5.5 0 0 0 .708 0L8 5.207l5.646 5.647a.5.5 0 0 0 .708-.708l-6-6a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 0 .708z"/>
                 </svg>
@@ -131,49 +130,75 @@
                 </svg>
             </div>
             <div class="filter-body">
-                <div class="rating-filter">
+                <div class="rating-filter" id="rating-filter">
+                    <!-- الكل -->
                     <div class="rating-filter-box">
-                        <input type="radio" id="rating_1" name="rating" value="1">
-                        <label for="rating_1">
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                        </label>
+                    <input type="radio" id="rating_any" name="rating" value="" checked>
+                    <label for="rating_any">الكل</label>
                     </div>
+
+                    <!-- 5 نجوم -->
                     <div class="rating-filter-box">
-                        <input type="radio" id="rating_2" name="rating" value="2">
-                        <label for="rating_2">
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill bi-star-fill-no"></i>
-                        </label>        
+                    <input type="radio" id="rating_5" name="rating" value="5">
+                    <label for="rating_5" aria-label="تقييم 5">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                    </label>
                     </div>
+
+                    <!-- 4 نجوم -->
                     <div class="rating-filter-box">
-                        <input type="radio" id="rating_3" name="rating" value="3">
-                        <label for="rating_3">
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill bi-star-fill-no"></i>
-                            <i class="bi bi-star-fill bi-star-fill-no"></i>
-                        </label>
+                    <input type="radio" id="rating_4" name="rating" value="4">
+                    <label for="rating_4" aria-label="تقييم 4">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill bi-star-fill-no"></i>
+                    </label>
                     </div>
+
+                    <!-- 3 نجوم -->
                     <div class="rating-filter-box">
-                        <input type="radio" id="rating_4" name="rating" value="4">
-                        <label for="rating_4">
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill bi-star-fill-no"></i>
-                            <i class="bi bi-star-fill bi-star-fill-no"></i>
-                            <i class="bi bi-star-fill bi-star-fill-no"></i>
-                        </label>
+                    <input type="radio" id="rating_3" name="rating" value="3">
+                    <label for="rating_3" aria-label="تقييم 3">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill bi-star-fill-no"></i>
+                        <i class="bi bi-star-fill bi-star-fill-no"></i>
+                    </label>
+                    </div>
+
+                    <!-- 2 نجوم -->
+                    <div class="rating-filter-box">
+                    <input type="radio" id="rating_2" name="rating" value="2">
+                    <label for="rating_2" aria-label="تقييم 2">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill bi-star-fill-no"></i>
+                        <i class="bi bi-star-fill bi-star-fill-no"></i>
+                        <i class="bi bi-star-fill bi-star-fill-no"></i>
+                    </label>
+                    </div>
+
+                    <!-- 1 نجمة -->
+                    <div class="rating-filter-box">
+                    <input type="radio" id="rating_1" name="rating" value="1">
+                    <label for="rating_1" aria-label="تقييم 1">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill bi-star-fill-no"></i>
+                        <i class="bi bi-star-fill bi-star-fill-no"></i>
+                        <i class="bi bi-star-fill bi-star-fill-no"></i>
+                        <i class="bi bi-star-fill bi-star-fill-no"></i>
+                    </label>
                     </div>
                 </div>
             </div>
+
         </div>
         
         <!-- Filter Buttons -->

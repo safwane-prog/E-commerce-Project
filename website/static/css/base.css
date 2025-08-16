@@ -9,7 +9,7 @@
 
 :root{
     --main-color:#3348FF;
-    --main-color2:#7B93FF;
+    --main-color2:#4466ff;
     --main-width: 1240px;
 }
 
@@ -688,6 +688,9 @@ header{
 @media (max-width: 1240px) {
     footer,header,.header-contener-pages-links-main{
         width: 95% !important;
+    }
+    .searsh-section button{
+        width: 100px;
     }
 }
 

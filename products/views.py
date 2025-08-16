@@ -102,11 +102,29 @@ class ProductRatingStatsAndDescription(APIView):
 
 
 class AddRating(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [AllowAny]  # يمكن تغييره إلى IsAuthenticated
 
     def post(self, request):
+        user = request.user if request.user.is_authenticated else None
+        product_id = request.data.get('product')
+        
+        if not product_id:
+            return Response({"error": "Product ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # التحقق إذا كان المستخدم قام بالتقييم مسبقًا
+        if user:
+            existing_rating = Rating.objects.filter(user=user, product_id=product_id).first()
+            if existing_rating:
+                return Response({"error": "You have already rated this product"}, status=status.HTTP_403_FORBIDDEN)
+        
+        # يمكن أيضًا منع تقييم نفس البريد (email) أكثر من مرة إذا كان المستخدم غير مسجل
+        email = request.data.get('email')
+        if email and Rating.objects.filter(email=email, product_id=product_id).exists():
+            return Response({"error": "This email has already rated this product"}, status=status.HTTP_403_FORBIDDEN)
+        
         serializer = RatingSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(user=user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

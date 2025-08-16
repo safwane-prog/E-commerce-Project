@@ -17,12 +17,13 @@ async function Sendinquiry() {
     if (!qtyInput.value.trim() || isNaN(qtyInput.value)) {
         errors.push(qtyInput);
     }
-    if (!phoneInput.value.trim()|| isNaN(phoneInput.value)) {
+    if (!phoneInput.value.trim() || isNaN(phoneInput.value)) {
         errors.push(phoneInput);
     }
     if (!detailsInput.value.trim()) {
         errors.push(detailsInput);
     }
+    
     // إذا فيه أخطاء
     if (errors.length > 0) {
         errors.forEach(input => {
@@ -45,7 +46,7 @@ async function Sendinquiry() {
     button.disabled = true;
 
     try {
-        const response = await fetch(`${mainDomain}/orders/supplier-inquiry/`, {
+        const response = await fetchWithAuth(`${mainDomain}/orders/supplier-inquiry/`, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
@@ -68,7 +69,17 @@ async function Sendinquiry() {
         
     } catch (error) {
         console.error('Error:', error);
-        showErrorMessage(error.message || 'An error occurred while sending your inquiry');
+        
+        // Handle session expired error specifically
+        if (error.message === "Session expired, please log in again.") {
+            showErrorMessage('Session expired, please log in again.');
+            // Optionally redirect to login page after a delay
+            setTimeout(() => {
+                window.location.href = '/login'; // أو أي رابط صفحة تسجيل الدخول
+            }, 2000);
+        } else {
+            showErrorMessage(error.message || 'An error occurred while sending your inquiry');
+        }
     } finally {
         loader.innerHTML = '';
         button.disabled = false;

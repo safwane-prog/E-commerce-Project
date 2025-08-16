@@ -1,0 +1,86 @@
+/* 404 Page Styles */
+.error-404-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 70vh;
+    padding: 40px 20px;
+    text-align: center;
+    background-color: #fff;
+}
+
+.error-404-content {
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.error-404-icon {
+    font-size: 120px;
+    color: var(--main-color);
+    margin-bottom: 30px;
+}
+
+.error-404-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: #14181F;
+    margin-bottom: 20px;
+}
+
+.error-404-message {
+    font-size: 18px;
+    color: #525E6F;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.error-404-button {
+    display: inline-block;
+    padding: 12px 30px;
+    background-color: var(--main-color);
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.error-404-button:hover {
+    background-color: var(--main-color2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .error-404-icon {
+        font-size: 80px;
+    }
+    
+    .error-404-title {
+        font-size: 28px;
+    }
+    
+    .error-404-message {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .error-404-container {
+        min-height: 60vh;
+        padding: 30px 15px;
+    }
+    
+    .error-404-icon {
+        font-size: 60px;
+        margin-bottom: 20px;
+    }
+    
+    .error-404-title {
+        font-size: 24px;
+    }
+}

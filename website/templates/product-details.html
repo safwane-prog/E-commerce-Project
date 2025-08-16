@@ -180,7 +180,7 @@
                 </div>
             </div>
         </div>
-        <div class="add-review-btn">
+        <div id="openReviewModal" class="add-review-btn">
             <button>
                 <span>Write a review</span>
                 <span>
@@ -221,43 +221,89 @@
     <div class="order-image">
         <img src="\static\imges\icon\pexels-asphotograpy-230544.jpg" alt="Product image">
     </div>
-    <div class="order-form">
-        <div class="order-title">
-            <h2>Customer information</h2>
-        </div>
-        <div class="create-order-data">
-            <div class="form-group">
-                <label for="firstName">First name</label>
+<div class="order-form">
+    <div class="order-title">
+        <h2>Customer information</h2>
+    </div>
+    <div class="create-order-data">
+        <div class="form-group">
+            <div class="input-with-icon">
+                <i class="fas fa-user icon"></i>
                 <input type="text" id="firstName" placeholder="Enter Your First name" name="firstName" required>
-                <div class="error-message" id="error-firstName"></div>
             </div>
-            <div class="form-group">
-                <label for="lastName">Last name</label>
-                <input type="text" id="lastName" placeholder="Enter Your Last Name" name="lastName" required>
-                <div class="error-message" id="error-lastName"></div>
-            </div>
-            <div class="form-group">
-                <label for="address">Address</label>
-                <input type="text" id="address" placeholder="Enter Your Address" name="address" required>
-                <div class="error-message" id="error-address"></div>
-            </div>
-            <div class="form-group">
-                <label for="phone">Phone number</label>
-                <input type="tel" id="phone" name="phone" placeholder="Enter Your Phone" required>
-                <div class="error-message" id="error-phone"></div>
-            </div>
-            <button onclick="ConfirmOrder()" type="button" class="submit-button">
-                <i class="fas fa-check-circle"></i> Confirm Order
-                <span id="Orderloader"></span>
-            </button>
-
+            <div class="error-message" id="error-firstName"></div>
         </div>
+        <div class="form-group">
+            <div class="input-with-icon">
+                <i class="fas fa-user-tag icon"></i>
+                <input type="text" id="lastName" placeholder="Enter Your Last Name" name="lastName" required>
+            </div>
+            <div class="error-message" id="error-lastName"></div>
+        </div>
+        <div class="form-group">
+            <div class="input-with-icon">
+                <i class="fas fa-map-marker-alt icon"></i>
+                <input type="text" id="address" placeholder="Enter Your Address" name="address" required>
+            </div>
+            <div class="error-message" id="error-address"></div>
+        </div>
+        <div class="form-group">
+            <div class="input-with-icon">
+                <i class="fas fa-phone-alt icon"></i>
+                <input type="tel" id="phone" name="phone" placeholder="Enter Your Phone" required>
+            </div>
+            <div class="error-message" id="error-phone"></div>
+        </div>
+        <button onclick="ConfirmOrder()" type="button" class="submit-button">
+            <i class="fas fa-check-circle"></i> Confirm Order
+            <span id="Orderloader"></span>
+        </button>
     </div>
 </div>
+</div>
 
+<div class="review-modal-overlay" id="reviewModal">
+    <div class="review-modal">
+        <div class="review-modal-header">
+            <h2 class="review-modal-title">Write Your Review</h2>
+            <span class="review-modal-close">&times;</span>
+        </div>
+        
+        <div class="review-rating-section">
+            <p class="review-rating-title">How would you rate this product?</p>
+            <div class="review-stars">
+                <i class="fas fa-star review-star" data-rating="1"></i>
+                <i class="fas fa-star review-star" data-rating="2"></i>
+                <i class="fas fa-star review-star" data-rating="3"></i>
+                <i class="fas fa-star review-star" data-rating="4"></i>
+                <i class="fas fa-star review-star" data-rating="5"></i>
+            </div>
+            <p class="review-rating-text">Select rating</p>
+        </div>
+        
+        <!-- <div class="review-form-group">
+            <label class="review-form-label">Review Title</label>
+            <input type="text" class="review-form-input" placeholder="Summarize your experience">
+        </div> -->
+        <div class="review-form-group">
+            <label class="review-form-label">Review name</label>
+            <input type="text" class="review-form-input" id="review-name" placeholder="Summarize your experience">
+        </div>
+        
+        <div class="review-form-group">
+            <label class="review-form-label">Your Review</label>
+            <textarea class="review-form-input review-form-textarea" placeholder="Share details about your experience with this product..."></textarea>
+        </div>
+        
+        <button class="review-submit-btn">
+            <span class="review-spinner"></span>
+            Submit Review
+        </button>
+    </div>
+</div>
+{% if similar_products %}
  <section class="products-section-2">
     <h1>Similar products</h1>
-    <br>
     <div class="products-grid-2">
         {% for card in  similar_products %}
             <div class="product-card">
@@ -273,42 +319,50 @@
                 </div>
 
                 <div class="products-range">
-                    <i class="fa-solid fa-star"></i>
-                    <i class="fa-solid fa-star"></i>
-                    <i class="fa-solid fa-star"></i>
-                    <i class="fa-solid fa-star"></i>
-                    <i class="fa-solid fa-star"></i>
+                    {% for _ in card.full_stars %}
+                        <i class="fa-solid fa-star" style="color: #FF9017;"></i>
+                    {% endfor %}
+
+                    {% if card.half_star %}
+                        <i class="fa-solid fa-star-half-stroke" style="color: #FF9017;"></i>
+                    {% endif %}
+
+                    {% for _ in card.empty_stars %}
+                        <i class="fa-regular fa-star" style="color: #FF9017;"></i>
+                    {% endfor %}
+
                     <br>
-                    <span>4.5</span>
-                    {% if card.image %}
-                        <span class="order-count">({{ card.orders_count }} Orders)</span>
+                    <span>{{ card.avg_rating|floatformat:1 }}</span>
+                    {% if card.review_count > 0 %}
+                        <span class="order-count">({{ card.review_count }} Reviews)</span>
                     {% else %}
-                        <span class="order-count"></span>
+                        <span class="order-count">(No Reviews)</span>
                     {% endif %}
                 </div>
-                    <div class="products-prices">
-                    <span class="main-price">{{ card.price }}{{currency}}</span>
+
+                <div class="products-prices">
+                    <span class="main-price">{{ card.price }} {{currency}}</span>
                 </div>
                 <div class="product-add-to-cart-btn">
-                    <button onclick="addToCart('{{ card.id }}')" class="add-to-cart-btn">
+                    <button onclick="addToCart({ product_id: '{{ card.id }}', quantity: 1 })" class="add-to-cart-btn">
                         <span>Add To Cart</span>
-                        <img src="\static\imges\icon\Style=Stroke, Type=Rounded (1).svg" alt="">
+                        <i class="bi bi-cart3"></i>
                     </button>
-                    <main onclick="addToWishlist('{{ card.id }}')"><img src="\static\imges\icon\add-Saved-btn.svg" alt=""></main>
+                    <main onclick="addToWishlist('{{ card.id }}')"><i class="bi bi-bookmark"></i></main>
                 </div>
             </div>
         {% endfor %}
     </div>
 </section>
-
+{% endif %}
 <script>
     const mainDomain = "{{ main_domin|escapejs }}";
     const currencySymbol = "{{ currency|escapejs }}";
 </script>
-<script src="{% static 'js/product-details.js' %}"></script>
 <div class="spinre">
     <div class="loader"></div>
 </div>
+<script src="{% static 'js/product-details.js' %}"></script>
 
 {% endblock %}
 

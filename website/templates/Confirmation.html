@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block title %}Order Confirmation - Your Store{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="\static\css\Confirmation.css">
+<link rel="stylesheet" href="{% static 'css/Confirmation.css' %}">
 
 <div class="confirmation-container">
     <div class="confirmation-card">
@@ -12,11 +12,7 @@
         </div>
         <h1 class="confirmation-title">Thank You For Your Order!</h1>
         <p class="confirmation-subtitle">Your order has been received and is being processed</p>
-        <div class="order-number">Order #{{ order.id }}</div>
-        <p class="confirmation-message">
-            We've sent a confirmation email to <strong>{{ order.customer_email }}</strong> with your order details. 
-            You'll receive another email when your order ships. If you have any questions, please contact our customer service.
-        </p>
+        <div class="order-number">Order #{{ order.order_number }}</div>
         <div class="btn-group">
             <a href="{% url 'Shop' %}" class="btn btn-primary">Continue Shopping</a>
             <a href="{% url 'profile' %}#orders" class="btn btn-outline">Track Your Order</a>
@@ -33,10 +29,8 @@
             </div>
             <div class="item-details">
                 <div class="item-name">{{ product.name }}</div>
-                <!-- لو عندك حقل SKU أو رمز تعريفي استخدمه هنا -->
-                <!-- <div class="item-sku">SKU: {{ product.sku }}</div> -->
-                <div class="item-price">{{ product.price }} {{ currencySymbol|default:"$" }}</div>
-                <div class="item-quantity">Qty: 1</div> <!-- الكمية مفقودة في موديل Order حاليا -->
+                <div class="item-price">{{ product.price|floatformat:2 }} {{ currencySymbol|default:"$" }}</div>
+                <div class="item-quantity">Qty: {{ product.quantity|default:"1" }}</div>
             </div>
         </div>
         {% endfor %}
@@ -50,6 +44,12 @@
                 <span class="total-label">Shipping:</span>
                 <span class="total-value">{{ shipping|floatformat:2 }} {{ currencySymbol|default:"$" }}</span>
             </div>
+            {% if service %}
+            <div class="total-row">
+                <span class="total-label">Service Fee:</span>
+                <span class="total-value">{{ service|floatformat:2 }} {{ currencySymbol|default:"$" }}</span>
+            </div>
+            {% endif %}
             <div class="total-row">
                 <span class="total-label">Tax:</span>
                 <span class="total-value">{{ tax|floatformat:2 }} {{ currencySymbol|default:"$" }}</span>
@@ -65,5 +65,4 @@
         </div>
     </div>
 </div>
-
 {% endblock %}

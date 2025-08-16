@@ -19,7 +19,7 @@ class Add_To_Cart(APIView):
 
         product_id = request.data.get('product_id')
         if not product_id:
-            return Response({"message": "Product ID is required"}, status=400)
+            return Response({"message": "Product ID is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         # التحقق من وجود المنتج
         try:
@@ -261,10 +261,6 @@ class CreateOrderNoAuthenticated(APIView):
         return Response({"message": "Order created successfully", "order_id": str(order.id)}, status=status.HTTP_201_CREATED)
 
 
-from decimal import Decimal
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 
 class CreateOrder(APIView):
     permission_classes = [IsAuthenticated]

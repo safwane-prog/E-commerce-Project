@@ -10,6 +10,42 @@ function getCookie(name) {
     return null;
 }
 
+// دالة عامة لعمل fetch مع نظام التجديد
+async function fetchWithAuth(url, options = {}) {
+    try {
+        let response = await fetch(url, {
+            ...options,
+            credentials: "include" // مهم لإرسال الكوكيز (access, refresh)
+        });
+
+        if (response.status === 401) {
+            // حاول تجديد التوكن
+            const refreshResponse = await fetch(
+                mainDomain + "users/auth/jwt/refresh/", 
+                {
+                    method: "POST",
+                    credentials: "include"
+                }
+            );
+
+            if (refreshResponse.ok) {
+                // إذا نجح التجديد → أعد إرسال الطلب الأصلي
+                response = await fetch(url, {
+                    ...options,
+                    credentials: "include"
+                });
+            } else {
+                throw new Error("Session expired, please log in again.");
+            }
+        }
+
+        return response;
+    } catch (error) {
+        console.error("API request failed:", error);
+        throw error;
+    }
+}
+
 // API configuration
 const API_BASE_URL = mainDomain+'users/api/';
 
@@ -33,7 +69,7 @@ async function fetchUserData() {
     }
     
     try {
-        const response = await fetch(`${API_BASE_URL}profile/`, {
+        const response = await fetchWithAuth(`${API_BASE_URL}profile/`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -486,7 +522,7 @@ async function handleRatingSubmission(e) {
     }
     
     try {
-        const response = await fetch(`${API_BASE_URL}profile/`, {
+        const response = await fetchWithAuth(`${API_BASE_URL}profile/`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -560,7 +596,7 @@ async function handleProfileUpdate(e) {
     }
     
     try {
-        const response = await fetch(`${API_BASE_URL}profile/`, {
+        const response = await fetchWithAuth(`${API_BASE_URL}profile/`, {
             method: 'PATCH',
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -664,7 +700,7 @@ async function confirmLogout() {
     toggleLoadingState(true);
     
     try {
-        const response = await fetch(mainDomain + 'users/auth/users/logout/', {
+        const response = await fetchWithAuth(mainDomain + 'users/auth/users/logout/', {
             method: 'POST',
             credentials: 'include',  // إرسال الكوكيز مع الطلب
             headers: {
@@ -720,7 +756,7 @@ async function addToCart(productId) {
     }
     
     try {
-        const response = await fetch(`/orders/add-to-cart/`, {
+        const response = await fetchWithAuth(`/orders/add-to-cart/`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -756,7 +792,7 @@ async function removeFromWishlist(product_id, buttonElement) {
     }
     
     try {
-        const response = await fetch(`/orders/add-to-wishlist/${product_id}/`, {
+        const response = await fetchWithAuth(`/orders/add-to-wishlist/${product_id}/`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -777,6 +813,20 @@ async function removeFromWishlist(product_id, buttonElement) {
             const currentCount = parseInt(wishlistCountEl.textContent) || 0;
             wishlistCountEl.textContent = Math.max(0, currentCount - 1);
         }
+        
+        // التحقق من عدد العناصر المتبقية في المفضلة وعرض رسالة فارغة إذا لزم الأمر
+        const wishlistContainer = document.getElementById('wishlist-grid');
+        if (wishlistContainer) {
+            const remainingItems = wishlistContainer.querySelectorAll('.wishlist-item');
+            if (remainingItems.length === 0) {
+                wishlistContainer.innerHTML = createEmptyState(
+                    'wishlist', 
+                    'Your wishlist is empty', 
+                    'Add products you love to see them here'
+                );
+            }
+        }
+        
     } catch (error) {
         showNotification(`Failed to remove from wishlist: ${error.message}`, 'error');
         console.error('Error removing from wishlist:', error);
