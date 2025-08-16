@@ -18,17 +18,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 function resetFormInputs() {
-    // Select all input fields inside your form container
     const inputs = document.querySelectorAll(
         '#checkout-form input[type="text"], ' +
         '#checkout-form input[type="email"], ' +
         '#checkout-form input[type="tel"]'
     );
 
-    // Clear the values
     inputs.forEach(input => input.value = '');
 
-    // Uncheck all checkboxes
     const checkboxes = document.querySelectorAll('#yourFormId input[type="checkbox"]');
     checkboxes.forEach(checkbox => checkbox.checked = false);
 }
@@ -108,7 +105,6 @@ function clearError(e) {
     }
 }
 
-
 async function handleFormSubmit(e) {
     e.preventDefault();
     
@@ -148,16 +144,15 @@ async function handleFormSubmit(e) {
             coupon_code: promoInput ? promoInput.value.trim() : null,
             is_use_coupon: !!appliedCouponId,
             code_id: appliedCouponId,
-            total: orderData.total // Send the calculated total including any discounts
+            total: orderData.total
         };
 
-        const response = await fetch(API_ORDER_URL, {
+        const response = await fetchWithAuth(API_ORDER_URL, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 "X-CSRFToken": getCookie('csrftoken')
             },
-            credentials: "include",
             body: JSON.stringify(data)
         });
 
@@ -202,8 +197,6 @@ async function handleFormSubmit(e) {
     }
 }
 
-// ... (keep the rest of the code the same)
-
 function validateForm(form) {
     const requiredFields = form.querySelectorAll('.form-group.required input, .form-group.required select');
     let isValid = true;
@@ -225,9 +218,8 @@ async function loadOrderSummary() {
     container.innerHTML = '<div style="text-align: center; padding: 40px;"><div class="loading" style="width: 40px; height: 40px; margin: 0 auto;"></div><p style="margin-top: 16px; color: var(--light-text);">Loading your order...</p></div>';
     
     try {
-        const response = await fetch(API_ORDER_URL, {
-            method: "GET",
-            credentials: "include"
+        const response = await fetchWithAuth(API_ORDER_URL, {
+            method: "GET"
         });
         
         const data = await response.json();
@@ -332,7 +324,6 @@ function renderEmptyCart(container) {
         </div>
     `;
 }
-// ... (keep all previous code until applyPromoCode function)
 
 async function applyPromoCode() {
     const promoInput = document.getElementById('promo-code-input');
@@ -344,13 +335,12 @@ async function applyPromoCode() {
     }
     
     try {
-        const response = await fetch(API_COUPON_URL, {
+        const response = await fetchWithAuth(API_COUPON_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': getCookie('csrftoken')
             },
-            credentials: 'include',
             body: JSON.stringify({ code: promoCode })
         });
         
@@ -361,7 +351,6 @@ async function applyPromoCode() {
             appliedCouponId = result.code_id;
             console.log(appliedCouponId);
             
-            // Calculate new total with discount
             if (result.discount_percent) {
                 console.log('Applying discount:', result.discount_percent);
                 
@@ -369,7 +358,6 @@ async function applyPromoCode() {
                 const originalTotal = orderData.total;
                 const discountAmount = (originalTotal * discountPercentage) / 100;
                 
-                // Update orderData with new values
                 orderData.discount = discountAmount;
                 orderData.total = originalTotal - discountAmount;
                 
@@ -378,7 +366,6 @@ async function applyPromoCode() {
                 showNotification(result.message, 'success');
             }
             
-            // Re-render the order summary with updated values
             renderOrderSummary(orderData);
             
         } else {
@@ -400,6 +387,40 @@ async function applyPromoCode() {
         showNotification('Failed to apply coupon', 'error');
     }
 }
+
+// دالة عامة لعمل fetch مع نظام التجديد
+async function fetchWithAuth(url, options = {}) {
+    try {
+        let response = await fetch(url, {
+            ...options,
+            credentials: "include"
+        });
+
+        if (response.status === 401) {
+            // حاول تجديد التوكن
+            const refreshResponse = await fetch(mainDomain + "users/auth/jwt/refresh/", {
+                method: "POST",
+                credentials: "include"
+            });
+
+            if (refreshResponse.ok) {
+                // إذا نجح التجديد → أعد إرسال الطلب الأصلي
+                response = await fetch(url, {
+                    ...options,
+                    credentials: "include"
+                });
+            } else {
+                throw new Error("Session expired, please log in again.");
+            }
+        }
+
+        return response;
+    } catch (error) {
+        console.error("API request failed:", error);
+        throw error;
+    }
+}
+
 function formatPrice(amount) {
     const numAmount = parseFloat(amount) || 0;
     return  numAmount.toFixed(2) + " " + currencySymbol ;
@@ -519,4 +540,3 @@ function loadDraft() {
 
 // Auto-save every 30 seconds
 setInterval(saveDraft, 30000);
-

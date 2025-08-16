@@ -1,3 +1,36 @@
+// دالة عامة لعمل fetch مع نظام التجديد
+async function fetchWithAuth(url, options = {}) {
+    try {
+        let response = await fetch(url, {
+            ...options,
+            credentials: "include" // مهم لإرسال الكوكيز (access, refresh)
+        });
+
+        if (response.status === 401) {
+            // حاول تجديد التوكن
+            const refreshResponse = await fetch(mainDomain + "users/auth/jwt/refresh/", {
+                method: "POST",
+                credentials: "include"
+            });
+
+            if (refreshResponse.ok) {
+                // إذا نجح التجديد → أعد إرسال الطلب الأصلي
+                response = await fetch(url, {
+                    ...options,
+                    credentials: "include"
+                });
+            } else {
+                throw new Error("Session expired, please log in again.");
+            }
+        }
+
+        return response;
+    } catch (error) {
+        console.error("API request failed:", error);
+        throw error;
+    }
+}
+
 function viewProductDetails(productId) {
     window.location.href = `/product-details/${String(productId)}`;
 }
@@ -176,7 +209,7 @@ document.addEventListener('DOMContentLoaded', function() {
                document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
     }
 
-    // API Functions with better error handling including 401
+    // API Functions with fetchWithAuth
     async function makeApiRequest(url, options = {}) {
         const defaultHeaders = {
             'Content-Type': 'application/json',
@@ -184,7 +217,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         try {
-            const response = await fetch(url, {
+            const response = await fetchWithAuth(url, {
                 ...options,
                 headers: {
                     ...defaultHeaders,
@@ -382,98 +415,97 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update Item Quantity with 401 handling
     async function updateItemQuantity(itemId, quantityChange) {
-    const itemElement = document.querySelector(`[data-item-id="${itemId}"]`);
-    if (!itemElement) return;
+        const itemElement = document.querySelector(`[data-item-id="${itemId}"]`);
+        if (!itemElement) return;
 
-    const quantityInput = itemElement.querySelector('.quantity-input');
-    const quantityLoader = itemElement.querySelector('.quantity-loader');
-    const itemPriceElement = itemElement.querySelector('.item-total-price');
-    const itemCountElement = itemElement.querySelector('.items-count');
-    const decreaseBtn = itemElement.querySelector('[data-action="decrease"]');
+        const quantityInput = itemElement.querySelector('.quantity-input');
+        const quantityLoader = itemElement.querySelector('.quantity-loader');
+        const itemPriceElement = itemElement.querySelector('.item-total-price');
+        const itemCountElement = itemElement.querySelector('.items-count');
+        const decreaseBtn = itemElement.querySelector('[data-action="decrease"]');
 
-    // عرض لودر
-    quantityInput.style.visibility = 'hidden';
-    quantityLoader.style.display = 'flex';
+        // عرض لودر
+        quantityInput.style.visibility = 'hidden';
+        quantityLoader.style.display = 'flex';
 
-    // تعطيل الأزرار
-    const quantityBtns = itemElement.querySelectorAll('.quantity-btn');
-    quantityBtns.forEach(btn => btn.disabled = true);
+        // تعطيل الأزرار
+        const quantityBtns = itemElement.querySelectorAll('.quantity-btn');
+        quantityBtns.forEach(btn => btn.disabled = true);
 
-    try {
-        const response = await makeApiRequest(`${CART_API_URL}${itemId}/`, {
-            method: 'PUT',
-            body: JSON.stringify({ quantity_change: quantityChange }),
-        });
+        try {
+            const response = await makeApiRequest(`${CART_API_URL}${itemId}/`, {
+                method: 'PUT',
+                body: JSON.stringify({ quantity_change: quantityChange }),
+            });
 
-        console.log('Quantity Update Response:', response);
+            console.log('Quantity Update Response:', response);
 
-        // قيم جديدة
-        let newQuantity, newTotal;
+            // قيم جديدة
+            let newQuantity, newTotal;
 
-        // إذا كانت الاستجابة كاملة ككل الكارت
-        if (response.items) {
-            const updatedItem = response.items.find(i => i.id === itemId);
-            if (updatedItem) {
-                newQuantity = updatedItem.quantity;
-                newTotal = updatedItem.total;
+            // إذا كانت الاستجابة كاملة ككل الكارت
+            if (response.items) {
+                const updatedItem = response.items.find(i => i.id === itemId);
+                if (updatedItem) {
+                    newQuantity = updatedItem.quantity;
+                    newTotal = updatedItem.total;
+                }
             }
+            // إذا كانت الاستجابة تحتوي فقط على المنتج
+            else if (response.item) {
+                newQuantity = response.item.quantity;
+                newTotal = response.item.total;
+            }
+            // إذا كانت الاستجابة مباشرة بالقيم
+            else if (response.quantity !== undefined) {
+                newQuantity = response.quantity;
+                newTotal = response.total;
+            }
+
+            // إذا المجموع غير موجود أو صفر، نحسبه من السعر
+            if (!newTotal || newTotal === 0) {
+                const pricePerUnit = parseFloat(itemPriceElement.dataset.price) || parseFloat(itemElement.dataset.price) || 0;
+                newTotal = pricePerUnit * newQuantity;
+            }
+
+            if (newQuantity === undefined || newQuantity <= 0) {
+                throw new Error('Invalid quantity received from server');
+            }
+
+            // تحديث الـ DOM
+            quantityInput.value = newQuantity;
+            itemPriceElement.textContent = formatPrice(newTotal || 0);
+            itemCountElement.textContent = newQuantity;
+            decreaseBtn.disabled = newQuantity <= 1;
+
+            // تحديث الملخص
+            await updateCartSummaryFromServer();
+
+            showMessage('Quantity updated successfully');
+
+        } catch (error) {
+            if (error.message === 'AUTHENTICATION_REQUIRED') {
+                showAuthRequired();
+                return;
+            }
+            console.error('Quantity update error:', error);
+            showMessage('Failed to update quantity', 'error');
+
+            // إعادة تحميل الكارت عند الخطأ
+            setTimeout(() => {
+                loadCartItems();
+            }, 1000);
+        } finally {
+            // إرجاع الحالة الطبيعية
+            quantityInput.style.visibility = 'visible';
+            quantityLoader.style.display = 'none';
+            quantityBtns.forEach(btn => btn.disabled = false);
+
+            // تأكد من حالة زر الإنقاص
+            const currentQuantity = parseInt(quantityInput.value);
+            decreaseBtn.disabled = currentQuantity <= 1;
         }
-        // إذا كانت الاستجابة تحتوي فقط على المنتج
-        else if (response.item) {
-            newQuantity = response.item.quantity;
-            newTotal = response.item.total;
-        }
-        // إذا كانت الاستجابة مباشرة بالقيم
-        else if (response.quantity !== undefined) {
-            newQuantity = response.quantity;
-            newTotal = response.total;
-        }
-
-        // إذا المجموع غير موجود أو صفر، نحسبه من السعر
-        if (!newTotal || newTotal === 0) {
-            const pricePerUnit = parseFloat(itemPriceElement.dataset.price) || parseFloat(itemElement.dataset.price) || 0;
-            newTotal = pricePerUnit * newQuantity;
-        }
-
-        if (newQuantity === undefined || newQuantity <= 0) {
-            throw new Error('Invalid quantity received from server');
-        }
-
-        // تحديث الـ DOM
-        quantityInput.value = newQuantity;
-        itemPriceElement.textContent = formatPrice(newTotal || 0);
-        itemCountElement.textContent = newQuantity;
-        decreaseBtn.disabled = newQuantity <= 1;
-
-        // تحديث الملخص
-        await updateCartSummaryFromServer();
-
-        showMessage('Quantity updated successfully');
-
-    } catch (error) {
-        if (error.message === 'AUTHENTICATION_REQUIRED') {
-            showAuthRequired();
-            return;
-        }
-        console.error('Quantity update error:', error);
-        showMessage('Failed to update quantity', 'error');
-
-        // إعادة تحميل الكارت عند الخطأ
-        setTimeout(() => {
-            loadCartItems();
-        }, 1000);
-    } finally {
-        // إرجاع الحالة الطبيعية
-        quantityInput.style.visibility = 'visible';
-        quantityLoader.style.display = 'none';
-        quantityBtns.forEach(btn => btn.disabled = false);
-
-        // تأكد من حالة زر الإنقاص
-        const currentQuantity = parseInt(quantityInput.value);
-        decreaseBtn.disabled = currentQuantity <= 1;
     }
-}
-
 
     // Update cart summary from server without full page reload - UPDATED
     async function updateCartSummaryFromServer() {
@@ -513,7 +545,6 @@ document.addEventListener('DOMContentLoaded', function() {
             itemElement.style.overflow = 'hidden';
             itemElement.style.padding = '0px';
             
-            setTimeout(() => {
                 // Remove the item from DOM
                 itemElement.remove();
                 
@@ -529,7 +560,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     updateCartCount(remainingItems.length);
                     updateCartSummaryFromServer();
                 }
-            }, 400);
             
         } catch (error) {
             if (error.message === 'AUTHENTICATION_REQUIRED') {
@@ -668,12 +698,3 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize the cart
     init();
 });
-
-// Module exports for testing
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        loadCartItems,
-        updateItemQuantity,
-        removeItem,
-    };
-}

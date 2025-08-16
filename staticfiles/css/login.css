@@ -108,6 +108,7 @@
     right: 15px;
     color: #525E6F;
     font-size: 18px;
+    cursor: pointer;
 }
 
 .input-with-icon input {
@@ -137,6 +138,29 @@
     cursor: pointer;
     color: #525E6F;
 }
+
+/* Generate password button */
+.generate-password-btn {
+    background-color: #3348FF; /* لون خلفية الزر */
+    color: #fff; /* لون النص */
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 15px; /* مساحة داخلية للزر */
+    border: none;
+    border-radius: 6px; /* زوايا مدورة */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    margin-top: px;
+}
+
+.generate-password-btn:hover {
+    background-color: #2538d8; /* تغيير لون الخلفية عند التمرير */
+    color: #fff; 
+    transform: translateY(-2px); /* رفع الزر قليلًا */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15); /* إضافة ظل خفيف */
+}
+
 
 /* Additional options */
 .form-options {
@@ -275,18 +299,41 @@
 
 /* Hero section */
 .auth-hero {
-    flex: 1;
+    flex: 1; /* يأخذ القسم كامل المساحة المتاحة ضمن flex container */
+    position: relative;
+    /* الخلفية كانت تدرج لوني وتم التعليق عليه */
     background: linear-gradient(135deg, #3348FF 0%, #5A6BFF 100%);
-    padding: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
+    
+    /* استخدام صورة كخلفية */
+    /* background-image: url('/static/imges/icon/istockphoto-1350595566-1024x1024.jpg'); */
+    
+    padding: 60px; /* المسافة الداخلية حول المحتوى */
+    
+    display: flex; /* تفعيل Flexbox داخل القسم */
+    align-items: center; /* محاذاة المحتوى عمودياً في الوسط */
+    justify-content: center; /* محاذاة المحتوى أفقياً في الوسط */
+    background-size: cover;
+background-position: center;
+background-repeat: no-repeat;
+
+    color: white; /* لون النصوص داخل القسم */
+}
+
+.auth-hero-blur{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* background-color: #00000065; */
+    z-index: 1; /* لضمان أن يكون خلف المحتوى */
 }
 
 .hero-content {
     max-width: 500px;
     text-align: center;
+    position: relative;
+    z-index: 32;
 }
 
 .hero-logo {
@@ -330,7 +377,47 @@
     font-weight: 500;
 }
 
-/* Mobile styles */
+/* Modal styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    position: relative;
+}
+
+.close-modal {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #525E6F;
+}
+
+.modal h3 {
+    font-size: 22px;
+    margin-bottom: 20px;
+    color: #14181F;
+    text-align: center;
+}
+
+/* Responsive adjustments */
 @media (max-width: 992px) {
     .auth-container {
         flex-direction: column;
@@ -356,5 +443,10 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
+    }
+    
+    .modal-content {
+        padding: 20px;
+        margin: 10px;
     }
 }
