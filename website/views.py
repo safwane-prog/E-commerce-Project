@@ -129,26 +129,11 @@ def Login(request):
     return render(request,'login.html',context)
 
 
-@login_required(login_url='login_page')
+# @login_required(login_url='login_page')
 def profile(request):
-    user = request.user
-
-    profile_user = Profile.objects.filter(user=user).first()
-    order_user = Order.objects.filter(user=user)
-
-    # جلب wishlist الخاص بالمستخدم أولاً
-    user_wishlist = wishlist.objects.filter(user=user).first()
-    if user_wishlist:
-        wishlist_user = wishlistItem.objects.filter(wishlist=user_wishlist)
-    else:
-        wishlist_user = wishlistItem.objects.none()  # مجموعة فارغة
-
     base_context = Base(request)
     context = {
-        'user': user,
-        'profile': profile_user,
-        'orders': order_user,
-        'wishlist': wishlist_user,
+        
     }
     context.update(base_context)
 

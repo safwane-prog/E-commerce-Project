@@ -24,19 +24,29 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from djoser.views import UserViewSet
 
 
+from django.contrib.auth import get_user_model, login, logout
+from django.core.mail import send_mail
+from django.utils.crypto import get_random_string
+from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
+from djoser.views import UserViewSet
+
 User = get_user_model()
 
 class CustomUserViewSet(UserViewSet):
+    serializer_class = CustomUserCreateSerializer
+
     def create(self, request, *args, **kwargs):
-        # إنشاء المستخدم باستخدام دجوزر
         response = super().create(request, *args, **kwargs)
-
+        # إنشاء الكوكيز بعد إنشاء المستخدم
         if response.status_code == 201:
-            # جلب المستخدم الجديد
-            user = User.objects.get(username=request.data["username"])
+            user = CustomUser.objects.get(email=request.data["email"])
             refresh = RefreshToken.for_user(user)
-
-            # إضافة الكوكيز
             response.set_cookie(
                 key="access_token",
                 value=str(refresh.access_token),
@@ -44,9 +54,8 @@ class CustomUserViewSet(UserViewSet):
                 samesite="Lax",
                 path="/",
                 max_age=3600,
-                secure=False,  # مهم لو عندك بيئة تطوير بدون HTTPS
+                secure=False,
             )
-
             response.set_cookie(
                 key="refresh_token",
                 value=str(refresh),
@@ -55,141 +64,136 @@ class CustomUserViewSet(UserViewSet):
                 path="/",
                 max_age=7 * 24 * 3600,
                 secure=False,
-)
-
-
-
+            )
         return response
+
+
+class RequestPasswordReset(APIView):
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        email = request.data.get("email")
+        try:
+            user = User.objects.get(email=email)
+            code = get_random_string(6, '0123456789')
+            
+            # Store code in user model (better than global variable)
+            user.password_reset_code = code
+            user.save()
+            
+            send_mail(
+                subject="Password Reset Code",
+                message=f"Your password reset code is: {code}",
+                from_email="noreply@example.com",
+                recipient_list=[email],
+                fail_silently=False,
+            )
+            
+            return Response({"message": "Reset code sent to email"}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"error": "Email not found"}, status=status.HTTP_404_NOT_FOUND)
+
+class VerifyResetCode(APIView):
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        email = request.data.get("email")
+        code = request.data.get("code")
+        
+        try:
+            user = User.objects.get(email=email)
+            if user.password_reset_code == code:
+                return Response({"message": "Code verified"}, status=status.HTTP_200_OK)
+            return Response({"error": "Invalid code"}, status=status.HTTP_400_BAD_REQUEST)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+class ResetPassword(APIView):
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        email = request.data.get("email")
+        new_password = request.data.get("new_password")
+        
+        try:
+            user = User.objects.get(email=email)
+            user.set_password(new_password)
+            user.password_reset_code = None
+            user.save()
+            return Response({"message": "Password updated successfully"}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
 class CookieTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
-
+        
         if response.status_code == 200:
-            refresh = response.data['refresh']
             access = response.data['access']
-
-            # تحقق من المستخدم الحالي من التوكن
-            jwt_auth = JWTAuthentication()
-            try:
-                validated_token = jwt_auth.get_validated_token(access)
-                user = jwt_auth.get_user(validated_token)
-
-                # تسجيل دخول المستخدم لجعل @login_required يعمل
-                # login(request, user)
-
-                # تحديث وقت آخر دخول
-                # update_last_login(None, user)
-
-                res = Response({
-                    'access': access,
-                    'refresh': refresh,
-                    'message': 'تم تسجيل الدخول بنجاح'
-                })
-
-                res.set_cookie('access_token', access, httponly=True, samesite='Lax')
-                res.set_cookie('refresh_token', refresh, httponly=True, samesite='Lax')
-
-                return res
-
-            except Exception as e:
-                print("JWT Error:", str(e))
-                return Response({'detail': 'فشل التحقق من المستخدم'}, status=401)
-
-        return response
-
-class CustomRegisterView(UserViewSet):
-    permission_classes = [AllowAny]
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
-
-    def create(self, request, *args, **kwargs):
-        response = super().create(request, *args, **kwargs)
-
-        if response.status_code == 201:
-            # جلب المستخدم الذي تم إنشاؤه
-            user = self.get_queryset().get(username=request.data.get("username"))
-            refresh = RefreshToken.for_user(user)
-            access = str(refresh.access_token)
-
-            # تسجيل دخول المستخدم
-            # login(request, user)
-            # update_last_login(None, user)
-
-            # إنشاء كارت إذا لم يكن موجود
-            if not Cart.objects.filter(user=user).exists():
-                Cart.objects.create(user=user)
-
-            # إنشاء قائمة رغبات إذا لم تكن موجودة
-            wishlist.objects.get_or_create(user=user)
-
-            # إنشاء بروفايل إذا لم يكن موجود
-            Profile.objects.get_or_create(
-                user=user,
-                defaults={
-                    "phone_number": "",
-                    "address": "",
-                    "email": "",
-                }
-            )
-
+            refresh = response.data['refresh']
+            
             res = Response({
-                "access": access,
-                "refresh": str(refresh),
-                "message": "تم التسجيل بنجاح"
-            }, status=201)
-
-            # إعداد الكوكيز
-            res.set_cookie("access_token", access, httponly=True, samesite="Lax", path="/", secure=False)
-            res.set_cookie("refresh_token", str(refresh), httponly=True, samesite="Lax", path="/", secure=False)
-
+                'access': access,
+                'refresh': refresh,
+                'message': 'Login successful'
+            })
+            
+            res.set_cookie(
+                'access_token',
+                access,
+                httponly=True,
+                samesite='Lax',
+                secure=False,
+                max_age=3600
+            )
+            
+            res.set_cookie(
+                'refresh_token',
+                refresh,
+                httponly=True,
+                samesite='Lax',
+                secure=False,
+                max_age=7 * 24 * 3600
+            )
+            
             return res
-
+        
         return response
 
 class LogoutView(APIView):
     def post(self, request):
         logout(request)
-        # إنشاء response وإرسال رسالة
-        res = Response({"message": "تم تسجيل الخروج بنجاح"})
-        
-        # حذف كوكيز التوكن (JWT)
-        res.delete_cookie("access_token", path="/")
-        res.delete_cookie("refresh_token", path="/")
-        
-        return res
-    
-
+        response = Response({"message": "Logged out successfully"})
+        response.delete_cookie("access_token")
+        response.delete_cookie("refresh_token")
+        return response
 
 class RefreshTokenView(APIView):
-    authentication_classes = []  # لا نتحقق من التوكن هنا
-    permission_classes = []       # مفتوح
-
+    permission_classes = [AllowAny]
+    
     def post(self, request):
         refresh_token = request.COOKIES.get('refresh_token')
-
+        
         if not refresh_token:
-            return Response({'detail': 'لا يوجد refresh token في الكوكيز'}, status=status.HTTP_401_UNAUTHORIZED)
-
+            return Response({'detail': 'No refresh token found'}, status=status.HTTP_401_UNAUTHORIZED)
+        
         try:
             refresh = RefreshToken(refresh_token)
             new_access = str(refresh.access_token)
-
-            # ترجيع الـ access الجديد + تخزينه في الكوكي
-            res = Response({'access': new_access}, status=status.HTTP_200_OK)
-            res.set_cookie(
+            
+            response = Response({'access': new_access}, status=status.HTTP_200_OK)
+            response.set_cookie(
                 'access_token',
                 new_access,
                 httponly=True,
                 samesite='Lax',
-                secure=False,  # خليها True لو HTTPS
-                path='/'
+                secure=False,
+                max_age=3600
             )
-            return res
-
+            
+            return response
         except TokenError:
-            return Response({'detail': 'Refresh token غير صالح أو منتهي'}, status=status.HTTP_401_UNAUTHORIZED)
-
-
+            return Response({'detail': 'Invalid refresh token'}, status=status.HTTP_401_UNAUTHORIZED)
 
 # views.py
 from rest_framework.response import Response

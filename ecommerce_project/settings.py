@@ -186,7 +186,7 @@ DJOSER = {
     'SERIALIZERS': {
         'user_create': 'users.serializers.CustomUserCreateSerializer',
     },
-    'LOGIN_FIELD': 'username',  # إذا تستخدم username لتسجيل الدخول
+    'LOGIN_FIELD': 'email',  # تغيير هنا إلى email
 }
 
 CORS_ALLOWED_ORIGINS = [
@@ -200,3 +200,13 @@ CORS_ALLOW_CREDENTIALS = True
 
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
+
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'hmidousafwane@gmail.com'
+EMAIL_HOST_PASSWORD = 'ywbl aewr ihsn eyds'  # ضع هنا App Password المكون من 16 حرفًا
